@@ -1,0 +1,6 @@
+<div>
+    {% if not component.isLabelHidden and component.getLabel is not null %}
+        <label for="{{ component.getName }}">{{ component.getLabel }}</label>
+    {% endif %}
+    <input type="text" name="{{ component.getName }}" data-model="{{ component.getDataModel }}">
+</div>
