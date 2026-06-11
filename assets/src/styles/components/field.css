@@ -1,0 +1,7 @@
+.sy-fo-field {
+    @apply grid content-start gap-y-1.5;
+}
+
+.sy-fo-field-label {
+    @apply text-sm font-medium text-gray-950 dark:text-white;
+}

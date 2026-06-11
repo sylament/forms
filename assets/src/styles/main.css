@@ -1,1 +1,2 @@
-@source "../../../templates";
+@import './components/field.css' layer(components);
+@import './components/input.css' layer(components);

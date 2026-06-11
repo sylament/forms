@@ -1,6 +1,6 @@
-<div>
+<div class="sy sy-fo-field">
     {% if not component.isLabelHidden and component.getLabel is not null %}
-        <label for="{{ component.getName }}">{{ component.getLabel }}</label>
+        <label class="sy-fo-field-label" for="{{ component.getName }}">{{ component.getLabel }}</label>
     {% endif %}
-    <input type="text" name="{{ component.getName }}" data-model="{{ component.getDataModel }}">
+    <input class="sy-fo-input" type="text" name="{{ component.getName }}" data-model="{{ component.getDataModel }}">
 </div>
