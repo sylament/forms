@@ -1,6 +1,0 @@
-<div class="sy sy-fo-field">
-    {% if not component.isLabelHidden and component.getLabel is not null %}
-        <label class="sy-fo-field-label sy-color sy-color-danger sy-text-color-200" for="{{ component.getName }}">{{ component.getLabel }}</label>
-    {% endif %}
-    <input class="sy-fo-input" type="text" name="{{ component.getName }}" data-model="{{ component.getDataModel }}">
-</div>
