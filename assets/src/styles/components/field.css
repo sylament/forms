@@ -4,4 +4,8 @@
 
 .sy-fo-field-label {
     @apply text-sm font-medium text-gray-950 dark:text-white;
+
+    &.sy-color {
+        @apply text-(--text) dark:text-(--dark-text);
+    }
 }
