@@ -1,0 +1,94 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Sylament\Forms\Tests\Integration\Components;
+
+use Sylament\Forms\Components\Textarea;
+use Symfony\Component\DomCrawler\Crawler;
+
+use function Sylament\Forms\Tests\renderField;
+
+it('renders the same field wrapper chrome as TextInput around the textarea', function (): void {
+    $crawler = new Crawler(renderField(
+        Textarea::make('excerpt')->label('Excerpt')->markAsRequired(),
+    ));
+
+    $wrapper = $crawler->filter('div.sy.sy-fo-field');
+    expect($wrapper->count())->toBe(1);
+
+    $label = $crawler->filter('label.sy-fo-field-label');
+    expect($label->count())->toBe(1)
+        ->and($label->attr('for'))->toBe('excerpt')
+        ->and($label->filter('.sy-fo-field-label-content')->text())->toContain('Excerpt')
+        ->and($label->filter('.sy-fo-field-label-required-mark')->text())->toBe('*');
+
+    $textarea = $crawler->filter('textarea.sy-fo-input');
+    expect($textarea->count())->toBe(1)
+        ->and($textarea->attr('name'))->toBe('excerpt')
+        ->and($textarea->attr('id'))->toBe('excerpt')
+        ->and($textarea->text())->toBe('');
+});
+
+it('binds the textarea to its absolute state path via data-model', function (): void {
+    // Standalone default: state syncs but suppresses the re-render.
+    $default = new Crawler(renderField(Textarea::make('excerpt')));
+    expect($default->filter('textarea.sy-fo-input')->attr('data-model'))->toBe('norender|data.excerpt');
+
+    // live() drops the modifier to a bare path (re-render on input).
+    $live = new Crawler(renderField(Textarea::make('excerpt')->live()));
+    expect($live->filter('textarea.sy-fo-input')->attr('data-model'))->toBe('data.excerpt');
+});
+
+it('renders the rows and cols attributes', function (): void {
+    $textarea = new Crawler(renderField(
+        Textarea::make('excerpt')->rows(6)->cols(40),
+    ))->filter('textarea.sy-fo-input');
+
+    expect($textarea->attr('rows'))->toBe('6')
+        ->and($textarea->attr('cols'))->toBe('40');
+});
+
+it('omits the rows and cols attributes when unset', function (): void {
+    $textarea = new Crawler(renderField(
+        Textarea::make('excerpt'),
+    ))->filter('textarea.sy-fo-input');
+
+    expect($textarea->attr('rows'))->toBeNull()
+        ->and($textarea->attr('cols'))->toBeNull();
+});
+
+it('renders helper text in the below-content slot', function (): void {
+    $crawler = new Crawler(renderField(
+        Textarea::make('excerpt')->helperText('Some help'),
+    ));
+
+    $helper = $crawler->filter('.sy-fo-field-content-col .sy-sc-text');
+    expect($helper->count())->toBe(1)
+        ->and($helper->text())->toBe('Some help');
+});
+
+it('renders the hint text in the after-label slot', function (): void {
+    $crawler = new Crawler(renderField(
+        Textarea::make('excerpt')->hint('Need a hand'),
+    ));
+
+    $hint = $crawler->filter('.sy-fo-field-label-ctn .sy-sc-text');
+    expect($hint->count())->toBe(1)
+        ->and($hint->text())->toContain('Need a hand');
+});
+
+it('renders the remaining html attributes', function (): void {
+    $textarea = new Crawler(renderField(
+        Textarea::make('excerpt')
+            ->placeholder('Type here')
+            ->maxLength(500)
+            ->minLength(3)
+            ->autofocus(),
+    ))->filter('textarea.sy-fo-input');
+
+    expect($textarea->attr('placeholder'))->toBe('Type here')
+        ->and($textarea->attr('maxlength'))->toBe('500')
+        ->and($textarea->attr('minlength'))->toBe('3')
+        ->and($textarea->attr('autofocus'))->not->toBeNull();
+});
