@@ -7,22 +7,25 @@ namespace Sylament\Forms\Components;
 use Closure;
 use Sylament\Forms\Components\Concerns\CanBeAutofocused;
 use Sylament\Forms\Components\Concerns\CanBeMarkedAsRequired;
+use Sylament\Forms\Components\Concerns\CanBeValidated;
 use Sylament\Forms\Components\Concerns\HasHelperText;
 use Sylament\Forms\Components\Concerns\HasHint;
 use Sylament\Forms\Components\Concerns\HasPlaceholder;
 use Sylament\Schemas\Components\Component;
 use Sylament\Schemas\Components\Concerns\HasLabel;
 use Sylament\Schemas\Components\Concerns\HasName;
+use Sylament\Schemas\Components\Contracts\HasValidationConstraints;
 use Sylament\Schemas\Schema;
 use Twig\Markup;
 
 use function Sylament\Support\filled;
 use function Symfony\Component\String\u;
 
-abstract class Field extends Component
+abstract class Field extends Component implements HasValidationConstraints
 {
     use CanBeAutofocused;
     use CanBeMarkedAsRequired;
+    use CanBeValidated;
     use HasHelperText;
     use HasHint;
     use HasLabel {
@@ -91,11 +94,11 @@ abstract class Field extends Component
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getErrorMessages(): array
     {
-        return [];
+        return $this->getLiveComponentOrNull()?->getErrorsForSchemaStatePath($this->getStatePath()) ?? [];
     }
 
     /**
