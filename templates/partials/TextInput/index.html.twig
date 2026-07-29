@@ -1,0 +1,17 @@
+<twig:SylamentForms:FieldWrapper :field="component">
+    <input {{ attrs({
+        class: 'sy-fo-input',
+        type: component.getType,
+        id: component.getId,
+        name: component.getName,
+        'data-model': component.getDataModel,
+        value: component.getState ?? '',
+        inputmode: component.getInputMode ?: false,
+        placeholder: component.getPlaceholder ?: false,
+        maxlength: component.getMaxLength,
+        minlength: component.getMinLength,
+        required: component.isMarkedAsRequired,
+        disabled: component.isDisabled,
+        autofocus: component.isAutofocused,
+    }) }}>
+</twig:SylamentForms:FieldWrapper>

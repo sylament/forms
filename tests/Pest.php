@@ -7,29 +7,17 @@ namespace Sylament\Forms\Tests;
 use Sylament\Forms\Components\Field;
 use Sylament\Forms\Tests\Fixtures\Concerns\FieldRenderHost;
 use Sylament\Schemas\Schema;
-use Sylament\Schemas\State\PropertyAccessor;
-use Sylament\Support\Components\ComponentManager;
 use Sylament\Support\Components\ViewComponent;
+use Sylament\Support\Configuration\ComponentManager;
 use Sylament\Support\DependencyInjection\ComponentResolver;
-use Sylament\Support\Icons\IconManager;
-use Sylament\Support\Evaluation\Invoker;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\PropertyAccess\PropertyAccess;
 
 pest()
     ->extend(TestCase::class)
     ->in('Integration');
 
 pest()
-    ->beforeEach(function (): void {
-        Invoker::setInstance(new Invoker(new Container()));
-        PropertyAccessor::setInstance(new PropertyAccessor(PropertyAccess::createPropertyAccessor()));
-    })
     ->afterEach(function (): void {
-        Invoker::unsetInstance();
-        PropertyAccessor::unsetInstance();
         ComponentManager::unsetInstance();
-        IconManager::unsetInstance();
         ComponentResolver::unsetInstance();
     })
     ->in('Unit');
