@@ -84,9 +84,9 @@ class Select extends Field implements Contracts\CanDisableOptions
     /**
      * @return list<Constraint>
      */
-    public function getValidationConstraints(): array
+    protected function buildValidationConstraints(): array
     {
-        $constraints = parent::getValidationConstraints();
+        $constraints = parent::buildValidationConstraints();
 
         if (blank($this->getState())) {
             return $constraints;
@@ -101,7 +101,6 @@ class Select extends Field implements Contracts\CanDisableOptions
         $constraints[] = new Choice(
             choices: $this->getEnabledOptionValues(),
             strict: true,
-            message: $this->getValidationMessages()['in'] ?? null,
         );
 
         return $constraints;
