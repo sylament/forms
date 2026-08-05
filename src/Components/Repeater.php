@@ -11,6 +11,7 @@ use Sylament\Forms\Components\Concerns\CanBeCloned;
 use Sylament\Forms\Components\Concerns\CanGenerateUuids;
 use Sylament\Forms\Components\Concerns\CanLimitItemsLength;
 use Sylament\Schemas\Schema;
+use Sylament\Schemas\State\Casts\ObjectStateCast;
 use Sylament\Schemas\State\RecordTarget;
 use Sylament\Support\Enums\Alignment;
 use Sylament\Support\Enums\Size;
@@ -57,6 +58,14 @@ class Repeater extends Field
     protected Field|Closure|null $simpleField = null;
 
     protected ?Field $cachedSimpleField = null;
+
+    protected ObjectStateCast|string|Closure|null $itemsAs = null;
+
+    protected ?Closure $denormalizeItemsUsing = null;
+
+    protected ?Closure $normalizeItemsUsing = null;
+
+    protected ?ObjectStateCast $cachedItemCast = null;
 
     protected string|Markup|Closure|null $itemLabel = null;
 
@@ -115,6 +124,36 @@ class Repeater extends Field
     }
 
     /**
+     * The set-ward firing point of a declared item cast: record-read objects are
+     * deconstructed into value-shaped arrays here, before any hook or descendant
+     * reads the items.
+     *
+     * @param array<string, true> $appliedStateCastPaths
+     */
+    public function hydrateState(bool $applyDefaults = true, array &$appliedStateCastPaths = []): void
+    {
+        parent::hydrateState($applyDefaults, $appliedStateCastPaths);
+
+        $cast = $this->getItemCast();
+
+        if (! $cast instanceof ObjectStateCast) {
+            return;
+        }
+
+        $rawState = $this->getRawState();
+
+        if (! is_array($rawState)) {
+            return;
+        }
+
+        $items = array_map($cast->set(...), $rawState);
+
+        if ($items !== $rawState) {
+            $this->rawState($items);
+        }
+    }
+
+    /**
      * Re-key whatever positional list the record read into per-request uuids, so a
      * structural mutation never renumbers a sibling's state path mid-edit. A
      * declared default has already produced its own keyed items, so it only takes
@@ -156,6 +195,9 @@ class Repeater extends Field
     }
 
     /**
+     * The get-ward firing point of a declared item cast: each item is
+     * constructed after the map has been positionalised.
+     *
      * @param array<array-key, mixed> $state
      *
      * @return array<int, mixed>
@@ -164,16 +206,24 @@ class Repeater extends Field
     {
         $simpleField = $this->getSimpleField();
 
-        if (! $simpleField instanceof Field) {
-            return array_values($state);
+        if ($simpleField instanceof Field) {
+            $name = (string) $simpleField->getName();
+
+            return array_map(
+                static fn (mixed $itemData): mixed => is_array($itemData) ? ($itemData[$name] ?? null) : null,
+                array_values($state),
+            );
         }
 
-        $name = (string) $simpleField->getName();
+        $items = array_values($state);
 
-        return array_map(
-            static fn (mixed $itemData): mixed => is_array($itemData) ? ($itemData[$name] ?? null) : null,
-            array_values($state),
-        );
+        $cast = $this->getItemCast();
+
+        if ($cast instanceof ObjectStateCast) {
+            return array_map($cast->get(...), $items);
+        }
+
+        return $items;
     }
 
     /**
@@ -260,6 +310,10 @@ class Repeater extends Field
 
     public function simple(Field|Closure|null $field): static
     {
+        if ($field !== null && $this->itemsAs !== null) {
+            throw new LogicException('simple() cannot compose with itemsAs(): the simple pluck would null every constructed object. Put a leaf stateCast() on the simple field instead.');
+        }
+
         $this->simpleField = $field;
 
         $this->defaultTemplate(($field === null) ? self::TEMPLATE : self::SIMPLE_TEMPLATE);
@@ -281,6 +335,54 @@ class Repeater extends Field
     public function getSimpleField(): ?Field
     {
         return ($this->cachedSimpleField ??= $this->evaluate($this->simpleField))?->hiddenLabel();
+    }
+
+    /**
+     * Declare the value-object item mode: items dehydrate as fresh instances of
+     * the declared class and fill deconstructs them back into value-shaped
+     * arrays, while the live bag, validation and the structural actions keep
+     * seeing arrays. The closure pair overrides either conversion half; each is
+     * invoked directly with the item value, never through the Invoker.
+     */
+    public function itemsAs(string|ObjectStateCast|Closure|null $items, ?Closure $denormalizeUsing = null, ?Closure $normalizeUsing = null): static
+    {
+        if ($items !== null && $this->isSimple()) {
+            throw new LogicException('itemsAs() cannot compose with simple(): the simple pluck would null every constructed object. Put a leaf stateCast() on the simple field instead.');
+        }
+
+        if ($items instanceof ObjectStateCast && ($denormalizeUsing instanceof Closure || $normalizeUsing instanceof Closure)) {
+            throw new LogicException('itemsAs() received a prebuilt ObjectStateCast beside conversion closures; the instance already owns both conversion halves.');
+        }
+
+        $this->itemsAs = $items;
+        $this->denormalizeItemsUsing = $denormalizeUsing;
+        $this->normalizeItemsUsing = $normalizeUsing;
+        $this->cachedItemCast = null;
+
+        return $this;
+    }
+
+    public function getItemCast(): ?ObjectStateCast
+    {
+        if ($this->cachedItemCast instanceof ObjectStateCast) {
+            return $this->cachedItemCast;
+        }
+
+        $items = $this->evaluate($this->itemsAs);
+
+        if ($items === null) {
+            return null;
+        }
+
+        if ($items instanceof ObjectStateCast) {
+            if ($this->denormalizeItemsUsing instanceof Closure || $this->normalizeItemsUsing instanceof Closure) {
+                throw new LogicException('itemsAs() resolved a prebuilt ObjectStateCast beside conversion closures; the instance already owns both conversion halves.');
+            }
+
+            return $this->cachedItemCast = $items;
+        }
+
+        return $this->cachedItemCast = new ObjectStateCast($items, $this->denormalizeItemsUsing, $this->normalizeItemsUsing);
     }
 
     /**
