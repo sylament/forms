@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Sylament\Forms\Tests\Unit\Components;
 
+use Sylament\Actions\Action;
 use Sylament\Forms\Components\Field;
 use Sylament\Forms\Tests\Fixtures\Components\FixtureField;
 use Sylament\Schemas\Components\Icon;
 use Sylament\Schemas\Components\Text;
+use Sylament\Support\Twig\ComponentAttributeBag;
 
 use function Sylament\Forms\Tests\wireField;
 
@@ -145,6 +147,57 @@ it('adds no after-label slot without a hint', function (): void {
     expect(wireField(FixtureField::make('title'))->getChildSchema(Field::AFTER_LABEL_SCHEMA_KEY))->toBeNull();
 });
 
+it('has no hint actions by default', function (): void {
+    expect(FixtureField::make('title')->getHintActions())->toBe([]);
+});
+
+it('appends hint actions and resolves closures through evaluate', function (): void {
+    $field = FixtureField::make('title')
+        ->hintAction(Action::make('first'))
+        ->hintActions([fn (): Action => Action::make('second')]);
+
+    $actions = $field->getHintActions();
+
+    expect($actions)->toHaveCount(2)
+        ->and($actions[0]->getName())->toBe('first')
+        ->and($actions[1]->getName())->toBe('second');
+});
+
+it('drops a hint action whose closure resolves to null', function (): void {
+    $field = FixtureField::make('title')->hintActions([fn (): ?Action => null]);
+
+    expect($field->getHintActions())->toBe([]);
+});
+
+it('seeds hint actions into the after-label slot after the text and icon', function (): void {
+    $slot = wireField(
+        FixtureField::make('title')
+            ->hint('A hint')
+            ->hintIcon('heroicon-o-star')
+            ->hintAction(Action::make('edit')),
+    )->getChildSchema(Field::AFTER_LABEL_SCHEMA_KEY);
+
+    $components = $slot->getComponents();
+
+    expect($components)->toHaveCount(3)
+        ->and($components[0])->toBeInstanceOf(Text::class)
+        ->and($components[1])->toBeInstanceOf(Icon::class)
+        ->and($components[2])->toBeInstanceOf(Action::class)
+        ->and($components[2]->getName())->toBe('edit');
+});
+
+it('seeds a hint action into the after-label slot with no hint text', function (): void {
+    $slot = wireField(FixtureField::make('title')->hintAction(Action::make('edit')))
+        ->getChildSchema(Field::AFTER_LABEL_SCHEMA_KEY);
+
+    expect($slot)->not->toBeNull();
+
+    $components = $slot->getComponents();
+
+    expect($components)->toHaveCount(1)
+        ->and($components[0])->toBeInstanceOf(Action::class);
+});
+
 it('round-trips the placeholder', function (): void {
     expect(FixtureField::make('title')->placeholder('Type here')->getPlaceholder())->toBe('Type here')
         ->and(FixtureField::make('title')->placeholder(fn (): string => 'Lazy')->getPlaceholder())->toBe('Lazy')
@@ -159,4 +212,36 @@ it('round-trips the autofocus flag', function (): void {
 
 it('has no error messages without a live component to read the bag from', function (): void {
     expect(FixtureField::make('title')->getErrorMessages())->toBe([]);
+});
+
+it('has no extra field wrapper attributes by default', function (): void {
+    expect(FixtureField::make('title')->getExtraFieldWrapperAttributes())->toBe([]);
+});
+
+it('replaces extra field wrapper attributes by default and appends when merging', function (): void {
+    $replaced = FixtureField::make('title')
+        ->extraFieldWrapperAttributes(['data-one' => '1'])
+        ->extraFieldWrapperAttributes(['data-two' => '2']);
+
+    expect($replaced->getExtraFieldWrapperAttributes())->toBe(['data-two' => '2']);
+
+    $merged = FixtureField::make('title')
+        ->extraFieldWrapperAttributes(['data-one' => '1'])
+        ->extraFieldWrapperAttributes(['data-two' => '2'], merge: true);
+
+    expect($merged->getExtraFieldWrapperAttributes())->toEqualCanonicalizing(['data-one' => '1', 'data-two' => '2']);
+});
+
+it('resolves closure extra field wrapper attributes through evaluate', function (): void {
+    expect(FixtureField::make('title')->extraFieldWrapperAttributes(fn (): array => ['data-lazy' => 'yes'])->getExtraFieldWrapperAttributes())
+        ->toBe(['data-lazy' => 'yes']);
+});
+
+it('exposes the extra field wrapper attributes as a bag', function (): void {
+    $bag = FixtureField::make('title')
+        ->extraFieldWrapperAttributes(['class' => 'custom'])
+        ->getExtraFieldWrapperAttributeBag();
+
+    expect($bag)->toBeInstanceOf(ComponentAttributeBag::class)
+        ->and($bag->getAttributes())->toBe(['class' => ['custom']]);
 });

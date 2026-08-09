@@ -100,3 +100,33 @@ it('renders the disabled attribute when disabled', function (): void {
     $disabled = new Crawler(renderField(Textarea::make('excerpt')->disabled()));
     expect($disabled->filter('textarea.sy-fo-input')->attr('disabled'))->not->toBeNull();
 });
+
+it('renders the readonly attribute only when read-only', function (): void {
+    $writable = new Crawler(renderField(Textarea::make('excerpt')));
+    expect($writable->filter('textarea.sy-fo-input')->attr('readonly'))->toBeNull();
+
+    $readOnly = new Crawler(renderField(Textarea::make('excerpt')->readOnly()));
+    expect($readOnly->filter('textarea.sy-fo-input')->attr('readonly'))->not->toBeNull();
+});
+
+it('renders the autocomplete attribute only when set', function (): void {
+    $unset = new Crawler(renderField(Textarea::make('excerpt')));
+    expect($unset->filter('textarea.sy-fo-input')->attr('autocomplete'))->toBeNull();
+
+    $off = new Crawler(renderField(Textarea::make('excerpt')->autocomplete(false)));
+    expect($off->filter('textarea.sy-fo-input')->attr('autocomplete'))->toBe('off');
+});
+
+it('merges extra input attributes onto the textarea and lets them win', function (): void {
+    $crawler = new Crawler(renderField(
+        Textarea::make('excerpt')->rows(3)->extraInputAttributes([
+            'data-extra' => 'yes',
+            'rows' => 8,
+        ]),
+    ));
+
+    $textarea = $crawler->filter('textarea.sy-fo-input');
+
+    expect($textarea->attr('data-extra'))->toBe('yes')
+        ->and($textarea->attr('rows'))->toBe('8');
+});

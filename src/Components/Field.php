@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Sylament\Forms\Components;
 
 use Closure;
+use Sylament\Actions\Action;
+use Sylament\Actions\ActionGroup;
 use Sylament\Forms\Components\Concerns\CanBeAutofocused;
 use Sylament\Forms\Components\Concerns\CanBeValidated;
+use Sylament\Forms\Components\Concerns\HasExtraFieldWrapperAttributes;
 use Sylament\Forms\Components\Concerns\HasHelperText;
 use Sylament\Forms\Components\Concerns\HasHint;
 use Sylament\Forms\Components\Concerns\HasPlaceholder;
@@ -16,6 +19,7 @@ use Sylament\Schemas\Components\Concerns\HasLabel;
 use Sylament\Schemas\Components\Concerns\HasName;
 use Sylament\Schemas\Components\Contracts\HasValidationConstraints;
 use Sylament\Schemas\Schema;
+use Sylament\Support\Enums\Size;
 use Twig\Markup;
 
 use function Sylament\Support\filled;
@@ -26,6 +30,7 @@ abstract class Field extends Component implements HasValidationConstraints
     use CanBeAutofocused;
     use CanBeMarkedAsRequired;
     use CanBeValidated;
+    use HasExtraFieldWrapperAttributes;
     use HasHelperText;
     use HasHint;
     use HasLabel {
@@ -102,9 +107,9 @@ abstract class Field extends Component implements HasValidationConstraints
     }
 
     /**
-     * @param Schema|array<Component|string|Markup>|Component|string|Markup|Closure|null $components
+     * @param Schema|array<Component|Action|ActionGroup|string|Markup>|Component|Action|ActionGroup|string|Markup|Closure|null $components
      */
-    public function aboveLabel(Schema|array|Component|string|Markup|Closure|null $components): static
+    public function aboveLabel(Schema|array|Component|Action|ActionGroup|string|Markup|Closure|null $components): static
     {
         $this->childComponents($components, static::ABOVE_LABEL_SCHEMA_KEY);
 
@@ -112,9 +117,9 @@ abstract class Field extends Component implements HasValidationConstraints
     }
 
     /**
-     * @param Schema|array<Component|string|Markup>|Component|string|Markup|Closure|null $components
+     * @param Schema|array<Component|Action|ActionGroup|string|Markup>|Component|Action|ActionGroup|string|Markup|Closure|null $components
      */
-    public function belowLabel(Schema|array|Component|string|Markup|Closure|null $components): static
+    public function belowLabel(Schema|array|Component|Action|ActionGroup|string|Markup|Closure|null $components): static
     {
         $this->childComponents($components, static::BELOW_LABEL_SCHEMA_KEY);
 
@@ -122,9 +127,9 @@ abstract class Field extends Component implements HasValidationConstraints
     }
 
     /**
-     * @param Schema|array<Component|string|Markup>|Component|string|Markup|Closure|null $components
+     * @param Schema|array<Component|Action|ActionGroup|string|Markup>|Component|Action|ActionGroup|string|Markup|Closure|null $components
      */
-    public function beforeLabel(Schema|array|Component|string|Markup|Closure|null $components): static
+    public function beforeLabel(Schema|array|Component|Action|ActionGroup|string|Markup|Closure|null $components): static
     {
         $this->childComponents($components, static::BEFORE_LABEL_SCHEMA_KEY);
 
@@ -132,9 +137,9 @@ abstract class Field extends Component implements HasValidationConstraints
     }
 
     /**
-     * @param Schema|array<Component|string|Markup>|Component|string|Markup|Closure|null $components
+     * @param Schema|array<Component|Action|ActionGroup|string|Markup>|Component|Action|ActionGroup|string|Markup|Closure|null $components
      */
-    public function afterLabel(Schema|array|Component|string|Markup|Closure|null $components): static
+    public function afterLabel(Schema|array|Component|Action|ActionGroup|string|Markup|Closure|null $components): static
     {
         $this->childComponents($components, static::AFTER_LABEL_SCHEMA_KEY);
 
@@ -142,9 +147,9 @@ abstract class Field extends Component implements HasValidationConstraints
     }
 
     /**
-     * @param Schema|array<Component|string|Markup>|Component|string|Markup|Closure|null $components
+     * @param Schema|array<Component|Action|ActionGroup|string|Markup>|Component|Action|ActionGroup|string|Markup|Closure|null $components
      */
-    public function aboveContent(Schema|array|Component|string|Markup|Closure|null $components): static
+    public function aboveContent(Schema|array|Component|Action|ActionGroup|string|Markup|Closure|null $components): static
     {
         $this->childComponents($components, static::ABOVE_CONTENT_SCHEMA_KEY);
 
@@ -152,9 +157,9 @@ abstract class Field extends Component implements HasValidationConstraints
     }
 
     /**
-     * @param Schema|array<Component|string|Markup>|Component|string|Markup|Closure|null $components
+     * @param Schema|array<Component|Action|ActionGroup|string|Markup>|Component|Action|ActionGroup|string|Markup|Closure|null $components
      */
-    public function belowContent(Schema|array|Component|string|Markup|Closure|null $components): static
+    public function belowContent(Schema|array|Component|Action|ActionGroup|string|Markup|Closure|null $components): static
     {
         $this->childComponents($components, static::BELOW_CONTENT_SCHEMA_KEY);
 
@@ -162,9 +167,9 @@ abstract class Field extends Component implements HasValidationConstraints
     }
 
     /**
-     * @param Schema|array<Component|string|Markup>|Component|string|Markup|Closure|null $components
+     * @param Schema|array<Component|Action|ActionGroup|string|Markup>|Component|Action|ActionGroup|string|Markup|Closure|null $components
      */
-    public function beforeContent(Schema|array|Component|string|Markup|Closure|null $components): static
+    public function beforeContent(Schema|array|Component|Action|ActionGroup|string|Markup|Closure|null $components): static
     {
         $this->childComponents($components, static::BEFORE_CONTENT_SCHEMA_KEY);
 
@@ -172,9 +177,9 @@ abstract class Field extends Component implements HasValidationConstraints
     }
 
     /**
-     * @param Schema|array<Component|string|Markup>|Component|string|Markup|Closure|null $components
+     * @param Schema|array<Component|Action|ActionGroup|string|Markup>|Component|Action|ActionGroup|string|Markup|Closure|null $components
      */
-    public function afterContent(Schema|array|Component|string|Markup|Closure|null $components): static
+    public function afterContent(Schema|array|Component|Action|ActionGroup|string|Markup|Closure|null $components): static
     {
         $this->childComponents($components, static::AFTER_CONTENT_SCHEMA_KEY);
 
@@ -182,9 +187,9 @@ abstract class Field extends Component implements HasValidationConstraints
     }
 
     /**
-     * @param Schema|array<Component|string|Markup>|Component|string|Markup|Closure|null $components
+     * @param Schema|array<Component|Action|ActionGroup|string|Markup>|Component|Action|ActionGroup|string|Markup|Closure|null $components
      */
-    public function aboveErrorMessage(Schema|array|Component|string|Markup|Closure|null $components): static
+    public function aboveErrorMessage(Schema|array|Component|Action|ActionGroup|string|Markup|Closure|null $components): static
     {
         $this->childComponents($components, static::ABOVE_ERROR_MESSAGE_SCHEMA_KEY);
 
@@ -192,9 +197,9 @@ abstract class Field extends Component implements HasValidationConstraints
     }
 
     /**
-     * @param Schema|array<Component|string|Markup>|Component|string|Markup|Closure|null $components
+     * @param Schema|array<Component|Action|ActionGroup|string|Markup>|Component|Action|ActionGroup|string|Markup|Closure|null $components
      */
-    public function belowErrorMessage(Schema|array|Component|string|Markup|Closure|null $components): static
+    public function belowErrorMessage(Schema|array|Component|Action|ActionGroup|string|Markup|Closure|null $components): static
     {
         $this->childComponents($components, static::BELOW_ERROR_MESSAGE_SCHEMA_KEY);
 
@@ -230,7 +235,11 @@ abstract class Field extends Component implements HasValidationConstraints
         ], true)) {
             $schema
                 ->inline()
-                ->embeddedInParentComponent();
+                ->embeddedInParentComponent()
+                ->modifyActionsUsing(fn (Action $action): Action => $action
+                    ->defaultSize(Size::Small)
+                    ->defaultTemplate(Action::LINK_TEMPLATE))
+                ->modifyActionGroupsUsing(fn (ActionGroup $actionGroup): ActionGroup => $actionGroup->defaultSize(Size::Small));
         }
 
         return $schema;
