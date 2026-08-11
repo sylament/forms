@@ -1,0 +1,285 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Sylament\Forms\Components\Concerns;
+
+use Closure;
+use Doctrine\ORM\QueryBuilder;
+use LogicException;
+use Stringable;
+use Sylament\Forms\Components\Select;
+use Sylament\Schemas\State\AssociationTarget;
+
+use function Sylament\Support\blank;
+use function Sylament\Support\filled;
+use function Sylament\Support\wrap;
+
+trait HasRelationship
+{
+    use BelongsToRelationship;
+
+    protected string|Closure|null $relationshipTitleAttribute = null;
+
+    protected ?Closure $modifyRelationshipQueryUsing = null;
+
+    /**
+     * @var array<string|int, string>|null
+     */
+    protected ?array $cachedRelationshipOptions = null;
+
+    /**
+     * Back this field with a Doctrine association: the option map becomes the
+     * target entity's table, `fill()` reads the association's key off the record,
+     * and `getData()` writes the selection back onto it. `$name` names the
+     * association property and defaults to the field's own name, so a field
+     * carrying the association's name needs no argument at all.
+     * `$modifyQueryUsing` scopes the option query — it receives the builder as
+     * `$query` and returns it, or returns nothing to keep the one it was handed.
+     */
+    public function relationship(string|Closure|null $name = null, string|Closure|null $titleAttribute = null, ?Closure $modifyQueryUsing = null): static
+    {
+        $this->relationship = $name ?? $this->getName();
+        $this->relationshipTitleAttribute = $titleAttribute;
+        $this->modifyRelationshipQueryUsing = $modifyQueryUsing;
+        $this->cachedRelationshipOptions = null;
+
+        $this->options(static fn (Select $component): array => $component->getOptionsFromRelationship());
+
+        $this->loadStateFromRelationshipsUsing(static fn (Select $component, object $record): mixed => $component->getStateFromRelationship($record));
+
+        $this->saveRelationshipsUsing(static function (Select $component, object $record, mixed $state): void {
+            $component->saveStateToRelationship($record, $state);
+        });
+
+        return $this;
+    }
+
+    public function getRelationshipTitleAttribute(): ?string
+    {
+        return $this->evaluate($this->relationshipTitleAttribute);
+    }
+
+    /**
+     * Every row of the association's target entity, keyed by the identifier the
+     * client speaks and labelled by the declared title attribute. Always a full
+     * map: an option list this field cannot build is an exception rather than an
+     * empty array, because an empty enumeration would silently reject every
+     * submitted value. The map is memoized for the field's lifetime unless a
+     * query scope is declared, whose closure may read state that changes within
+     * the request.
+     *
+     * @return array<string|int, string>
+     */
+    public function getOptionsFromRelationship(): array
+    {
+        if ($this->modifyRelationshipQueryUsing === null && $this->cachedRelationshipOptions !== null) {
+            return $this->cachedRelationshipOptions;
+        }
+
+        $target = $this->getMultiplicityMatchedRelationshipTarget();
+        $titleAttribute = $this->getRelationshipTitleAttributeOrFail();
+        $reader = $this->getAssociationReader();
+        $accessor = $this->getPropertyAccessor();
+
+        $query = $reader->createOptionQuery($target->targetClass);
+
+        if ($this->modifyRelationshipQueryUsing instanceof Closure) {
+            $query = $this->scopeOptionQuery($query);
+        }
+
+        /** @var list<object> $records */
+        $records = $query->getQuery()->getResult();
+
+        $options = [];
+
+        foreach ($records as $related) {
+            $title = $accessor->getFromRecord($related, $titleAttribute);
+
+            $options[$reader->getRecordKey($related)] = (is_scalar($title) || $title instanceof Stringable) ? (string) $title : '';
+        }
+
+        if ($this->modifyRelationshipQueryUsing === null) {
+            $this->cachedRelationshipOptions = $options;
+        }
+
+        return $options;
+    }
+
+    protected function getMissingEntityManagerConsequence(): string
+    {
+        return 'its options could only ever come back empty — and an empty option list silently rejects every submitted value';
+    }
+
+    protected function getRelationshipFallbackAdvice(): string
+    {
+        return 'or replace relationship() with an options() map.';
+    }
+
+    /**
+     * @throws LogicException when the relationship names no property to label its
+     *                        options by
+     */
+    protected function getRelationshipTitleAttributeOrFail(): string
+    {
+        $titleAttribute = $this->getRelationshipTitleAttribute();
+
+        if (filled($titleAttribute)) {
+            return $titleAttribute;
+        }
+
+        throw new LogicException(sprintf(
+            'The [%s] field declares relationship("%s") without a titleAttribute, so its options have nothing to be labelled by. Pass the property that labels the target entity as relationship()\'s second argument.',
+            (string) $this->getName(),
+            $this->getRelationshipNameOrFail(),
+        ));
+    }
+
+    /**
+     * What the mapping declares at the association, refused when its multiplicity
+     * and `multiple()` disagree: a select speaks one value or a list, and the
+     * association holds one record or a collection, so the two declarations have
+     * to name the same shape. Resolved on every read, never snapshotted, so
+     * `multiple()` may be declared on either side of `relationship()`.
+     *
+     * @throws LogicException when the association holds a collection the field
+     *                        never declared `multiple()` for, or a single record
+     *                        it did
+     */
+    private function getMultiplicityMatchedRelationshipTarget(): AssociationTarget
+    {
+        $target = $this->getRelationshipTarget();
+        $isMultiple = $this->isMultiple();
+
+        if ($target->isToMany && ! $isMultiple) {
+            throw new LogicException(sprintf(
+                'The [%s] field declares relationship("%s"), but that association holds a collection of %s while the field speaks a single value — every selection but one would be dropped. Call multiple() on this field, or point relationship() at a to-one association.',
+                (string) $this->getName(),
+                $this->getRelationshipNameOrFail(),
+                $target->targetClass,
+            ));
+        }
+
+        if (! $target->isToMany && $isMultiple) {
+            throw new LogicException(sprintf(
+                'The [%s] field declares relationship("%s") alongside multiple(), but that association holds a single %s rather than a collection, so a list of selections could not map it. Drop multiple(), or point relationship() at a to-many association.',
+                (string) $this->getName(),
+                $this->getRelationshipNameOrFail(),
+                $target->targetClass,
+            ));
+        }
+
+        return $target;
+    }
+
+    private function scopeOptionQuery(QueryBuilder $query): QueryBuilder
+    {
+        return $this->requireScopedOptionQuery($this->evaluate($this->modifyRelationshipQueryUsing, [
+            'query' => $query,
+        ], [
+            QueryBuilder::class => $query,
+        ]), $query);
+    }
+
+    /**
+     * @throws LogicException when the scoping closure returned something other
+     *                        than the builder it was handed
+     */
+    private function requireScopedOptionQuery(mixed $scoped, QueryBuilder $query): QueryBuilder
+    {
+        if ($scoped === null) {
+            return $query;
+        }
+
+        if ($scoped instanceof QueryBuilder) {
+            return $scoped;
+        }
+
+        throw new LogicException(sprintf(
+            'The [%s] field\'s relationship modifyQueryUsing returned %s. Return the QueryBuilder it was handed, or nothing at all — anything else would drop the scoping without a trace.',
+            (string) $this->getName(),
+            get_debug_type($scoped),
+        ));
+    }
+
+    /**
+     * @return list<string>|string|null
+     */
+    private function getStateFromRelationship(object $record): array|string|null
+    {
+        $target = $this->getMultiplicityMatchedRelationshipTarget();
+        $reader = $this->getAssociationReader();
+        $related = $this->getPropertyAccessor()->getFromRecord($record, $this->getRelationshipNameOrFail());
+
+        if (! $target->isToMany) {
+            return is_object($related) ? $reader->getRecordKey($related) : null;
+        }
+
+        $keys = [];
+
+        foreach (is_iterable($related) ? $related : [] as $item) {
+            if (is_object($item)) {
+                $keys[] = $reader->getRecordKey($item);
+            }
+        }
+
+        return $keys;
+    }
+
+    private function saveStateToRelationship(object $record, mixed $state): void
+    {
+        $target = $this->getMultiplicityMatchedRelationshipTarget();
+        $name = $this->getRelationshipNameOrFail();
+        $reader = $this->getAssociationReader();
+        $accessor = $this->getPropertyAccessor();
+
+        if (! $target->isToMany) {
+            $identifier = $this->toRelationshipIdentifier($state);
+
+            $accessor->setOnRecord(
+                $record,
+                $name,
+                ($identifier === null) ? null : $reader->getReference($target->targetClass, $identifier),
+            );
+
+            return;
+        }
+
+        $desired = [];
+
+        foreach (wrap($state) as $item) {
+            $identifier = $this->toRelationshipIdentifier($item);
+
+            if ($identifier !== null) {
+                $desired[] = $reader->getReference($target->targetClass, $identifier);
+            }
+        }
+
+        $accessor->setAssociationOnRecord($record, $name, $desired);
+    }
+
+    /**
+     * The submitted state as an entity identifier — null for an empty selection.
+     *
+     * @throws LogicException when the state is not something an identifier could
+     *                        be, which validation against the option map should
+     *                        already have refused
+     */
+    private function toRelationshipIdentifier(mixed $state): int|string|null
+    {
+        if (blank($state)) {
+            return null;
+        }
+
+        if (is_int($state) || is_string($state)) {
+            return $state;
+        }
+
+        throw new LogicException(sprintf(
+            'The [%s] field submitted %s where the [%s] relationship expected an entity identifier.',
+            (string) $this->getName(),
+            get_debug_type($state),
+            $this->getRelationshipNameOrFail(),
+        ));
+    }
+}

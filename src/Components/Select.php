@@ -10,11 +10,14 @@ use Sylament\Forms\Components\Concerns\CanDisableOptions;
 use Sylament\Forms\Components\Concerns\CanSelectPlaceholder;
 use Sylament\Forms\Components\Concerns\HasExtraInputAttributes;
 use Sylament\Forms\Components\Concerns\HasOptions;
+use Sylament\Forms\Components\Concerns\HasRelationship;
 use Sylament\Schemas\State\Casts\BooleanStateCast;
 use Sylament\Schemas\State\Casts\Contracts\StateCast;
+use Sylament\Schemas\State\Casts\OptionsArrayStateCast;
 use Sylament\Schemas\State\Casts\OptionStateCast;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Type;
 
 use function Sylament\Support\blank;
 
@@ -24,8 +27,11 @@ class Select extends Field implements Contracts\CanDisableOptions
     use CanSelectPlaceholder;
     use HasExtraInputAttributes;
     use HasOptions;
+    use HasRelationship;
 
     protected string|Closure|null $template = '@SylamentForms/partials/Select/index.html.twig';
+
+    protected bool|Closure $isMultiple = false;
 
     protected function setUp(): void
     {
@@ -46,6 +52,18 @@ class Select extends Field implements Contracts\CanDisableOptions
         $this->stateCast(new BooleanStateCast(isStoredAsInt: true));
 
         return $this;
+    }
+
+    public function multiple(bool|Closure $condition = true): static
+    {
+        $this->isMultiple = $condition;
+
+        return $this;
+    }
+
+    public function isMultiple(): bool
+    {
+        return (bool) $this->evaluate($this->isMultiple);
     }
 
     public function getOptionLabel(): ?string
@@ -80,10 +98,19 @@ class Select extends Field implements Contracts\CanDisableOptions
             return parent::getDefaultStateCasts();
         }
 
+        if ($this->isMultiple()) {
+            return [new OptionsArrayStateCast(isNullable: false)];
+        }
+
         return [new OptionStateCast(isNullable: true)];
     }
 
     /**
+     * Validation runs against the raw state, and `Choice(multiple: true)` is only
+     * defined over an array — its validator throws on any other value rather than
+     * failing it — so a multiple select whose raw state is not an array is failed
+     * by a type constraint instead of being handed to the Choice.
+     *
      * @return list<Constraint>
      */
     protected function buildValidationConstraints(): array
@@ -100,8 +127,17 @@ class Select extends Field implements Contracts\CanDisableOptions
             );
         }
 
+        $isMultiple = $this->isMultiple();
+
+        if ($isMultiple && ! is_array($this->getRawState())) {
+            $constraints[] = new Type('array');
+
+            return $constraints;
+        }
+
         $constraints[] = new Choice(
             choices: $this->getEnabledOptionValues(),
+            multiple: $isMultiple,
             strict: true,
         );
 
@@ -114,7 +150,10 @@ class Select extends Field implements Contracts\CanDisableOptions
      * `state()` write — and the string the browser submits, which is always the
      * option's array key as the template renders it into the `value` attribute.
      * Validation runs against the raw state, and those two forms part company
-     * whenever a cast leaves the array-key vocabulary.
+     * whenever a cast leaves the array-key vocabulary. A multi-value cast casts
+     * one option key to a whole selection, so the list it returns is spread:
+     * `Choice(multiple: true)` compares element by element, and an option value
+     * wrapped in an array would match nothing.
      *
      * @return list<mixed>
      */
@@ -131,13 +170,15 @@ class Select extends Field implements Contracts\CanDisableOptions
                 $castValue = $stateCast->set($castValue);
             }
 
-            $values[] = $castValue;
+            $castValues = is_array($castValue) ? array_values($castValue) : [$castValue];
 
             $submittedValue = (string) $value;
 
-            if ($submittedValue !== $castValue) {
-                $values[] = $submittedValue;
+            if (! in_array($submittedValue, $castValues, true)) {
+                $castValues[] = $submittedValue;
             }
+
+            $values = [...$values, ...$castValues];
         }
 
         return $values;
