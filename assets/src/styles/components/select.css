@@ -1,11 +1,120 @@
-.sy-fo-select {
-    @apply block w-full appearance-none rounded-lg bg-white bg-no-repeat py-1.5 pe-8 ps-3 text-sm text-gray-950 shadow-xs ring-1 ring-gray-950/10 transition duration-75 outline-none hover:ring-gray-950/20 focus:ring-2 focus:ring-primary-600 disabled:bg-gray-50 disabled:text-gray-500 dark:bg-white/5 dark:text-white dark:ring-white/10 dark:hover:ring-white/20 dark:focus:ring-primary-500;
+select.sy-fo-select {
+    @apply block w-full appearance-none border-none bg-transparent bg-no-repeat py-1.5 pe-8 ps-3 text-sm leading-6 text-gray-950 transition duration-75 focus:ring-0 focus:outline-none disabled:text-gray-500 disabled:[-webkit-text-fill-color:var(--color-gray-500)] dark:text-white dark:disabled:text-gray-400 dark:disabled:[-webkit-text-fill-color:var(--color-gray-400)] [&_optgroup]:bg-white [&_optgroup]:dark:bg-gray-900 [&_option]:bg-white [&_option]:dark:bg-gray-900;
+
+    /* https://defensivecss.dev/tip/input-zoom-safari */
+    @supports (-webkit-touch-callout: none) {
+        @apply text-base;
+    }
 
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
     background-position: right 0.5rem center;
-    background-size: 1.25rem 1.25rem;
+    background-size: 1.5em 1.5em;
+
+    @variant rtl {
+        background-position: left 0.5rem center;
+    }
 }
 
-.sy-fo-select[aria-invalid='true'] {
-    @apply ring-danger-600 hover:ring-danger-600 focus:ring-danger-600 dark:ring-danger-500 dark:hover:ring-danger-500 dark:focus:ring-danger-500;
+select.sy-fo-select-has-inline-prefix {
+    @apply ps-0;
+}
+
+.sy-fo-select-ctn {
+    @apply relative;
+
+    & .sy-fo-select-btn {
+        @apply flex min-h-9 w-full rounded-lg bg-no-repeat py-1.5 pe-8 ps-3 text-start text-sm leading-6 text-gray-950 focus:ring-0 focus:outline-none dark:text-white;
+
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+        background-position: right 0.5rem center;
+        background-size: 1.5em 1.5em;
+
+        @variant rtl {
+            background-position: left 0.5rem center;
+        }
+    }
+
+    &.sy-fo-select-ctn-has-inline-prefix .sy-fo-select-btn {
+        @apply ps-0;
+    }
+
+    & .sy-fo-select-value-ctn {
+        @apply flex w-full items-center text-wrap;
+        word-break: break-word;
+    }
+
+    & .sy-fo-select-value-badges-ctn {
+        @apply flex flex-wrap gap-1.5;
+    }
+
+    & .sy-fo-select-value-label {
+        @apply flex-1;
+    }
+
+    & .sy-fo-select-value-remove-btn {
+        @apply absolute end-8 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600 focus-visible:text-gray-600 focus-visible:outline-none dark:hover:text-gray-300 dark:focus-visible:text-gray-300;
+    }
+
+    &.sy-fo-select-ctn-clearable .sy-fo-select-btn {
+        @apply pe-14;
+    }
+
+    & .sy-fo-select-dropdown {
+        @apply max-w-full;
+
+        /* The panel is the scroll container, which is what lets the search row stick to its top. */
+        --sy-dropdown-max-height: 15rem;
+        --sy-dropdown-overflow: auto;
+    }
+
+    & .sy-fo-select-options-ctn {
+        @apply divide-y divide-gray-100 dark:divide-white/5;
+    }
+
+    & .sy-fo-select-option-group {
+        @apply divide-y divide-gray-100 dark:divide-white/5;
+
+        & .sy-fo-select-option-group-label {
+            @apply p-2 text-sm font-medium text-gray-500 dark:text-gray-400;
+        }
+    }
+
+    & .sy-fo-select-search-ctn {
+        @apply sticky top-0 z-10 bg-white dark:bg-gray-900;
+    }
+
+    & .sy-fo-select-option {
+        @apply min-w-px text-wrap;
+        word-break: break-word;
+    }
+
+    & .sy-fo-select-placeholder {
+        @apply text-gray-400 dark:text-gray-500;
+    }
+
+    & .sy-disabled {
+        @apply cursor-not-allowed opacity-70;
+
+        & .sy-fo-select-placeholder {
+            @apply text-gray-400 dark:text-gray-500;
+        }
+    }
+
+    & .sy-fo-select-message {
+        @apply px-3 py-2 text-sm text-gray-500 dark:text-gray-400;
+    }
+
+    & .sy-fo-select-max-items-message {
+        @apply px-3 py-2 text-sm text-danger-600 dark:text-danger-400;
+    }
+
+    &.sy-fo-select-ctn-labels-not-wrapped {
+        & .sy-fo-select-value-ctn > span {
+            @apply truncate break-normal text-nowrap;
+        }
+
+        & .sy-fo-select-option > span {
+            @apply truncate;
+        }
+    }
 }

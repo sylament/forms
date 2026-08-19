@@ -1,0 +1,45 @@
+{
+  "name": "@sylament/forms",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "pnpm clean && pnpm test:types && pnpm build:js",
+    "build:js": "node scripts/build-js.mjs",
+    "watch": "node scripts/build-js.mjs --watch",
+    "test:types": "tsc --noEmit"
+  },
+  "symfony": {
+    "controllers": {
+      "checkbox-list": {
+        "main": "dist/controllers/checkbox_list_controller.js",
+        "fetch": "eager",
+        "enabled": true
+      },
+      "select": {
+        "main": "dist/controllers/select_controller.js",
+        "fetch": "eager",
+        "enabled": true
+      }
+    },
+    "importmap": {
+      "@hotwired/stimulus": "^3.0.0"
+    }
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.8.0",
+    "sortablejs": "^1.15.7"
+  },
+  "peerDependencies": {
+    "@hotwired/stimulus": "^3.0.0",
+    "@symfony/ux-live-component": "^3.2.0"
+  },
+  "devDependencies": {
+    "@hotwired/stimulus": "^3.0.0",
+    "@sylament/schemas": "workspace:*",
+    "@symfony/ux-live-component": "^3.2.0",
+    "@types/sortablejs": "^1.15.9",
+    "esbuild": "^0.28.0",
+    "typescript": "^6.0.3"
+  }
+}

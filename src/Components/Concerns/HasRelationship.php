@@ -8,8 +8,8 @@ use Closure;
 use Doctrine\ORM\QueryBuilder;
 use LogicException;
 use Stringable;
-use Sylament\Forms\Components\Select;
 use Sylament\Schemas\State\AssociationTarget;
+use Twig\Markup;
 
 use function Sylament\Support\blank;
 use function Sylament\Support\filled;
@@ -23,8 +23,10 @@ trait HasRelationship
 
     protected ?Closure $modifyRelationshipQueryUsing = null;
 
+    protected string|Markup|Closure|null $getOptionLabelFromRecordUsing = null;
+
     /**
-     * @var array<string|int, string>|null
+     * @var array<string|int, string|Markup>|null
      */
     protected ?array $cachedRelationshipOptions = null;
 
@@ -35,7 +37,8 @@ trait HasRelationship
      * association property and defaults to the field's own name, so a field
      * carrying the association's name needs no argument at all.
      * `$modifyQueryUsing` scopes the option query — it receives the builder as
-     * `$query` and returns it, or returns nothing to keep the one it was handed.
+     * `$query` (and, from a search arm, the term as `$search`, `null` elsewhere)
+     * and returns it, or returns nothing to keep the one it was handed.
      */
     public function relationship(string|Closure|null $name = null, string|Closure|null $titleAttribute = null, ?Closure $modifyQueryUsing = null): static
     {
@@ -44,11 +47,11 @@ trait HasRelationship
         $this->modifyRelationshipQueryUsing = $modifyQueryUsing;
         $this->cachedRelationshipOptions = null;
 
-        $this->options(static fn (Select $component): array => $component->getOptionsFromRelationship());
+        $this->options(static fn (self $component): array => $component->getOptionsFromRelationship());
 
-        $this->loadStateFromRelationshipsUsing(static fn (Select $component, object $record): mixed => $component->getStateFromRelationship($record));
+        $this->loadStateFromRelationshipsUsing(static fn (self $component, object $record): mixed => $component->getStateFromRelationship($record));
 
-        $this->saveRelationshipsUsing(static function (Select $component, object $record, mixed $state): void {
+        $this->saveRelationshipsUsing(static function (self $component, object $record, mixed $state): void {
             $component->saveStateToRelationship($record, $state);
         });
 
@@ -61,15 +64,55 @@ trait HasRelationship
     }
 
     /**
-     * Every row of the association's target entity, keyed by the identifier the
-     * client speaks and labelled by the declared title attribute. Always a full
-     * map: an option list this field cannot build is an exception rather than an
-     * empty array, because an empty enumeration would silently reject every
-     * submitted value. The map is memoized for the field's lifetime unless a
-     * query scope is declared, whose closure may read state that changes within
-     * the request.
+     * Drop the memoized option map, so the next enumeration goes back to the
+     * database. A write that adds or renames a target row has to call this, or
+     * the field validates the new key against the map it built before the write.
+     */
+    public function forgetCachedRelationshipOptions(): void
+    {
+        $this->cachedRelationshipOptions = null;
+    }
+
+    public function getOptionLabelFromRecordUsing(?Closure $callback): static
+    {
+        $this->getOptionLabelFromRecordUsing = $callback;
+        $this->cachedRelationshipOptions = null;
+
+        return $this;
+    }
+
+    public function hasOptionLabelFromRecordUsingCallback(): bool
+    {
+        return $this->getOptionLabelFromRecordUsing !== null;
+    }
+
+    /**
+     * The option label a record carries, empty where no callback answers — the
+     * same coercion the title-attribute arm makes for an unreadable title.
+     */
+    public function getOptionLabelFromRecord(object $record): string|Markup
+    {
+        return $this->evaluate($this->getOptionLabelFromRecordUsing, [
+            'record' => $record,
+        ], [
+            $record::class => $record,
+        ]) ?? '';
+    }
+
+    /**
+     * Every row of the association's target entity the declared query scope
+     * admits, keyed by the identifier the client speaks and labelled by the
+     * record-label callback or, without one, the title attribute. A map this
+     * field cannot build at all is an exception rather than an empty array,
+     * because an empty enumeration would silently reject every submitted value;
+     * a composing field may still answer `[]` by design where the whole map is
+     * not the truth (a searchable, non-preloaded `Select` enumerates nothing
+     * until the user types). The map is memoized for the field's lifetime unless
+     * a query scope is declared, whose closure may read state that changes within
+     * the request. The title attribute only ever produces text, but the
+     * record-label callback may answer `Markup`, so the map is typed for both.
      *
-     * @return array<string|int, string>
+     * @return array<string|int, string|Markup>
      */
     public function getOptionsFromRelationship(): array
     {
@@ -77,33 +120,84 @@ trait HasRelationship
             return $this->cachedRelationshipOptions;
         }
 
-        $target = $this->getMultiplicityMatchedRelationshipTarget();
-        $titleAttribute = $this->getRelationshipTitleAttributeOrFail();
-        $reader = $this->getAssociationReader();
-        $accessor = $this->getPropertyAccessor();
-
-        $query = $reader->createOptionQuery($target->targetClass);
-
-        if ($this->modifyRelationshipQueryUsing instanceof Closure) {
-            $query = $this->scopeOptionQuery($query);
-        }
-
-        /** @var list<object> $records */
-        $records = $query->getQuery()->getResult();
-
-        $options = [];
-
-        foreach ($records as $related) {
-            $title = $accessor->getFromRecord($related, $titleAttribute);
-
-            $options[$reader->getRecordKey($related)] = (is_scalar($title) || $title instanceof Stringable) ? (string) $title : '';
-        }
+        $options = $this->getOptionsFromRecords($this->getRecordsFromRelationship());
 
         if ($this->modifyRelationshipQueryUsing === null) {
             $this->cachedRelationshipOptions = $options;
         }
 
         return $options;
+    }
+
+    /**
+     * Every row an option could be built from: the association's target table,
+     * scoped by the declared query modifier. Unmemoized — the rows are a step, and
+     * each caller memoizes the option map it derives from them instead.
+     *
+     * @return list<object>
+     */
+    protected function getRecordsFromRelationship(): array
+    {
+        /** @var list<object> */
+        return $this->createScopedOptionQuery()->getQuery()->getResult();
+    }
+
+    /**
+     * The option query before it runs — `SELECT record FROM <target> record`
+     * over the multiplicity-matched association, scoped by the declared query
+     * modifier — for a caller that constrains, limits or orders it first. The
+     * modifier receives the search term a search arm passes as `$search`, and
+     * `null` everywhere else.
+     */
+    protected function createScopedOptionQuery(?string $search = null): QueryBuilder
+    {
+        $target = $this->getMultiplicityMatchedRelationshipTarget();
+
+        $query = $this->getAssociationReader()->createOptionQuery($target->targetClass);
+
+        if ($this->modifyRelationshipQueryUsing instanceof Closure) {
+            return $this->scopeOptionQuery($query, $search);
+        }
+
+        return $query;
+    }
+
+    /**
+     * The option map a list of target rows makes: each row's record key mapped to
+     * its label.
+     *
+     * @param list<object> $records
+     *
+     * @return array<string|int, string|Markup>
+     */
+    protected function getOptionsFromRecords(array $records): array
+    {
+        $reader = $this->getAssociationReader();
+
+        $options = [];
+
+        foreach ($records as $record) {
+            $options[$reader->getRecordKey($record)] = $this->resolveOptionLabelFromRecord($record);
+        }
+
+        return $options;
+    }
+
+    /**
+     * The label one target row carries: what the record-label callback answers
+     * when one is declared, else the title attribute read off the row as text —
+     * an unreadable title is `''`, never a throw, because a row is not an option
+     * the user misconfigured.
+     */
+    protected function resolveOptionLabelFromRecord(object $record): string|Markup
+    {
+        if ($this->hasOptionLabelFromRecordUsingCallback()) {
+            return $this->getOptionLabelFromRecord($record);
+        }
+
+        $title = $this->getPropertyAccessor()->getFromRecord($record, $this->getRelationshipTitleAttributeOrFail());
+
+        return (is_scalar($title) || $title instanceof Stringable) ? (string) $title : '';
     }
 
     protected function getMissingEntityManagerConsequence(): string
@@ -172,10 +266,11 @@ trait HasRelationship
         return $target;
     }
 
-    private function scopeOptionQuery(QueryBuilder $query): QueryBuilder
+    private function scopeOptionQuery(QueryBuilder $query, ?string $search): QueryBuilder
     {
         return $this->requireScopedOptionQuery($this->evaluate($this->modifyRelationshipQueryUsing, [
             'query' => $query,
+            'search' => $search,
         ], [
             QueryBuilder::class => $query,
         ]), $query);
