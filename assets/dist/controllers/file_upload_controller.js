@@ -1,7 +1,13 @@
 /*! filepond 4.32.12 | MIT License | Copyright (c) 2019 Pqina | https://pqina.nl/filepond/ */
 /*! filepond-plugin-file-validate-size 2.2.8 | MIT License | Copyright (c) 2020 PQINA | Rik Schennink <rik@pqina.nl> | https://pqina.nl/filepond/ */
 /*! filepond-plugin-file-validate-type 1.2.9 | MIT License | Copyright (c) PQINA | Rik Schennink <rik@pqina.nl> | https://pqina.nl/filepond/ */
+/*! filepond-plugin-image-crop 2.0.6 | MIT License | Copyright (c) 2019 PQINA | Rik Schennink <rik@pqina.nl> | https://pqina.nl/filepond/ */
+/*! filepond-plugin-image-edit 1.6.3 | MIT License | Copyright (c) 2019 PQINA | Rik Schennink <rik@pqina.nl> | https://pqina.nl/filepond/ */
+/*! filepond-plugin-image-exif-orientation 1.0.11 | MIT License | Copyright (c) 2020 PQINA | Rik Schennink <rik@pqina.nl> | https://pqina.nl/filepond/ */
 /*! filepond-plugin-image-preview 4.6.12 | MIT License | Copyright (c) 2018-2021 PQINA | Rik Schennink <rik@pqina.nl> | https://pqina.nl/filepond/ */
+/*! filepond-plugin-image-resize 2.0.10 | MIT License | Copyright (c) 2020 PQINA | Rik Schennink <rik@pqina.nl> | https://pqina.nl/filepond/ */
+/*! filepond-plugin-image-transform 3.8.8 | MIT License | Copyright (c) 2019 Pqina | Rik Schennink | https://pqina.nl/filepond/ */
+/*! cropperjs 1.6.3 | MIT License | Copyright 2015-present Chen Fengyuan | https://fengyuanchen.github.io/cropperjs */
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -27,6 +33,2761 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+
+// ../../../node_modules/.pnpm/cropperjs@1.6.3/node_modules/cropperjs/dist/cropper.js
+var require_cropper = __commonJS({
+  "../../../node_modules/.pnpm/cropperjs@1.6.3/node_modules/cropperjs/dist/cropper.js"(exports, module) {
+    (function(global, factory) {
+      typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.Cropper = factory());
+    })(exports, (function() {
+      "use strict";
+      function _arrayLikeToArray(r, a) {
+        (null == a || a > r.length) && (a = r.length);
+        for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+        return n;
+      }
+      function _arrayWithoutHoles(r) {
+        if (Array.isArray(r)) return _arrayLikeToArray(r);
+      }
+      function _classCallCheck(a, n) {
+        if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function");
+      }
+      function _defineProperties(e, r) {
+        for (var t = 0; t < r.length; t++) {
+          var o = r[t];
+          o.enumerable = o.enumerable || false, o.configurable = true, "value" in o && (o.writable = true), Object.defineProperty(e, _toPropertyKey(o.key), o);
+        }
+      }
+      function _createClass(e, r, t) {
+        return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", {
+          writable: false
+        }), e;
+      }
+      function _defineProperty(e, r, t) {
+        return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+          value: t,
+          enumerable: true,
+          configurable: true,
+          writable: true
+        }) : e[r] = t, e;
+      }
+      function _iterableToArray(r) {
+        if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
+      }
+      function _nonIterableSpread() {
+        throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+      }
+      function ownKeys(e, r) {
+        var t = Object.keys(e);
+        if (Object.getOwnPropertySymbols) {
+          var o = Object.getOwnPropertySymbols(e);
+          r && (o = o.filter(function(r2) {
+            return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+          })), t.push.apply(t, o);
+        }
+        return t;
+      }
+      function _objectSpread2(e) {
+        for (var r = 1; r < arguments.length; r++) {
+          var t = null != arguments[r] ? arguments[r] : {};
+          r % 2 ? ownKeys(Object(t), true).forEach(function(r2) {
+            _defineProperty(e, r2, t[r2]);
+          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r2) {
+            Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+          });
+        }
+        return e;
+      }
+      function _toConsumableArray(r) {
+        return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
+      }
+      function _toPrimitive(t, r) {
+        if ("object" != typeof t || !t) return t;
+        var e = t[Symbol.toPrimitive];
+        if (void 0 !== e) {
+          var i = e.call(t, r || "default");
+          if ("object" != typeof i) return i;
+          throw new TypeError("@@toPrimitive must return a primitive value.");
+        }
+        return ("string" === r ? String : Number)(t);
+      }
+      function _toPropertyKey(t) {
+        var i = _toPrimitive(t, "string");
+        return "symbol" == typeof i ? i : i + "";
+      }
+      function _typeof(o) {
+        "@babel/helpers - typeof";
+        return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o2) {
+          return typeof o2;
+        } : function(o2) {
+          return o2 && "function" == typeof Symbol && o2.constructor === Symbol && o2 !== Symbol.prototype ? "symbol" : typeof o2;
+        }, _typeof(o);
+      }
+      function _unsupportedIterableToArray(r, a) {
+        if (r) {
+          if ("string" == typeof r) return _arrayLikeToArray(r, a);
+          var t = {}.toString.call(r).slice(8, -1);
+          return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
+        }
+      }
+      var IS_BROWSER = typeof window !== "undefined" && typeof window.document !== "undefined";
+      var WINDOW = IS_BROWSER ? window : {};
+      var IS_TOUCH_DEVICE = IS_BROWSER && WINDOW.document.documentElement ? "ontouchstart" in WINDOW.document.documentElement : false;
+      var HAS_POINTER_EVENT = IS_BROWSER ? "PointerEvent" in WINDOW : false;
+      var NAMESPACE = "cropper";
+      var ACTION_ALL = "all";
+      var ACTION_CROP = "crop";
+      var ACTION_MOVE = "move";
+      var ACTION_ZOOM = "zoom";
+      var ACTION_EAST = "e";
+      var ACTION_WEST = "w";
+      var ACTION_SOUTH = "s";
+      var ACTION_NORTH = "n";
+      var ACTION_NORTH_EAST = "ne";
+      var ACTION_NORTH_WEST = "nw";
+      var ACTION_SOUTH_EAST = "se";
+      var ACTION_SOUTH_WEST = "sw";
+      var CLASS_CROP = "".concat(NAMESPACE, "-crop");
+      var CLASS_DISABLED = "".concat(NAMESPACE, "-disabled");
+      var CLASS_HIDDEN = "".concat(NAMESPACE, "-hidden");
+      var CLASS_HIDE = "".concat(NAMESPACE, "-hide");
+      var CLASS_INVISIBLE = "".concat(NAMESPACE, "-invisible");
+      var CLASS_MODAL = "".concat(NAMESPACE, "-modal");
+      var CLASS_MOVE = "".concat(NAMESPACE, "-move");
+      var DATA_ACTION = "".concat(NAMESPACE, "Action");
+      var DATA_PREVIEW = "".concat(NAMESPACE, "Preview");
+      var DRAG_MODE_CROP = "crop";
+      var DRAG_MODE_MOVE = "move";
+      var DRAG_MODE_NONE = "none";
+      var EVENT_CROP = "crop";
+      var EVENT_CROP_END = "cropend";
+      var EVENT_CROP_MOVE = "cropmove";
+      var EVENT_CROP_START = "cropstart";
+      var EVENT_DBLCLICK = "dblclick";
+      var EVENT_TOUCH_START = IS_TOUCH_DEVICE ? "touchstart" : "mousedown";
+      var EVENT_TOUCH_MOVE = IS_TOUCH_DEVICE ? "touchmove" : "mousemove";
+      var EVENT_TOUCH_END = IS_TOUCH_DEVICE ? "touchend touchcancel" : "mouseup";
+      var EVENT_POINTER_DOWN = HAS_POINTER_EVENT ? "pointerdown" : EVENT_TOUCH_START;
+      var EVENT_POINTER_MOVE = HAS_POINTER_EVENT ? "pointermove" : EVENT_TOUCH_MOVE;
+      var EVENT_POINTER_UP = HAS_POINTER_EVENT ? "pointerup pointercancel" : EVENT_TOUCH_END;
+      var EVENT_READY = "ready";
+      var EVENT_RESIZE = "resize";
+      var EVENT_WHEEL = "wheel";
+      var EVENT_ZOOM = "zoom";
+      var MIME_TYPE_JPEG = "image/jpeg";
+      var REGEXP_ACTIONS = /^(e|w|s|n|se|sw|ne|nw|all|crop|move|zoom)$/;
+      var REGEXP_DATA_URL = /^data:/;
+      var REGEXP_DATA_URL_JPEG = /^data:image\/jpeg;base64,/;
+      var REGEXP_SPACES = /\s+/;
+      var REGEXP_TAG_NAME = /^(img|canvas)$/i;
+      var MIN_CONTAINER_WIDTH = 200;
+      var MIN_CONTAINER_HEIGHT = 100;
+      var DEFAULTS = {
+        // Define the view mode of the cropper
+        viewMode: 0,
+        // 0, 1, 2, 3
+        // Define the dragging mode of the cropper
+        dragMode: DRAG_MODE_CROP,
+        // 'crop', 'move' or 'none'
+        // Define the initial aspect ratio of the crop box
+        initialAspectRatio: NaN,
+        // Define the aspect ratio of the crop box
+        aspectRatio: NaN,
+        // An object with the previous cropping result data
+        data: null,
+        // A selector for adding extra containers to preview
+        preview: "",
+        // Re-render the cropper when resize the window
+        responsive: true,
+        // Restore the cropped area after resize the window
+        restore: true,
+        // Check if the current image is a cross-origin image
+        checkCrossOrigin: true,
+        // Check the current image's Exif Orientation information
+        checkOrientation: true,
+        // Show the black modal
+        modal: true,
+        // Show the dashed lines for guiding
+        guides: true,
+        // Show the center indicator for guiding
+        center: true,
+        // Show the white modal to highlight the crop box
+        highlight: true,
+        // Show the grid background
+        background: true,
+        // Enable to crop the image automatically when initialize
+        autoCrop: true,
+        // Define the percentage of automatic cropping area when initialized
+        autoCropArea: 0.8,
+        // Enable to move the image
+        movable: true,
+        // Enable to rotate the image
+        rotatable: true,
+        // Enable to scale the image
+        scalable: true,
+        // Enable to zoom the image
+        zoomable: true,
+        // Enable to zoom the image by dragging touch
+        zoomOnTouch: true,
+        // Enable to zoom the image by wheeling mouse
+        zoomOnWheel: true,
+        // Define zoom ratio when zooming the image by mouse wheel
+        wheelZoomRatio: 0.1,
+        // Enable to move the crop box
+        cropBoxMovable: true,
+        // Enable to resize the crop box
+        cropBoxResizable: true,
+        // Toggle drag mode between "crop" and "move" when click twice on the cropper
+        toggleDragModeOnDblclick: true,
+        // Size limitation
+        minCanvasWidth: 0,
+        minCanvasHeight: 0,
+        minCropBoxWidth: 0,
+        minCropBoxHeight: 0,
+        minContainerWidth: MIN_CONTAINER_WIDTH,
+        minContainerHeight: MIN_CONTAINER_HEIGHT,
+        // Shortcuts of events
+        ready: null,
+        cropstart: null,
+        cropmove: null,
+        cropend: null,
+        crop: null,
+        zoom: null
+      };
+      var TEMPLATE = '<div class="cropper-container" touch-action="none"><div class="cropper-wrap-box"><div class="cropper-canvas"></div></div><div class="cropper-drag-box"></div><div class="cropper-crop-box"><span class="cropper-view-box"></span><span class="cropper-dashed dashed-h"></span><span class="cropper-dashed dashed-v"></span><span class="cropper-center"></span><span class="cropper-face"></span><span class="cropper-line line-e" data-cropper-action="e"></span><span class="cropper-line line-n" data-cropper-action="n"></span><span class="cropper-line line-w" data-cropper-action="w"></span><span class="cropper-line line-s" data-cropper-action="s"></span><span class="cropper-point point-e" data-cropper-action="e"></span><span class="cropper-point point-n" data-cropper-action="n"></span><span class="cropper-point point-w" data-cropper-action="w"></span><span class="cropper-point point-s" data-cropper-action="s"></span><span class="cropper-point point-ne" data-cropper-action="ne"></span><span class="cropper-point point-nw" data-cropper-action="nw"></span><span class="cropper-point point-sw" data-cropper-action="sw"></span><span class="cropper-point point-se" data-cropper-action="se"></span></div></div>';
+      var isNaN = Number.isNaN || WINDOW.isNaN;
+      var isFinite2 = Number.isFinite || WINDOW.isFinite;
+      function isNumber(value) {
+        return typeof value === "number" && !isNaN(value);
+      }
+      var isPositiveNumber = function isPositiveNumber2(value) {
+        return value > 0 && value < Infinity;
+      };
+      function isUndefined(value) {
+        return typeof value === "undefined";
+      }
+      function isObject(value) {
+        return _typeof(value) === "object" && value !== null;
+      }
+      var hasOwnProperty = Object.prototype.hasOwnProperty;
+      function isPlainObject(value) {
+        if (!isObject(value)) {
+          return false;
+        }
+        try {
+          var constructor = value.constructor;
+          var prototype = constructor.prototype;
+          return constructor && prototype && hasOwnProperty.call(prototype, "isPrototypeOf");
+        } catch (error) {
+          return false;
+        }
+      }
+      function isFunction(value) {
+        return typeof value === "function";
+      }
+      var slice = Array.prototype.slice;
+      function toArray(value) {
+        return Array.from ? Array.from(value) : slice.call(value);
+      }
+      function forEach(data2, callback) {
+        if (data2 && isFunction(callback)) {
+          if (Array.isArray(data2) || isNumber(data2.length)) {
+            toArray(data2).forEach(function(value, key) {
+              callback.call(data2, value, key, data2);
+            });
+          } else if (isObject(data2)) {
+            Object.keys(data2).forEach(function(key) {
+              callback.call(data2, data2[key], key, data2);
+            });
+          }
+        }
+        return data2;
+      }
+      var assign = Object.assign || function assign2(target) {
+        for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          args[_key - 1] = arguments[_key];
+        }
+        if (isObject(target) && args.length > 0) {
+          args.forEach(function(arg) {
+            if (isObject(arg)) {
+              Object.keys(arg).forEach(function(key) {
+                target[key] = arg[key];
+              });
+            }
+          });
+        }
+        return target;
+      };
+      var REGEXP_DECIMALS = /\.\d*(?:0|9){12}\d*$/;
+      function normalizeDecimalNumber(value) {
+        var times = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 1e11;
+        return REGEXP_DECIMALS.test(value) ? Math.round(value * times) / times : value;
+      }
+      var REGEXP_SUFFIX = /^width|height|left|top|marginLeft|marginTop$/;
+      function setStyle(element, styles) {
+        var style = element.style;
+        forEach(styles, function(value, property) {
+          if (REGEXP_SUFFIX.test(property) && isNumber(value)) {
+            value = "".concat(value, "px");
+          }
+          style[property] = value;
+        });
+      }
+      function hasClass(element, value) {
+        return element.classList ? element.classList.contains(value) : element.className.split(REGEXP_SPACES).indexOf(value) > -1;
+      }
+      function addClass(element, value) {
+        if (!value) {
+          return;
+        }
+        if (isNumber(element.length)) {
+          forEach(element, function(elem) {
+            addClass(elem, value);
+          });
+          return;
+        }
+        if (element.classList) {
+          element.classList.add(value);
+          return;
+        }
+        var className = element.className.trim();
+        if (!className) {
+          element.className = value;
+        } else if (className.indexOf(value) < 0) {
+          element.className = "".concat(className, " ").concat(value);
+        }
+      }
+      function removeClass(element, value) {
+        if (!value) {
+          return;
+        }
+        if (isNumber(element.length)) {
+          forEach(element, function(elem) {
+            removeClass(elem, value);
+          });
+          return;
+        }
+        if (element.classList) {
+          element.classList.remove(value);
+          return;
+        }
+        if (element.className.indexOf(value) >= 0) {
+          element.className = element.className.split(REGEXP_SPACES).filter(function(item) {
+            return item && item !== value;
+          }).join(" ");
+        }
+      }
+      function toggleClass(element, value, added) {
+        if (!value) {
+          return;
+        }
+        if (isNumber(element.length)) {
+          forEach(element, function(elem) {
+            toggleClass(elem, value, added);
+          });
+          return;
+        }
+        if (added) {
+          addClass(element, value);
+        } else {
+          removeClass(element, value);
+        }
+      }
+      var REGEXP_CAMEL_CASE = /([a-z\d])([A-Z])/g;
+      function toParamCase(value) {
+        return typeof value === "string" ? value.replace(REGEXP_CAMEL_CASE, "$1-$2").toLowerCase() : "";
+      }
+      function getData(element, name) {
+        if (isObject(element[name])) {
+          return element[name];
+        }
+        if (element.dataset) {
+          return element.dataset[name];
+        }
+        return element.getAttribute("data-".concat(toParamCase(name)));
+      }
+      function setData(element, name, data2) {
+        if (isObject(data2)) {
+          element[name] = data2;
+        } else if (element.dataset) {
+          element.dataset[name] = data2;
+        } else {
+          element.setAttribute("data-".concat(toParamCase(name)), data2);
+        }
+      }
+      function removeData(element, name) {
+        if (isObject(element[name])) {
+          try {
+            delete element[name];
+          } catch (error) {
+            element[name] = void 0;
+          }
+        } else if (element.dataset) {
+          try {
+            delete element.dataset[name];
+          } catch (error) {
+            element.dataset[name] = void 0;
+          }
+        } else {
+          element.removeAttribute("data-".concat(toParamCase(name)));
+        }
+      }
+      var onceSupported = (function() {
+        var supported = false;
+        if (IS_BROWSER) {
+          var once = false;
+          var listener = function listener2() {
+          };
+          var options = Object.defineProperty({}, "once", {
+            get: function get() {
+              supported = true;
+              return once;
+            },
+            /**
+             * This setter can fix a `TypeError` in strict mode
+             * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Getter_only}
+             * @param {boolean} value - The value to set
+             */
+            set: function set(value) {
+              once = value;
+            }
+          });
+          WINDOW.addEventListener("test", listener, options);
+          WINDOW.removeEventListener("test", listener, options);
+        }
+        return supported;
+      })();
+      function removeListener(element, type, listener) {
+        var options = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {};
+        if (!element || !type || !isFunction(element.removeEventListener)) {
+          return;
+        }
+        var handler = listener;
+        type.trim().split(REGEXP_SPACES).forEach(function(event) {
+          if (!onceSupported) {
+            var listeners = element.__cropperListeners__ || {};
+            if (listeners[event] && listeners[event][listener]) {
+              handler = listeners[event][listener];
+              delete listeners[event][listener];
+              if (Object.keys(listeners[event]).length === 0) {
+                delete listeners[event];
+              }
+              if (Object.keys(listeners).length === 0) {
+                delete element.__cropperListeners__;
+              }
+            }
+          }
+          element.removeEventListener(event, handler, options);
+        });
+      }
+      function addListener(element, type, listener) {
+        var options = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {};
+        if (!element || !type || !isFunction(element.addEventListener) || !isFunction(listener)) {
+          return;
+        }
+        var _handler = listener;
+        type.trim().split(REGEXP_SPACES).forEach(function(event) {
+          if (options.once && !onceSupported) {
+            var listeners = element.__cropperListeners__ || {};
+            _handler = function handler() {
+              if (listeners[event] && listeners[event][listener]) {
+                delete listeners[event][listener];
+              }
+              element.removeEventListener(event, _handler, options);
+              for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                args[_key2] = arguments[_key2];
+              }
+              listener.apply(element, args);
+            };
+            if (!listeners[event]) {
+              listeners[event] = {};
+            }
+            if (listeners[event][listener]) {
+              element.removeEventListener(event, listeners[event][listener], options);
+            }
+            listeners[event][listener] = _handler;
+            element.__cropperListeners__ = listeners;
+          }
+          element.addEventListener(event, _handler, options);
+        });
+      }
+      function dispatchEvent(element, type, data2) {
+        if (!element || !type || !isFunction(element.dispatchEvent)) {
+          return false;
+        }
+        var event;
+        if (isFunction(Event) && isFunction(CustomEvent)) {
+          event = new CustomEvent(type, {
+            detail: data2,
+            bubbles: true,
+            cancelable: true
+          });
+        } else if (isObject(document) && isFunction(document.createEvent)) {
+          event = document.createEvent("CustomEvent");
+          event.initCustomEvent(type, true, true, data2);
+        } else {
+          return false;
+        }
+        return element.dispatchEvent(event);
+      }
+      function getOffset(element) {
+        if (!element || !isFunction(element.getBoundingClientRect)) {
+          return {
+            left: 0,
+            top: 0
+          };
+        }
+        var box = element.getBoundingClientRect();
+        var _ref = document || {}, _ref$documentElement = _ref.documentElement, documentElement = _ref$documentElement === void 0 ? {} : _ref$documentElement;
+        var pageXOffset = WINDOW.pageXOffset || 0;
+        var pageYOffset = WINDOW.pageYOffset || 0;
+        return {
+          left: box.left + (pageXOffset - (documentElement.clientLeft || 0)),
+          top: box.top + (pageYOffset - (documentElement.clientTop || 0))
+        };
+      }
+      var location2 = WINDOW.location;
+      var REGEXP_ORIGINS = /^(\w+:)\/\/([^:/?#]*):?(\d*)/i;
+      function isCrossOriginURL(url) {
+        var parts = url.match(REGEXP_ORIGINS);
+        return parts !== null && (parts[1] !== location2.protocol || parts[2] !== location2.hostname || parts[3] !== location2.port);
+      }
+      function addTimestamp(url) {
+        var hashIndex = url.indexOf("#");
+        var hash = hashIndex >= 0 ? url.slice(hashIndex) : "";
+        var baseUrl = hashIndex >= 0 ? url.slice(0, hashIndex) : url;
+        var timestamp = "timestamp=".concat((/* @__PURE__ */ new Date()).getTime());
+        return "".concat(baseUrl).concat(baseUrl.indexOf("?") === -1 ? "?" : "&").concat(timestamp).concat(hash);
+      }
+      function getTransforms(_ref2) {
+        var rotate = _ref2.rotate, scaleX = _ref2.scaleX, scaleY = _ref2.scaleY, translateX = _ref2.translateX, translateY = _ref2.translateY;
+        var values = [];
+        if (isNumber(translateX) && translateX !== 0) {
+          values.push("translateX(".concat(translateX, "px)"));
+        }
+        if (isNumber(translateY) && translateY !== 0) {
+          values.push("translateY(".concat(translateY, "px)"));
+        }
+        if (isNumber(rotate) && rotate !== 0) {
+          values.push("rotate(".concat(rotate, "deg)"));
+        }
+        if (isNumber(scaleX) && scaleX !== 1) {
+          values.push("scaleX(".concat(scaleX, ")"));
+        }
+        if (isNumber(scaleY) && scaleY !== 1) {
+          values.push("scaleY(".concat(scaleY, ")"));
+        }
+        var transform = values.length ? values.join(" ") : "none";
+        return {
+          WebkitTransform: transform,
+          msTransform: transform,
+          transform
+        };
+      }
+      function getMaxZoomRatio(pointers) {
+        var pointers2 = _objectSpread2({}, pointers);
+        var maxRatio = 0;
+        forEach(pointers, function(pointer, pointerId) {
+          delete pointers2[pointerId];
+          forEach(pointers2, function(pointer2) {
+            var x1 = Math.abs(pointer.startX - pointer2.startX);
+            var y1 = Math.abs(pointer.startY - pointer2.startY);
+            var x2 = Math.abs(pointer.endX - pointer2.endX);
+            var y2 = Math.abs(pointer.endY - pointer2.endY);
+            var z1 = Math.sqrt(x1 * x1 + y1 * y1);
+            var z2 = Math.sqrt(x2 * x2 + y2 * y2);
+            if (!isFinite2(z1) || !isFinite2(z2) || z1 === 0 || z2 === z1) {
+              return;
+            }
+            var ratio = (z2 - z1) / z1;
+            if (isFinite2(ratio) && Math.abs(ratio) > Math.abs(maxRatio)) {
+              maxRatio = ratio;
+            }
+          });
+        });
+        return maxRatio;
+      }
+      function getPointer(_ref3, endOnly) {
+        var pageX = _ref3.pageX, pageY = _ref3.pageY;
+        var end = {
+          endX: pageX,
+          endY: pageY
+        };
+        return endOnly ? end : _objectSpread2({
+          startX: pageX,
+          startY: pageY
+        }, end);
+      }
+      function getPointersCenter(pointers) {
+        var pageX = 0;
+        var pageY = 0;
+        var count = 0;
+        forEach(pointers, function(_ref4) {
+          var startX = _ref4.startX, startY = _ref4.startY;
+          pageX += startX;
+          pageY += startY;
+          count += 1;
+        });
+        pageX /= count;
+        pageY /= count;
+        return {
+          pageX,
+          pageY
+        };
+      }
+      function getAdjustedSizes(_ref5) {
+        var aspectRatio = _ref5.aspectRatio, height = _ref5.height, width = _ref5.width;
+        var type = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : "contain";
+        var isValidWidth = isPositiveNumber(width);
+        var isValidHeight = isPositiveNumber(height);
+        if (isValidWidth && isValidHeight) {
+          var adjustedWidth = height * aspectRatio;
+          if (type === "contain" && adjustedWidth > width || type === "cover" && adjustedWidth < width) {
+            height = width / aspectRatio;
+          } else {
+            width = height * aspectRatio;
+          }
+        } else if (isValidWidth) {
+          height = width / aspectRatio;
+        } else if (isValidHeight) {
+          width = height * aspectRatio;
+        }
+        return {
+          width,
+          height
+        };
+      }
+      function getRotatedSizes(_ref6) {
+        var width = _ref6.width, height = _ref6.height, degree = _ref6.degree;
+        degree = Math.abs(degree) % 180;
+        if (degree === 90) {
+          return {
+            width: height,
+            height: width
+          };
+        }
+        var arc = degree % 90 * Math.PI / 180;
+        var sinArc = Math.sin(arc);
+        var cosArc = Math.cos(arc);
+        var newWidth = width * cosArc + height * sinArc;
+        var newHeight = width * sinArc + height * cosArc;
+        return degree > 90 ? {
+          width: newHeight,
+          height: newWidth
+        } : {
+          width: newWidth,
+          height: newHeight
+        };
+      }
+      function getSourceCanvas(image, _ref7, _ref8, _ref9) {
+        var imageAspectRatio = _ref7.aspectRatio, imageNaturalWidth = _ref7.naturalWidth, imageNaturalHeight = _ref7.naturalHeight, _ref7$rotate = _ref7.rotate, rotate = _ref7$rotate === void 0 ? 0 : _ref7$rotate, _ref7$scaleX = _ref7.scaleX, scaleX = _ref7$scaleX === void 0 ? 1 : _ref7$scaleX, _ref7$scaleY = _ref7.scaleY, scaleY = _ref7$scaleY === void 0 ? 1 : _ref7$scaleY;
+        var aspectRatio = _ref8.aspectRatio, naturalWidth = _ref8.naturalWidth, naturalHeight = _ref8.naturalHeight;
+        var _ref9$fillColor = _ref9.fillColor, fillColor = _ref9$fillColor === void 0 ? "transparent" : _ref9$fillColor, _ref9$imageSmoothingE = _ref9.imageSmoothingEnabled, imageSmoothingEnabled = _ref9$imageSmoothingE === void 0 ? true : _ref9$imageSmoothingE, _ref9$imageSmoothingQ = _ref9.imageSmoothingQuality, imageSmoothingQuality = _ref9$imageSmoothingQ === void 0 ? "low" : _ref9$imageSmoothingQ, _ref9$maxWidth = _ref9.maxWidth, maxWidth = _ref9$maxWidth === void 0 ? Infinity : _ref9$maxWidth, _ref9$maxHeight = _ref9.maxHeight, maxHeight = _ref9$maxHeight === void 0 ? Infinity : _ref9$maxHeight, _ref9$minWidth = _ref9.minWidth, minWidth = _ref9$minWidth === void 0 ? 0 : _ref9$minWidth, _ref9$minHeight = _ref9.minHeight, minHeight = _ref9$minHeight === void 0 ? 0 : _ref9$minHeight;
+        var canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        var maxSizes = getAdjustedSizes({
+          aspectRatio,
+          width: maxWidth,
+          height: maxHeight
+        });
+        var minSizes = getAdjustedSizes({
+          aspectRatio,
+          width: minWidth,
+          height: minHeight
+        }, "cover");
+        var width = Math.min(maxSizes.width, Math.max(minSizes.width, naturalWidth));
+        var height = Math.min(maxSizes.height, Math.max(minSizes.height, naturalHeight));
+        var destMaxSizes = getAdjustedSizes({
+          aspectRatio: imageAspectRatio,
+          width: maxWidth,
+          height: maxHeight
+        });
+        var destMinSizes = getAdjustedSizes({
+          aspectRatio: imageAspectRatio,
+          width: minWidth,
+          height: minHeight
+        }, "cover");
+        var destWidth = Math.min(destMaxSizes.width, Math.max(destMinSizes.width, imageNaturalWidth));
+        var destHeight = Math.min(destMaxSizes.height, Math.max(destMinSizes.height, imageNaturalHeight));
+        var params = [-destWidth / 2, -destHeight / 2, destWidth, destHeight];
+        canvas.width = normalizeDecimalNumber(width);
+        canvas.height = normalizeDecimalNumber(height);
+        context.fillStyle = fillColor;
+        context.fillRect(0, 0, width, height);
+        context.save();
+        context.translate(width / 2, height / 2);
+        context.rotate(rotate * Math.PI / 180);
+        context.scale(scaleX, scaleY);
+        context.imageSmoothingEnabled = imageSmoothingEnabled;
+        context.imageSmoothingQuality = imageSmoothingQuality;
+        context.drawImage.apply(context, [image].concat(_toConsumableArray(params.map(function(param) {
+          return Math.floor(normalizeDecimalNumber(param));
+        }))));
+        context.restore();
+        return canvas;
+      }
+      var fromCharCode = String.fromCharCode;
+      function getStringFromCharCode(dataView, start, length) {
+        var str = "";
+        length += start;
+        for (var i = start; i < length; i += 1) {
+          str += fromCharCode(dataView.getUint8(i));
+        }
+        return str;
+      }
+      var REGEXP_DATA_URL_HEAD = /^data:.*,/;
+      function dataURLToArrayBuffer(dataURL) {
+        var base64 = dataURL.replace(REGEXP_DATA_URL_HEAD, "");
+        var binary = atob(base64);
+        var arrayBuffer = new ArrayBuffer(binary.length);
+        var uint8 = new Uint8Array(arrayBuffer);
+        forEach(uint8, function(value, i) {
+          uint8[i] = binary.charCodeAt(i);
+        });
+        return arrayBuffer;
+      }
+      function arrayBufferToDataURL(arrayBuffer, mimeType) {
+        var chunks = [];
+        var chunkSize = 8192;
+        var uint8 = new Uint8Array(arrayBuffer);
+        while (uint8.length > 0) {
+          chunks.push(fromCharCode.apply(null, toArray(uint8.subarray(0, chunkSize))));
+          uint8 = uint8.subarray(chunkSize);
+        }
+        return "data:".concat(mimeType, ";base64,").concat(btoa(chunks.join("")));
+      }
+      function resetAndGetOrientation(arrayBuffer) {
+        var dataView = new DataView(arrayBuffer);
+        var orientation;
+        try {
+          var littleEndian;
+          var app1Start;
+          var ifdStart;
+          if (dataView.getUint8(0) === 255 && dataView.getUint8(1) === 216) {
+            var length = dataView.byteLength;
+            var offset = 2;
+            while (offset + 1 < length) {
+              if (dataView.getUint8(offset) === 255 && dataView.getUint8(offset + 1) === 225) {
+                app1Start = offset;
+                break;
+              }
+              offset += 1;
+            }
+          }
+          if (app1Start) {
+            var exifIDCode = app1Start + 4;
+            var tiffOffset = app1Start + 10;
+            if (getStringFromCharCode(dataView, exifIDCode, 4) === "Exif") {
+              var endianness = dataView.getUint16(tiffOffset);
+              littleEndian = endianness === 18761;
+              if (littleEndian || endianness === 19789) {
+                if (dataView.getUint16(tiffOffset + 2, littleEndian) === 42) {
+                  var firstIFDOffset = dataView.getUint32(tiffOffset + 4, littleEndian);
+                  if (firstIFDOffset >= 8) {
+                    ifdStart = tiffOffset + firstIFDOffset;
+                  }
+                }
+              }
+            }
+          }
+          if (ifdStart) {
+            var _length = dataView.getUint16(ifdStart, littleEndian);
+            var _offset;
+            var i;
+            for (i = 0; i < _length; i += 1) {
+              _offset = ifdStart + i * 12 + 2;
+              if (dataView.getUint16(_offset, littleEndian) === 274) {
+                _offset += 8;
+                orientation = dataView.getUint16(_offset, littleEndian);
+                dataView.setUint16(_offset, 1, littleEndian);
+                break;
+              }
+            }
+          }
+        } catch (error) {
+          orientation = 1;
+        }
+        return orientation;
+      }
+      function parseOrientation(orientation) {
+        var rotate = 0;
+        var scaleX = 1;
+        var scaleY = 1;
+        switch (orientation) {
+          // Flip horizontal
+          case 2:
+            scaleX = -1;
+            break;
+          // Rotate left 180°
+          case 3:
+            rotate = -180;
+            break;
+          // Flip vertical
+          case 4:
+            scaleY = -1;
+            break;
+          // Flip vertical and rotate right 90°
+          case 5:
+            rotate = 90;
+            scaleY = -1;
+            break;
+          // Rotate right 90°
+          case 6:
+            rotate = 90;
+            break;
+          // Flip horizontal and rotate right 90°
+          case 7:
+            rotate = 90;
+            scaleX = -1;
+            break;
+          // Rotate left 90°
+          case 8:
+            rotate = -90;
+            break;
+        }
+        return {
+          rotate,
+          scaleX,
+          scaleY
+        };
+      }
+      var render = {
+        render: function render2() {
+          this.initContainer();
+          this.initCanvas();
+          this.initCropBox();
+          this.renderCanvas();
+          if (this.cropped) {
+            this.renderCropBox();
+          }
+        },
+        initContainer: function initContainer() {
+          var element = this.element, options = this.options, container = this.container, cropper = this.cropper;
+          var minWidth = Number(options.minContainerWidth);
+          var minHeight = Number(options.minContainerHeight);
+          addClass(cropper, CLASS_HIDDEN);
+          removeClass(element, CLASS_HIDDEN);
+          var containerData = {
+            width: Math.max(container.offsetWidth, minWidth >= 0 ? minWidth : MIN_CONTAINER_WIDTH),
+            height: Math.max(container.offsetHeight, minHeight >= 0 ? minHeight : MIN_CONTAINER_HEIGHT)
+          };
+          this.containerData = containerData;
+          setStyle(cropper, {
+            width: containerData.width,
+            height: containerData.height
+          });
+          addClass(element, CLASS_HIDDEN);
+          removeClass(cropper, CLASS_HIDDEN);
+        },
+        // Canvas (image wrapper)
+        initCanvas: function initCanvas() {
+          var containerData = this.containerData, imageData = this.imageData;
+          var viewMode = this.options.viewMode;
+          var rotated = Math.abs(imageData.rotate) % 180 === 90;
+          var naturalWidth = rotated ? imageData.naturalHeight : imageData.naturalWidth;
+          var naturalHeight = rotated ? imageData.naturalWidth : imageData.naturalHeight;
+          var aspectRatio = naturalWidth / naturalHeight;
+          var canvasWidth = containerData.width;
+          var canvasHeight = containerData.height;
+          if (containerData.height * aspectRatio > containerData.width) {
+            if (viewMode === 3) {
+              canvasWidth = containerData.height * aspectRatio;
+            } else {
+              canvasHeight = containerData.width / aspectRatio;
+            }
+          } else if (viewMode === 3) {
+            canvasHeight = containerData.width / aspectRatio;
+          } else {
+            canvasWidth = containerData.height * aspectRatio;
+          }
+          var canvasData = {
+            aspectRatio,
+            naturalWidth,
+            naturalHeight,
+            width: canvasWidth,
+            height: canvasHeight
+          };
+          this.canvasData = canvasData;
+          this.limited = viewMode === 1 || viewMode === 2;
+          this.limitCanvas(true, true);
+          canvasData.width = Math.min(Math.max(canvasData.width, canvasData.minWidth), canvasData.maxWidth);
+          canvasData.height = Math.min(Math.max(canvasData.height, canvasData.minHeight), canvasData.maxHeight);
+          canvasData.left = (containerData.width - canvasData.width) / 2;
+          canvasData.top = (containerData.height - canvasData.height) / 2;
+          canvasData.oldLeft = canvasData.left;
+          canvasData.oldTop = canvasData.top;
+          this.initialCanvasData = assign({}, canvasData);
+        },
+        limitCanvas: function limitCanvas(sizeLimited, positionLimited) {
+          var options = this.options, containerData = this.containerData, canvasData = this.canvasData, cropBoxData = this.cropBoxData;
+          var viewMode = options.viewMode;
+          var aspectRatio = canvasData.aspectRatio;
+          var cropped = this.cropped && cropBoxData;
+          if (sizeLimited) {
+            var minCanvasWidth = Number(options.minCanvasWidth) || 0;
+            var minCanvasHeight = Number(options.minCanvasHeight) || 0;
+            if (viewMode > 1) {
+              minCanvasWidth = Math.max(minCanvasWidth, containerData.width);
+              minCanvasHeight = Math.max(minCanvasHeight, containerData.height);
+              if (viewMode === 3) {
+                if (minCanvasHeight * aspectRatio > minCanvasWidth) {
+                  minCanvasWidth = minCanvasHeight * aspectRatio;
+                } else {
+                  minCanvasHeight = minCanvasWidth / aspectRatio;
+                }
+              }
+            } else if (viewMode > 0) {
+              if (minCanvasWidth) {
+                minCanvasWidth = Math.max(minCanvasWidth, cropped ? cropBoxData.width : 0);
+              } else if (minCanvasHeight) {
+                minCanvasHeight = Math.max(minCanvasHeight, cropped ? cropBoxData.height : 0);
+              } else if (cropped) {
+                minCanvasWidth = cropBoxData.width;
+                minCanvasHeight = cropBoxData.height;
+                if (minCanvasHeight * aspectRatio > minCanvasWidth) {
+                  minCanvasWidth = minCanvasHeight * aspectRatio;
+                } else {
+                  minCanvasHeight = minCanvasWidth / aspectRatio;
+                }
+              }
+            }
+            var _getAdjustedSizes = getAdjustedSizes({
+              aspectRatio,
+              width: minCanvasWidth,
+              height: minCanvasHeight
+            });
+            minCanvasWidth = _getAdjustedSizes.width;
+            minCanvasHeight = _getAdjustedSizes.height;
+            canvasData.minWidth = minCanvasWidth;
+            canvasData.minHeight = minCanvasHeight;
+            canvasData.maxWidth = Infinity;
+            canvasData.maxHeight = Infinity;
+          }
+          if (positionLimited) {
+            if (viewMode > (cropped ? 0 : 1)) {
+              var newCanvasLeft = containerData.width - canvasData.width;
+              var newCanvasTop = containerData.height - canvasData.height;
+              canvasData.minLeft = Math.min(0, newCanvasLeft);
+              canvasData.minTop = Math.min(0, newCanvasTop);
+              canvasData.maxLeft = Math.max(0, newCanvasLeft);
+              canvasData.maxTop = Math.max(0, newCanvasTop);
+              if (cropped && this.limited) {
+                canvasData.minLeft = Math.min(cropBoxData.left, cropBoxData.left + (cropBoxData.width - canvasData.width));
+                canvasData.minTop = Math.min(cropBoxData.top, cropBoxData.top + (cropBoxData.height - canvasData.height));
+                canvasData.maxLeft = cropBoxData.left;
+                canvasData.maxTop = cropBoxData.top;
+                if (viewMode === 2) {
+                  if (canvasData.width >= containerData.width) {
+                    canvasData.minLeft = Math.min(0, newCanvasLeft);
+                    canvasData.maxLeft = Math.max(0, newCanvasLeft);
+                  }
+                  if (canvasData.height >= containerData.height) {
+                    canvasData.minTop = Math.min(0, newCanvasTop);
+                    canvasData.maxTop = Math.max(0, newCanvasTop);
+                  }
+                }
+              }
+            } else {
+              canvasData.minLeft = -canvasData.width;
+              canvasData.minTop = -canvasData.height;
+              canvasData.maxLeft = containerData.width;
+              canvasData.maxTop = containerData.height;
+            }
+          }
+        },
+        renderCanvas: function renderCanvas(changed, transformed) {
+          var canvasData = this.canvasData, imageData = this.imageData;
+          if (transformed) {
+            var _getRotatedSizes = getRotatedSizes({
+              width: imageData.naturalWidth * Math.abs(imageData.scaleX || 1),
+              height: imageData.naturalHeight * Math.abs(imageData.scaleY || 1),
+              degree: imageData.rotate || 0
+            }), naturalWidth = _getRotatedSizes.width, naturalHeight = _getRotatedSizes.height;
+            var width = canvasData.width * (naturalWidth / canvasData.naturalWidth);
+            var height = canvasData.height * (naturalHeight / canvasData.naturalHeight);
+            canvasData.left -= (width - canvasData.width) / 2;
+            canvasData.top -= (height - canvasData.height) / 2;
+            canvasData.width = width;
+            canvasData.height = height;
+            canvasData.aspectRatio = naturalWidth / naturalHeight;
+            canvasData.naturalWidth = naturalWidth;
+            canvasData.naturalHeight = naturalHeight;
+            this.limitCanvas(true, false);
+          }
+          if (canvasData.width > canvasData.maxWidth || canvasData.width < canvasData.minWidth) {
+            canvasData.left = canvasData.oldLeft;
+          }
+          if (canvasData.height > canvasData.maxHeight || canvasData.height < canvasData.minHeight) {
+            canvasData.top = canvasData.oldTop;
+          }
+          canvasData.width = Math.min(Math.max(canvasData.width, canvasData.minWidth), canvasData.maxWidth);
+          canvasData.height = Math.min(Math.max(canvasData.height, canvasData.minHeight), canvasData.maxHeight);
+          this.limitCanvas(false, true);
+          canvasData.left = Math.min(Math.max(canvasData.left, canvasData.minLeft), canvasData.maxLeft);
+          canvasData.top = Math.min(Math.max(canvasData.top, canvasData.minTop), canvasData.maxTop);
+          canvasData.oldLeft = canvasData.left;
+          canvasData.oldTop = canvasData.top;
+          setStyle(this.canvas, assign({
+            width: canvasData.width,
+            height: canvasData.height
+          }, getTransforms({
+            translateX: canvasData.left,
+            translateY: canvasData.top
+          })));
+          this.renderImage(changed);
+          if (this.cropped && this.limited) {
+            this.limitCropBox(true, true);
+          }
+        },
+        renderImage: function renderImage(changed) {
+          var canvasData = this.canvasData, imageData = this.imageData;
+          var width = imageData.naturalWidth * (canvasData.width / canvasData.naturalWidth);
+          var height = imageData.naturalHeight * (canvasData.height / canvasData.naturalHeight);
+          assign(imageData, {
+            width,
+            height,
+            left: (canvasData.width - width) / 2,
+            top: (canvasData.height - height) / 2
+          });
+          setStyle(this.image, assign({
+            width: imageData.width,
+            height: imageData.height
+          }, getTransforms(assign({
+            translateX: imageData.left,
+            translateY: imageData.top
+          }, imageData))));
+          if (changed) {
+            this.output();
+          }
+        },
+        initCropBox: function initCropBox() {
+          var options = this.options, canvasData = this.canvasData;
+          var aspectRatio = options.aspectRatio || options.initialAspectRatio;
+          var autoCropArea = Number(options.autoCropArea) || 0.8;
+          var cropBoxData = {
+            width: canvasData.width,
+            height: canvasData.height
+          };
+          if (aspectRatio) {
+            if (canvasData.height * aspectRatio > canvasData.width) {
+              cropBoxData.height = cropBoxData.width / aspectRatio;
+            } else {
+              cropBoxData.width = cropBoxData.height * aspectRatio;
+            }
+          }
+          this.cropBoxData = cropBoxData;
+          this.limitCropBox(true, true);
+          cropBoxData.width = Math.min(Math.max(cropBoxData.width, cropBoxData.minWidth), cropBoxData.maxWidth);
+          cropBoxData.height = Math.min(Math.max(cropBoxData.height, cropBoxData.minHeight), cropBoxData.maxHeight);
+          cropBoxData.width = Math.max(cropBoxData.minWidth, cropBoxData.width * autoCropArea);
+          cropBoxData.height = Math.max(cropBoxData.minHeight, cropBoxData.height * autoCropArea);
+          cropBoxData.left = canvasData.left + (canvasData.width - cropBoxData.width) / 2;
+          cropBoxData.top = canvasData.top + (canvasData.height - cropBoxData.height) / 2;
+          cropBoxData.oldLeft = cropBoxData.left;
+          cropBoxData.oldTop = cropBoxData.top;
+          this.initialCropBoxData = assign({}, cropBoxData);
+        },
+        limitCropBox: function limitCropBox(sizeLimited, positionLimited) {
+          var options = this.options, containerData = this.containerData, canvasData = this.canvasData, cropBoxData = this.cropBoxData, limited = this.limited;
+          var aspectRatio = options.aspectRatio;
+          if (sizeLimited) {
+            var minCropBoxWidth = Number(options.minCropBoxWidth) || 0;
+            var minCropBoxHeight = Number(options.minCropBoxHeight) || 0;
+            var maxCropBoxWidth = limited ? Math.min(containerData.width, canvasData.width, canvasData.width + canvasData.left, containerData.width - canvasData.left) : containerData.width;
+            var maxCropBoxHeight = limited ? Math.min(containerData.height, canvasData.height, canvasData.height + canvasData.top, containerData.height - canvasData.top) : containerData.height;
+            minCropBoxWidth = Math.min(minCropBoxWidth, containerData.width);
+            minCropBoxHeight = Math.min(minCropBoxHeight, containerData.height);
+            if (aspectRatio) {
+              if (minCropBoxWidth && minCropBoxHeight) {
+                if (minCropBoxHeight * aspectRatio > minCropBoxWidth) {
+                  minCropBoxHeight = minCropBoxWidth / aspectRatio;
+                } else {
+                  minCropBoxWidth = minCropBoxHeight * aspectRatio;
+                }
+              } else if (minCropBoxWidth) {
+                minCropBoxHeight = minCropBoxWidth / aspectRatio;
+              } else if (minCropBoxHeight) {
+                minCropBoxWidth = minCropBoxHeight * aspectRatio;
+              }
+              if (maxCropBoxHeight * aspectRatio > maxCropBoxWidth) {
+                maxCropBoxHeight = maxCropBoxWidth / aspectRatio;
+              } else {
+                maxCropBoxWidth = maxCropBoxHeight * aspectRatio;
+              }
+            }
+            cropBoxData.minWidth = Math.min(minCropBoxWidth, maxCropBoxWidth);
+            cropBoxData.minHeight = Math.min(minCropBoxHeight, maxCropBoxHeight);
+            cropBoxData.maxWidth = maxCropBoxWidth;
+            cropBoxData.maxHeight = maxCropBoxHeight;
+          }
+          if (positionLimited) {
+            if (limited) {
+              cropBoxData.minLeft = Math.max(0, canvasData.left);
+              cropBoxData.minTop = Math.max(0, canvasData.top);
+              cropBoxData.maxLeft = Math.min(containerData.width, canvasData.left + canvasData.width) - cropBoxData.width;
+              cropBoxData.maxTop = Math.min(containerData.height, canvasData.top + canvasData.height) - cropBoxData.height;
+            } else {
+              cropBoxData.minLeft = 0;
+              cropBoxData.minTop = 0;
+              cropBoxData.maxLeft = containerData.width - cropBoxData.width;
+              cropBoxData.maxTop = containerData.height - cropBoxData.height;
+            }
+          }
+        },
+        renderCropBox: function renderCropBox() {
+          var options = this.options, containerData = this.containerData, cropBoxData = this.cropBoxData;
+          if (cropBoxData.width > cropBoxData.maxWidth || cropBoxData.width < cropBoxData.minWidth) {
+            cropBoxData.left = cropBoxData.oldLeft;
+          }
+          if (cropBoxData.height > cropBoxData.maxHeight || cropBoxData.height < cropBoxData.minHeight) {
+            cropBoxData.top = cropBoxData.oldTop;
+          }
+          cropBoxData.width = Math.min(Math.max(cropBoxData.width, cropBoxData.minWidth), cropBoxData.maxWidth);
+          cropBoxData.height = Math.min(Math.max(cropBoxData.height, cropBoxData.minHeight), cropBoxData.maxHeight);
+          this.limitCropBox(false, true);
+          cropBoxData.left = Math.min(Math.max(cropBoxData.left, cropBoxData.minLeft), cropBoxData.maxLeft);
+          cropBoxData.top = Math.min(Math.max(cropBoxData.top, cropBoxData.minTop), cropBoxData.maxTop);
+          cropBoxData.oldLeft = cropBoxData.left;
+          cropBoxData.oldTop = cropBoxData.top;
+          if (options.movable && options.cropBoxMovable) {
+            setData(this.face, DATA_ACTION, cropBoxData.width >= containerData.width && cropBoxData.height >= containerData.height ? ACTION_MOVE : ACTION_ALL);
+          }
+          setStyle(this.cropBox, assign({
+            width: cropBoxData.width,
+            height: cropBoxData.height
+          }, getTransforms({
+            translateX: cropBoxData.left,
+            translateY: cropBoxData.top
+          })));
+          if (this.cropped && this.limited) {
+            this.limitCanvas(true, true);
+          }
+          if (!this.disabled) {
+            this.output();
+          }
+        },
+        output: function output() {
+          this.preview();
+          dispatchEvent(this.element, EVENT_CROP, this.getData());
+        }
+      };
+      var preview = {
+        initPreview: function initPreview() {
+          var element = this.element, crossOrigin = this.crossOrigin;
+          var preview2 = this.options.preview;
+          var url = crossOrigin ? this.crossOriginUrl : this.url;
+          var alt = element.alt || "The image to preview";
+          var image = document.createElement("img");
+          if (crossOrigin) {
+            image.crossOrigin = crossOrigin;
+          }
+          image.src = url;
+          image.alt = alt;
+          this.viewBox.appendChild(image);
+          this.viewBoxImage = image;
+          if (!preview2) {
+            return;
+          }
+          var previews = preview2;
+          if (typeof preview2 === "string") {
+            previews = element.ownerDocument.querySelectorAll(preview2);
+          } else if (preview2.querySelector) {
+            previews = [preview2];
+          }
+          this.previews = previews;
+          forEach(previews, function(el) {
+            var img = document.createElement("img");
+            setData(el, DATA_PREVIEW, {
+              width: el.offsetWidth,
+              height: el.offsetHeight,
+              html: el.innerHTML
+            });
+            if (crossOrigin) {
+              img.crossOrigin = crossOrigin;
+            }
+            img.src = url;
+            img.alt = alt;
+            img.style.cssText = "display:block;width:100%;height:auto;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;image-orientation:0deg!important;";
+            el.innerHTML = "";
+            el.appendChild(img);
+          });
+        },
+        resetPreview: function resetPreview() {
+          forEach(this.previews, function(element) {
+            var data2 = getData(element, DATA_PREVIEW);
+            setStyle(element, {
+              width: data2.width,
+              height: data2.height
+            });
+            element.innerHTML = data2.html;
+            removeData(element, DATA_PREVIEW);
+          });
+        },
+        preview: function preview2() {
+          var imageData = this.imageData, canvasData = this.canvasData, cropBoxData = this.cropBoxData;
+          var cropBoxWidth = cropBoxData.width, cropBoxHeight = cropBoxData.height;
+          var width = imageData.width, height = imageData.height;
+          var left = cropBoxData.left - canvasData.left - imageData.left;
+          var top = cropBoxData.top - canvasData.top - imageData.top;
+          if (!this.cropped || this.disabled) {
+            return;
+          }
+          setStyle(this.viewBoxImage, assign({
+            width,
+            height
+          }, getTransforms(assign({
+            translateX: -left,
+            translateY: -top
+          }, imageData))));
+          forEach(this.previews, function(element) {
+            var data2 = getData(element, DATA_PREVIEW);
+            var originalWidth = data2.width;
+            var originalHeight = data2.height;
+            var newWidth = originalWidth;
+            var newHeight = originalHeight;
+            var ratio = 1;
+            if (cropBoxWidth) {
+              ratio = originalWidth / cropBoxWidth;
+              newHeight = cropBoxHeight * ratio;
+            }
+            if (cropBoxHeight && newHeight > originalHeight) {
+              ratio = originalHeight / cropBoxHeight;
+              newWidth = cropBoxWidth * ratio;
+              newHeight = originalHeight;
+            }
+            setStyle(element, {
+              width: newWidth,
+              height: newHeight
+            });
+            setStyle(element.getElementsByTagName("img")[0], assign({
+              width: width * ratio,
+              height: height * ratio
+            }, getTransforms(assign({
+              translateX: -left * ratio,
+              translateY: -top * ratio
+            }, imageData))));
+          });
+        }
+      };
+      var events = {
+        bind: function bind() {
+          var element = this.element, options = this.options, cropper = this.cropper;
+          if (isFunction(options.cropstart)) {
+            addListener(element, EVENT_CROP_START, options.cropstart);
+          }
+          if (isFunction(options.cropmove)) {
+            addListener(element, EVENT_CROP_MOVE, options.cropmove);
+          }
+          if (isFunction(options.cropend)) {
+            addListener(element, EVENT_CROP_END, options.cropend);
+          }
+          if (isFunction(options.crop)) {
+            addListener(element, EVENT_CROP, options.crop);
+          }
+          if (isFunction(options.zoom)) {
+            addListener(element, EVENT_ZOOM, options.zoom);
+          }
+          addListener(cropper, EVENT_POINTER_DOWN, this.onCropStart = this.cropStart.bind(this));
+          if (options.zoomable && options.zoomOnWheel) {
+            addListener(cropper, EVENT_WHEEL, this.onWheel = this.wheel.bind(this), {
+              passive: false,
+              capture: true
+            });
+          }
+          if (options.toggleDragModeOnDblclick) {
+            addListener(cropper, EVENT_DBLCLICK, this.onDblclick = this.dblclick.bind(this));
+          }
+          addListener(element.ownerDocument, EVENT_POINTER_MOVE, this.onCropMove = this.cropMove.bind(this));
+          addListener(element.ownerDocument, EVENT_POINTER_UP, this.onCropEnd = this.cropEnd.bind(this));
+          if (options.responsive) {
+            addListener(window, EVENT_RESIZE, this.onResize = this.resize.bind(this));
+          }
+        },
+        unbind: function unbind() {
+          var element = this.element, options = this.options, cropper = this.cropper;
+          if (isFunction(options.cropstart)) {
+            removeListener(element, EVENT_CROP_START, options.cropstart);
+          }
+          if (isFunction(options.cropmove)) {
+            removeListener(element, EVENT_CROP_MOVE, options.cropmove);
+          }
+          if (isFunction(options.cropend)) {
+            removeListener(element, EVENT_CROP_END, options.cropend);
+          }
+          if (isFunction(options.crop)) {
+            removeListener(element, EVENT_CROP, options.crop);
+          }
+          if (isFunction(options.zoom)) {
+            removeListener(element, EVENT_ZOOM, options.zoom);
+          }
+          removeListener(cropper, EVENT_POINTER_DOWN, this.onCropStart);
+          if (options.zoomable && options.zoomOnWheel) {
+            removeListener(cropper, EVENT_WHEEL, this.onWheel, {
+              passive: false,
+              capture: true
+            });
+          }
+          if (options.toggleDragModeOnDblclick) {
+            removeListener(cropper, EVENT_DBLCLICK, this.onDblclick);
+          }
+          removeListener(element.ownerDocument, EVENT_POINTER_MOVE, this.onCropMove);
+          removeListener(element.ownerDocument, EVENT_POINTER_UP, this.onCropEnd);
+          if (options.responsive) {
+            removeListener(window, EVENT_RESIZE, this.onResize);
+          }
+        }
+      };
+      var handlers = {
+        resize: function resize() {
+          if (this.disabled) {
+            return;
+          }
+          var options = this.options, container = this.container, containerData = this.containerData;
+          var ratioX = container.offsetWidth / containerData.width;
+          var ratioY = container.offsetHeight / containerData.height;
+          var ratio = Math.abs(ratioX - 1) > Math.abs(ratioY - 1) ? ratioX : ratioY;
+          if (ratio !== 1) {
+            var canvasData;
+            var cropBoxData;
+            if (options.restore) {
+              canvasData = this.getCanvasData();
+              cropBoxData = this.getCropBoxData();
+            }
+            this.render();
+            if (options.restore) {
+              this.setCanvasData(forEach(canvasData, function(n, i) {
+                canvasData[i] = n * ratio;
+              }));
+              this.setCropBoxData(forEach(cropBoxData, function(n, i) {
+                cropBoxData[i] = n * ratio;
+              }));
+            }
+          }
+        },
+        dblclick: function dblclick() {
+          if (this.disabled || this.options.dragMode === DRAG_MODE_NONE) {
+            return;
+          }
+          this.setDragMode(hasClass(this.dragBox, CLASS_CROP) ? DRAG_MODE_MOVE : DRAG_MODE_CROP);
+        },
+        wheel: function wheel(event) {
+          var _this = this;
+          var ratio = Number(this.options.wheelZoomRatio) || 0.1;
+          var delta = 1;
+          if (this.disabled) {
+            return;
+          }
+          event.preventDefault();
+          if (this.wheeling) {
+            return;
+          }
+          this.wheeling = true;
+          setTimeout(function() {
+            _this.wheeling = false;
+          }, 50);
+          if (event.deltaY) {
+            delta = event.deltaY > 0 ? 1 : -1;
+          } else if (event.wheelDelta) {
+            delta = -event.wheelDelta / 120;
+          } else if (event.detail) {
+            delta = event.detail > 0 ? 1 : -1;
+          }
+          this.zoom(-delta * ratio, event);
+        },
+        cropStart: function cropStart(event) {
+          var buttons = event.buttons, button = event.button;
+          if (this.disabled || (event.type === "mousedown" || event.type === "pointerdown" && event.pointerType === "mouse") && // No primary button (Usually the left button)
+          (isNumber(buttons) && buttons !== 1 || isNumber(button) && button !== 0 || event.ctrlKey)) {
+            return;
+          }
+          var options = this.options, pointers = this.pointers;
+          var action;
+          if (event.changedTouches) {
+            forEach(event.changedTouches, function(touch) {
+              pointers[touch.identifier] = getPointer(touch);
+            });
+          } else {
+            pointers[event.pointerId || 0] = getPointer(event);
+          }
+          if (Object.keys(pointers).length > 1 && options.zoomable && options.zoomOnTouch) {
+            action = ACTION_ZOOM;
+          } else {
+            action = getData(event.target, DATA_ACTION);
+          }
+          if (!REGEXP_ACTIONS.test(action)) {
+            return;
+          }
+          if (dispatchEvent(this.element, EVENT_CROP_START, {
+            originalEvent: event,
+            action
+          }) === false) {
+            return;
+          }
+          event.preventDefault();
+          this.action = action;
+          this.cropping = false;
+          if (action === ACTION_CROP) {
+            this.cropping = true;
+            addClass(this.dragBox, CLASS_MODAL);
+          }
+        },
+        cropMove: function cropMove(event) {
+          var action = this.action;
+          if (this.disabled || !action) {
+            return;
+          }
+          var pointers = this.pointers;
+          event.preventDefault();
+          if (dispatchEvent(this.element, EVENT_CROP_MOVE, {
+            originalEvent: event,
+            action
+          }) === false) {
+            return;
+          }
+          if (event.changedTouches) {
+            forEach(event.changedTouches, function(touch) {
+              assign(pointers[touch.identifier] || {}, getPointer(touch, true));
+            });
+          } else {
+            assign(pointers[event.pointerId || 0] || {}, getPointer(event, true));
+          }
+          this.change(event);
+        },
+        cropEnd: function cropEnd(event) {
+          if (this.disabled) {
+            return;
+          }
+          var action = this.action, pointers = this.pointers;
+          if (event.changedTouches) {
+            forEach(event.changedTouches, function(touch) {
+              delete pointers[touch.identifier];
+            });
+          } else {
+            delete pointers[event.pointerId || 0];
+          }
+          if (!action) {
+            return;
+          }
+          event.preventDefault();
+          if (!Object.keys(pointers).length) {
+            this.action = "";
+          }
+          if (this.cropping) {
+            this.cropping = false;
+            toggleClass(this.dragBox, CLASS_MODAL, this.cropped && this.options.modal);
+          }
+          dispatchEvent(this.element, EVENT_CROP_END, {
+            originalEvent: event,
+            action
+          });
+        }
+      };
+      var change = {
+        change: function change2(event) {
+          var options = this.options, canvasData = this.canvasData, containerData = this.containerData, cropBoxData = this.cropBoxData, pointers = this.pointers;
+          var action = this.action;
+          var aspectRatio = options.aspectRatio;
+          var left = cropBoxData.left, top = cropBoxData.top, width = cropBoxData.width, height = cropBoxData.height;
+          var right = left + width;
+          var bottom = top + height;
+          var minLeft = 0;
+          var minTop = 0;
+          var maxWidth = containerData.width;
+          var maxHeight = containerData.height;
+          var renderable = true;
+          var offset;
+          if (!aspectRatio && event.shiftKey) {
+            aspectRatio = width && height ? width / height : 1;
+          }
+          if (this.limited) {
+            minLeft = cropBoxData.minLeft;
+            minTop = cropBoxData.minTop;
+            maxWidth = minLeft + Math.min(containerData.width, canvasData.width, canvasData.left + canvasData.width);
+            maxHeight = minTop + Math.min(containerData.height, canvasData.height, canvasData.top + canvasData.height);
+          }
+          var pointer = pointers[Object.keys(pointers)[0]];
+          var range = {
+            x: pointer.endX - pointer.startX,
+            y: pointer.endY - pointer.startY
+          };
+          var check = function check2(side) {
+            switch (side) {
+              case ACTION_EAST:
+                if (right + range.x > maxWidth) {
+                  range.x = maxWidth - right;
+                }
+                break;
+              case ACTION_WEST:
+                if (left + range.x < minLeft) {
+                  range.x = minLeft - left;
+                }
+                break;
+              case ACTION_NORTH:
+                if (top + range.y < minTop) {
+                  range.y = minTop - top;
+                }
+                break;
+              case ACTION_SOUTH:
+                if (bottom + range.y > maxHeight) {
+                  range.y = maxHeight - bottom;
+                }
+                break;
+            }
+          };
+          switch (action) {
+            // Move crop box
+            case ACTION_ALL:
+              left += range.x;
+              top += range.y;
+              break;
+            // Resize crop box
+            case ACTION_EAST:
+              if (range.x >= 0 && (right >= maxWidth || aspectRatio && (top <= minTop || bottom >= maxHeight))) {
+                renderable = false;
+                break;
+              }
+              check(ACTION_EAST);
+              width += range.x;
+              if (width < 0) {
+                action = ACTION_WEST;
+                width = -width;
+                left -= width;
+              }
+              if (aspectRatio) {
+                height = width / aspectRatio;
+                top += (cropBoxData.height - height) / 2;
+              }
+              break;
+            case ACTION_NORTH:
+              if (range.y <= 0 && (top <= minTop || aspectRatio && (left <= minLeft || right >= maxWidth))) {
+                renderable = false;
+                break;
+              }
+              check(ACTION_NORTH);
+              height -= range.y;
+              top += range.y;
+              if (height < 0) {
+                action = ACTION_SOUTH;
+                height = -height;
+                top -= height;
+              }
+              if (aspectRatio) {
+                width = height * aspectRatio;
+                left += (cropBoxData.width - width) / 2;
+              }
+              break;
+            case ACTION_WEST:
+              if (range.x <= 0 && (left <= minLeft || aspectRatio && (top <= minTop || bottom >= maxHeight))) {
+                renderable = false;
+                break;
+              }
+              check(ACTION_WEST);
+              width -= range.x;
+              left += range.x;
+              if (width < 0) {
+                action = ACTION_EAST;
+                width = -width;
+                left -= width;
+              }
+              if (aspectRatio) {
+                height = width / aspectRatio;
+                top += (cropBoxData.height - height) / 2;
+              }
+              break;
+            case ACTION_SOUTH:
+              if (range.y >= 0 && (bottom >= maxHeight || aspectRatio && (left <= minLeft || right >= maxWidth))) {
+                renderable = false;
+                break;
+              }
+              check(ACTION_SOUTH);
+              height += range.y;
+              if (height < 0) {
+                action = ACTION_NORTH;
+                height = -height;
+                top -= height;
+              }
+              if (aspectRatio) {
+                width = height * aspectRatio;
+                left += (cropBoxData.width - width) / 2;
+              }
+              break;
+            case ACTION_NORTH_EAST:
+              if (aspectRatio) {
+                if (range.y <= 0 && (top <= minTop || right >= maxWidth)) {
+                  renderable = false;
+                  break;
+                }
+                check(ACTION_NORTH);
+                height -= range.y;
+                top += range.y;
+                width = height * aspectRatio;
+              } else {
+                check(ACTION_NORTH);
+                check(ACTION_EAST);
+                if (range.x >= 0) {
+                  if (right < maxWidth) {
+                    width += range.x;
+                  } else if (range.y <= 0 && top <= minTop) {
+                    renderable = false;
+                  }
+                } else {
+                  width += range.x;
+                }
+                if (range.y <= 0) {
+                  if (top > minTop) {
+                    height -= range.y;
+                    top += range.y;
+                  }
+                } else {
+                  height -= range.y;
+                  top += range.y;
+                }
+              }
+              if (width < 0 && height < 0) {
+                action = ACTION_SOUTH_WEST;
+                height = -height;
+                width = -width;
+                top -= height;
+                left -= width;
+              } else if (width < 0) {
+                action = ACTION_NORTH_WEST;
+                width = -width;
+                left -= width;
+              } else if (height < 0) {
+                action = ACTION_SOUTH_EAST;
+                height = -height;
+                top -= height;
+              }
+              break;
+            case ACTION_NORTH_WEST:
+              if (aspectRatio) {
+                if (range.y <= 0 && (top <= minTop || left <= minLeft)) {
+                  renderable = false;
+                  break;
+                }
+                check(ACTION_NORTH);
+                height -= range.y;
+                top += range.y;
+                width = height * aspectRatio;
+                left += cropBoxData.width - width;
+              } else {
+                check(ACTION_NORTH);
+                check(ACTION_WEST);
+                if (range.x <= 0) {
+                  if (left > minLeft) {
+                    width -= range.x;
+                    left += range.x;
+                  } else if (range.y <= 0 && top <= minTop) {
+                    renderable = false;
+                  }
+                } else {
+                  width -= range.x;
+                  left += range.x;
+                }
+                if (range.y <= 0) {
+                  if (top > minTop) {
+                    height -= range.y;
+                    top += range.y;
+                  }
+                } else {
+                  height -= range.y;
+                  top += range.y;
+                }
+              }
+              if (width < 0 && height < 0) {
+                action = ACTION_SOUTH_EAST;
+                height = -height;
+                width = -width;
+                top -= height;
+                left -= width;
+              } else if (width < 0) {
+                action = ACTION_NORTH_EAST;
+                width = -width;
+                left -= width;
+              } else if (height < 0) {
+                action = ACTION_SOUTH_WEST;
+                height = -height;
+                top -= height;
+              }
+              break;
+            case ACTION_SOUTH_WEST:
+              if (aspectRatio) {
+                if (range.x <= 0 && (left <= minLeft || bottom >= maxHeight)) {
+                  renderable = false;
+                  break;
+                }
+                check(ACTION_WEST);
+                width -= range.x;
+                left += range.x;
+                height = width / aspectRatio;
+              } else {
+                check(ACTION_SOUTH);
+                check(ACTION_WEST);
+                if (range.x <= 0) {
+                  if (left > minLeft) {
+                    width -= range.x;
+                    left += range.x;
+                  } else if (range.y >= 0 && bottom >= maxHeight) {
+                    renderable = false;
+                  }
+                } else {
+                  width -= range.x;
+                  left += range.x;
+                }
+                if (range.y >= 0) {
+                  if (bottom < maxHeight) {
+                    height += range.y;
+                  }
+                } else {
+                  height += range.y;
+                }
+              }
+              if (width < 0 && height < 0) {
+                action = ACTION_NORTH_EAST;
+                height = -height;
+                width = -width;
+                top -= height;
+                left -= width;
+              } else if (width < 0) {
+                action = ACTION_SOUTH_EAST;
+                width = -width;
+                left -= width;
+              } else if (height < 0) {
+                action = ACTION_NORTH_WEST;
+                height = -height;
+                top -= height;
+              }
+              break;
+            case ACTION_SOUTH_EAST:
+              if (aspectRatio) {
+                if (range.x >= 0 && (right >= maxWidth || bottom >= maxHeight)) {
+                  renderable = false;
+                  break;
+                }
+                check(ACTION_EAST);
+                width += range.x;
+                height = width / aspectRatio;
+              } else {
+                check(ACTION_SOUTH);
+                check(ACTION_EAST);
+                if (range.x >= 0) {
+                  if (right < maxWidth) {
+                    width += range.x;
+                  } else if (range.y >= 0 && bottom >= maxHeight) {
+                    renderable = false;
+                  }
+                } else {
+                  width += range.x;
+                }
+                if (range.y >= 0) {
+                  if (bottom < maxHeight) {
+                    height += range.y;
+                  }
+                } else {
+                  height += range.y;
+                }
+              }
+              if (width < 0 && height < 0) {
+                action = ACTION_NORTH_WEST;
+                height = -height;
+                width = -width;
+                top -= height;
+                left -= width;
+              } else if (width < 0) {
+                action = ACTION_SOUTH_WEST;
+                width = -width;
+                left -= width;
+              } else if (height < 0) {
+                action = ACTION_NORTH_EAST;
+                height = -height;
+                top -= height;
+              }
+              break;
+            // Move canvas
+            case ACTION_MOVE:
+              this.move(range.x, range.y);
+              renderable = false;
+              break;
+            // Zoom canvas
+            case ACTION_ZOOM:
+              this.zoom(getMaxZoomRatio(pointers), event);
+              renderable = false;
+              break;
+            // Create crop box
+            case ACTION_CROP:
+              if (!range.x || !range.y) {
+                renderable = false;
+                break;
+              }
+              offset = getOffset(this.cropper);
+              left = pointer.startX - offset.left;
+              top = pointer.startY - offset.top;
+              width = cropBoxData.minWidth;
+              height = cropBoxData.minHeight;
+              if (range.x > 0) {
+                action = range.y > 0 ? ACTION_SOUTH_EAST : ACTION_NORTH_EAST;
+              } else if (range.x < 0) {
+                left -= width;
+                action = range.y > 0 ? ACTION_SOUTH_WEST : ACTION_NORTH_WEST;
+              }
+              if (range.y < 0) {
+                top -= height;
+              }
+              if (!this.cropped) {
+                removeClass(this.cropBox, CLASS_HIDDEN);
+                this.cropped = true;
+                if (this.limited) {
+                  this.limitCropBox(true, true);
+                }
+              }
+              break;
+          }
+          if (renderable) {
+            cropBoxData.width = width;
+            cropBoxData.height = height;
+            cropBoxData.left = left;
+            cropBoxData.top = top;
+            this.action = action;
+            this.renderCropBox();
+          }
+          forEach(pointers, function(p) {
+            p.startX = p.endX;
+            p.startY = p.endY;
+          });
+        }
+      };
+      var methods = {
+        // Show the crop box manually
+        crop: function crop() {
+          if (this.ready && !this.cropped && !this.disabled) {
+            this.cropped = true;
+            this.limitCropBox(true, true);
+            if (this.options.modal) {
+              addClass(this.dragBox, CLASS_MODAL);
+            }
+            removeClass(this.cropBox, CLASS_HIDDEN);
+            this.setCropBoxData(this.initialCropBoxData);
+          }
+          return this;
+        },
+        // Reset the image and crop box to their initial states
+        reset: function reset() {
+          if (this.ready && !this.disabled) {
+            this.imageData = assign({}, this.initialImageData);
+            this.canvasData = assign({}, this.initialCanvasData);
+            this.cropBoxData = assign({}, this.initialCropBoxData);
+            this.renderCanvas();
+            if (this.cropped) {
+              this.renderCropBox();
+            }
+          }
+          return this;
+        },
+        // Clear the crop box
+        clear: function clear() {
+          if (this.cropped && !this.disabled) {
+            assign(this.cropBoxData, {
+              left: 0,
+              top: 0,
+              width: 0,
+              height: 0
+            });
+            this.cropped = false;
+            this.renderCropBox();
+            this.limitCanvas(true, true);
+            this.renderCanvas();
+            removeClass(this.dragBox, CLASS_MODAL);
+            addClass(this.cropBox, CLASS_HIDDEN);
+          }
+          return this;
+        },
+        /**
+         * Replace the image's src and rebuild the cropper
+         * @param {string} url - The new URL.
+         * @param {boolean} [hasSameSize] - Indicate if the new image has the same size as the old one.
+         * @returns {Cropper} this
+         */
+        replace: function replace(url) {
+          var hasSameSize = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : false;
+          if (!this.disabled && url) {
+            if (this.isImg) {
+              this.element.src = url;
+            }
+            if (hasSameSize) {
+              this.url = url;
+              this.image.src = url;
+              if (this.ready) {
+                this.viewBoxImage.src = url;
+                forEach(this.previews, function(element) {
+                  element.getElementsByTagName("img")[0].src = url;
+                });
+              }
+            } else {
+              if (this.isImg) {
+                this.replaced = true;
+              }
+              this.options.data = null;
+              this.uncreate();
+              this.load(url);
+            }
+          }
+          return this;
+        },
+        // Enable (unfreeze) the cropper
+        enable: function enable() {
+          if (this.ready && this.disabled) {
+            this.disabled = false;
+            removeClass(this.cropper, CLASS_DISABLED);
+          }
+          return this;
+        },
+        // Disable (freeze) the cropper
+        disable: function disable() {
+          if (this.ready && !this.disabled) {
+            this.disabled = true;
+            addClass(this.cropper, CLASS_DISABLED);
+          }
+          return this;
+        },
+        /**
+         * Destroy the cropper and remove the instance from the image
+         * @returns {Cropper} this
+         */
+        destroy: function destroy2() {
+          var element = this.element;
+          if (!element[NAMESPACE]) {
+            return this;
+          }
+          element[NAMESPACE] = void 0;
+          if (this.isImg && this.replaced) {
+            element.src = this.originalUrl;
+          }
+          this.uncreate();
+          return this;
+        },
+        /**
+         * Move the canvas with relative offsets
+         * @param {number} offsetX - The relative offset distance on the x-axis.
+         * @param {number} [offsetY=offsetX] - The relative offset distance on the y-axis.
+         * @returns {Cropper} this
+         */
+        move: function move(offsetX) {
+          var offsetY = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : offsetX;
+          var _this$canvasData = this.canvasData, left = _this$canvasData.left, top = _this$canvasData.top;
+          return this.moveTo(isUndefined(offsetX) ? offsetX : left + Number(offsetX), isUndefined(offsetY) ? offsetY : top + Number(offsetY));
+        },
+        /**
+         * Move the canvas to an absolute point
+         * @param {number} x - The x-axis coordinate.
+         * @param {number} [y=x] - The y-axis coordinate.
+         * @returns {Cropper} this
+         */
+        moveTo: function moveTo(x) {
+          var y = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : x;
+          var canvasData = this.canvasData;
+          var changed = false;
+          x = Number(x);
+          y = Number(y);
+          if (this.ready && !this.disabled && this.options.movable) {
+            if (isNumber(x)) {
+              canvasData.left = x;
+              changed = true;
+            }
+            if (isNumber(y)) {
+              canvasData.top = y;
+              changed = true;
+            }
+            if (changed) {
+              this.renderCanvas(true);
+            }
+          }
+          return this;
+        },
+        /**
+         * Zoom the canvas with a relative ratio
+         * @param {number} ratio - The target ratio.
+         * @param {Event} _originalEvent - The original event if any.
+         * @returns {Cropper} this
+         */
+        zoom: function zoom(ratio, _originalEvent) {
+          var canvasData = this.canvasData;
+          ratio = Number(ratio);
+          if (ratio < 0) {
+            ratio = 1 / (1 - ratio);
+          } else {
+            ratio = 1 + ratio;
+          }
+          return this.zoomTo(canvasData.width * ratio / canvasData.naturalWidth, null, _originalEvent);
+        },
+        /**
+         * Zoom the canvas to an absolute ratio
+         * @param {number} ratio - The target ratio.
+         * @param {Object} pivot - The zoom pivot point coordinate.
+         * @param {Event} _originalEvent - The original event if any.
+         * @returns {Cropper} this
+         */
+        zoomTo: function zoomTo(ratio, pivot, _originalEvent) {
+          var options = this.options, canvasData = this.canvasData;
+          var width = canvasData.width, height = canvasData.height, naturalWidth = canvasData.naturalWidth, naturalHeight = canvasData.naturalHeight;
+          ratio = Number(ratio);
+          if (ratio >= 0 && this.ready && !this.disabled && options.zoomable) {
+            var newWidth = naturalWidth * ratio;
+            var newHeight = naturalHeight * ratio;
+            if (dispatchEvent(this.element, EVENT_ZOOM, {
+              ratio,
+              oldRatio: width / naturalWidth,
+              originalEvent: _originalEvent
+            }) === false) {
+              return this;
+            }
+            if (_originalEvent) {
+              var pointers = this.pointers;
+              var offset = getOffset(this.cropper);
+              var center2 = pointers && Object.keys(pointers).length ? getPointersCenter(pointers) : {
+                pageX: _originalEvent.pageX,
+                pageY: _originalEvent.pageY
+              };
+              canvasData.left -= (newWidth - width) * ((center2.pageX - offset.left - canvasData.left) / width);
+              canvasData.top -= (newHeight - height) * ((center2.pageY - offset.top - canvasData.top) / height);
+            } else if (isPlainObject(pivot) && isNumber(pivot.x) && isNumber(pivot.y)) {
+              canvasData.left -= (newWidth - width) * ((pivot.x - canvasData.left) / width);
+              canvasData.top -= (newHeight - height) * ((pivot.y - canvasData.top) / height);
+            } else {
+              canvasData.left -= (newWidth - width) / 2;
+              canvasData.top -= (newHeight - height) / 2;
+            }
+            canvasData.width = newWidth;
+            canvasData.height = newHeight;
+            this.renderCanvas(true);
+          }
+          return this;
+        },
+        /**
+         * Rotate the canvas with a relative degree
+         * @param {number} degree - The rotate degree.
+         * @returns {Cropper} this
+         */
+        rotate: function rotate(degree) {
+          return this.rotateTo((this.imageData.rotate || 0) + Number(degree));
+        },
+        /**
+         * Rotate the canvas to an absolute degree
+         * @param {number} degree - The rotate degree.
+         * @returns {Cropper} this
+         */
+        rotateTo: function rotateTo(degree) {
+          degree = Number(degree);
+          if (isNumber(degree) && this.ready && !this.disabled && this.options.rotatable) {
+            this.imageData.rotate = degree % 360;
+            this.renderCanvas(true, true);
+          }
+          return this;
+        },
+        /**
+         * Scale the image on the x-axis.
+         * @param {number} scaleX - The scale ratio on the x-axis.
+         * @returns {Cropper} this
+         */
+        scaleX: function scaleX(_scaleX) {
+          var scaleY = this.imageData.scaleY;
+          return this.scale(_scaleX, isNumber(scaleY) ? scaleY : 1);
+        },
+        /**
+         * Scale the image on the y-axis.
+         * @param {number} scaleY - The scale ratio on the y-axis.
+         * @returns {Cropper} this
+         */
+        scaleY: function scaleY(_scaleY) {
+          var scaleX = this.imageData.scaleX;
+          return this.scale(isNumber(scaleX) ? scaleX : 1, _scaleY);
+        },
+        /**
+         * Scale the image
+         * @param {number} scaleX - The scale ratio on the x-axis.
+         * @param {number} [scaleY=scaleX] - The scale ratio on the y-axis.
+         * @returns {Cropper} this
+         */
+        scale: function scale(scaleX) {
+          var scaleY = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : scaleX;
+          var imageData = this.imageData;
+          var transformed = false;
+          scaleX = Number(scaleX);
+          scaleY = Number(scaleY);
+          if (this.ready && !this.disabled && this.options.scalable) {
+            if (isNumber(scaleX)) {
+              imageData.scaleX = scaleX;
+              transformed = true;
+            }
+            if (isNumber(scaleY)) {
+              imageData.scaleY = scaleY;
+              transformed = true;
+            }
+            if (transformed) {
+              this.renderCanvas(true, true);
+            }
+          }
+          return this;
+        },
+        /**
+         * Get the cropped area position and size data (base on the original image)
+         * @param {boolean} [rounded=false] - Indicate if round the data values or not.
+         * @returns {Object} The result cropped data.
+         */
+        getData: function getData2() {
+          var rounded = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : false;
+          var options = this.options, imageData = this.imageData, canvasData = this.canvasData, cropBoxData = this.cropBoxData;
+          var data2;
+          if (this.ready && this.cropped) {
+            data2 = {
+              x: cropBoxData.left - canvasData.left,
+              y: cropBoxData.top - canvasData.top,
+              width: cropBoxData.width,
+              height: cropBoxData.height
+            };
+            var ratio = imageData.width / imageData.naturalWidth;
+            forEach(data2, function(n, i) {
+              data2[i] = n / ratio;
+            });
+            if (rounded) {
+              var bottom = Math.round(data2.y + data2.height);
+              var right = Math.round(data2.x + data2.width);
+              data2.x = Math.round(data2.x);
+              data2.y = Math.round(data2.y);
+              data2.width = right - data2.x;
+              data2.height = bottom - data2.y;
+            }
+          } else {
+            data2 = {
+              x: 0,
+              y: 0,
+              width: 0,
+              height: 0
+            };
+          }
+          if (options.rotatable) {
+            data2.rotate = imageData.rotate || 0;
+          }
+          if (options.scalable) {
+            data2.scaleX = imageData.scaleX || 1;
+            data2.scaleY = imageData.scaleY || 1;
+          }
+          return data2;
+        },
+        /**
+         * Set the cropped area position and size with new data
+         * @param {Object} data - The new data.
+         * @returns {Cropper} this
+         */
+        setData: function setData2(data2) {
+          var options = this.options, imageData = this.imageData, canvasData = this.canvasData;
+          var cropBoxData = {};
+          if (this.ready && !this.disabled && isPlainObject(data2)) {
+            var transformed = false;
+            if (options.rotatable) {
+              if (isNumber(data2.rotate) && data2.rotate !== imageData.rotate) {
+                imageData.rotate = data2.rotate;
+                transformed = true;
+              }
+            }
+            if (options.scalable) {
+              if (isNumber(data2.scaleX) && data2.scaleX !== imageData.scaleX) {
+                imageData.scaleX = data2.scaleX;
+                transformed = true;
+              }
+              if (isNumber(data2.scaleY) && data2.scaleY !== imageData.scaleY) {
+                imageData.scaleY = data2.scaleY;
+                transformed = true;
+              }
+            }
+            if (transformed) {
+              this.renderCanvas(true, true);
+            }
+            var ratio = imageData.width / imageData.naturalWidth;
+            if (isNumber(data2.x)) {
+              cropBoxData.left = data2.x * ratio + canvasData.left;
+            }
+            if (isNumber(data2.y)) {
+              cropBoxData.top = data2.y * ratio + canvasData.top;
+            }
+            if (isNumber(data2.width)) {
+              cropBoxData.width = data2.width * ratio;
+            }
+            if (isNumber(data2.height)) {
+              cropBoxData.height = data2.height * ratio;
+            }
+            this.setCropBoxData(cropBoxData);
+          }
+          return this;
+        },
+        /**
+         * Get the container size data.
+         * @returns {Object} The result container data.
+         */
+        getContainerData: function getContainerData() {
+          return this.ready ? assign({}, this.containerData) : {};
+        },
+        /**
+         * Get the image position and size data.
+         * @returns {Object} The result image data.
+         */
+        getImageData: function getImageData() {
+          return this.sized ? assign({}, this.imageData) : {};
+        },
+        /**
+         * Get the canvas position and size data.
+         * @returns {Object} The result canvas data.
+         */
+        getCanvasData: function getCanvasData() {
+          var canvasData = this.canvasData;
+          var data2 = {};
+          if (this.ready) {
+            forEach(["left", "top", "width", "height", "naturalWidth", "naturalHeight"], function(n) {
+              data2[n] = canvasData[n];
+            });
+          }
+          return data2;
+        },
+        /**
+         * Set the canvas position and size with new data.
+         * @param {Object} data - The new canvas data.
+         * @returns {Cropper} this
+         */
+        setCanvasData: function setCanvasData(data2) {
+          var canvasData = this.canvasData;
+          var aspectRatio = canvasData.aspectRatio;
+          if (this.ready && !this.disabled && isPlainObject(data2)) {
+            if (isNumber(data2.left)) {
+              canvasData.left = data2.left;
+            }
+            if (isNumber(data2.top)) {
+              canvasData.top = data2.top;
+            }
+            if (isNumber(data2.width)) {
+              canvasData.width = data2.width;
+              canvasData.height = data2.width / aspectRatio;
+            } else if (isNumber(data2.height)) {
+              canvasData.height = data2.height;
+              canvasData.width = data2.height * aspectRatio;
+            }
+            this.renderCanvas(true);
+          }
+          return this;
+        },
+        /**
+         * Get the crop box position and size data.
+         * @returns {Object} The result crop box data.
+         */
+        getCropBoxData: function getCropBoxData() {
+          var cropBoxData = this.cropBoxData;
+          var data2;
+          if (this.ready && this.cropped) {
+            data2 = {
+              left: cropBoxData.left,
+              top: cropBoxData.top,
+              width: cropBoxData.width,
+              height: cropBoxData.height
+            };
+          }
+          return data2 || {};
+        },
+        /**
+         * Set the crop box position and size with new data.
+         * @param {Object} data - The new crop box data.
+         * @returns {Cropper} this
+         */
+        setCropBoxData: function setCropBoxData(data2) {
+          var cropBoxData = this.cropBoxData;
+          var aspectRatio = this.options.aspectRatio;
+          var widthChanged;
+          var heightChanged;
+          if (this.ready && this.cropped && !this.disabled && isPlainObject(data2)) {
+            if (isNumber(data2.left)) {
+              cropBoxData.left = data2.left;
+            }
+            if (isNumber(data2.top)) {
+              cropBoxData.top = data2.top;
+            }
+            if (isNumber(data2.width) && data2.width !== cropBoxData.width) {
+              widthChanged = true;
+              cropBoxData.width = data2.width;
+            }
+            if (isNumber(data2.height) && data2.height !== cropBoxData.height) {
+              heightChanged = true;
+              cropBoxData.height = data2.height;
+            }
+            if (aspectRatio) {
+              if (widthChanged) {
+                cropBoxData.height = cropBoxData.width / aspectRatio;
+              } else if (heightChanged) {
+                cropBoxData.width = cropBoxData.height * aspectRatio;
+              }
+            }
+            this.renderCropBox();
+          }
+          return this;
+        },
+        /**
+         * Get a canvas drawn the cropped image.
+         * @param {Object} [options={}] - The config options.
+         * @returns {HTMLCanvasElement} - The result canvas.
+         */
+        getCroppedCanvas: function getCroppedCanvas() {
+          var options = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+          if (!this.ready || !window.HTMLCanvasElement) {
+            return null;
+          }
+          var canvasData = this.canvasData;
+          var source = getSourceCanvas(this.image, this.imageData, canvasData, options);
+          if (!this.cropped) {
+            return source;
+          }
+          var _this$getData = this.getData(options.rounded), initialX = _this$getData.x, initialY = _this$getData.y, initialWidth = _this$getData.width, initialHeight = _this$getData.height;
+          var ratio = source.width / Math.floor(canvasData.naturalWidth);
+          if (ratio !== 1) {
+            initialX *= ratio;
+            initialY *= ratio;
+            initialWidth *= ratio;
+            initialHeight *= ratio;
+          }
+          var aspectRatio = initialWidth / initialHeight;
+          var maxSizes = getAdjustedSizes({
+            aspectRatio,
+            width: options.maxWidth || Infinity,
+            height: options.maxHeight || Infinity
+          });
+          var minSizes = getAdjustedSizes({
+            aspectRatio,
+            width: options.minWidth || 0,
+            height: options.minHeight || 0
+          }, "cover");
+          var _getAdjustedSizes = getAdjustedSizes({
+            aspectRatio,
+            width: options.width || (ratio !== 1 ? source.width : initialWidth),
+            height: options.height || (ratio !== 1 ? source.height : initialHeight)
+          }), width = _getAdjustedSizes.width, height = _getAdjustedSizes.height;
+          width = Math.min(maxSizes.width, Math.max(minSizes.width, width));
+          height = Math.min(maxSizes.height, Math.max(minSizes.height, height));
+          var canvas = document.createElement("canvas");
+          var context = canvas.getContext("2d");
+          canvas.width = normalizeDecimalNumber(width);
+          canvas.height = normalizeDecimalNumber(height);
+          context.fillStyle = options.fillColor || "transparent";
+          context.fillRect(0, 0, width, height);
+          var _options$imageSmoothi = options.imageSmoothingEnabled, imageSmoothingEnabled = _options$imageSmoothi === void 0 ? true : _options$imageSmoothi, imageSmoothingQuality = options.imageSmoothingQuality;
+          context.imageSmoothingEnabled = imageSmoothingEnabled;
+          if (imageSmoothingQuality) {
+            context.imageSmoothingQuality = imageSmoothingQuality;
+          }
+          var sourceWidth = source.width;
+          var sourceHeight = source.height;
+          var srcX = initialX;
+          var srcY = initialY;
+          var srcWidth;
+          var srcHeight;
+          var dstX;
+          var dstY;
+          var dstWidth;
+          var dstHeight;
+          if (srcX <= -initialWidth || srcX > sourceWidth) {
+            srcX = 0;
+            srcWidth = 0;
+            dstX = 0;
+            dstWidth = 0;
+          } else if (srcX <= 0) {
+            dstX = -srcX;
+            srcX = 0;
+            srcWidth = Math.min(sourceWidth, initialWidth + srcX);
+            dstWidth = srcWidth;
+          } else if (srcX <= sourceWidth) {
+            dstX = 0;
+            srcWidth = Math.min(initialWidth, sourceWidth - srcX);
+            dstWidth = srcWidth;
+          }
+          if (srcWidth <= 0 || srcY <= -initialHeight || srcY > sourceHeight) {
+            srcY = 0;
+            srcHeight = 0;
+            dstY = 0;
+            dstHeight = 0;
+          } else if (srcY <= 0) {
+            dstY = -srcY;
+            srcY = 0;
+            srcHeight = Math.min(sourceHeight, initialHeight + srcY);
+            dstHeight = srcHeight;
+          } else if (srcY <= sourceHeight) {
+            dstY = 0;
+            srcHeight = Math.min(initialHeight, sourceHeight - srcY);
+            dstHeight = srcHeight;
+          }
+          var params = [srcX, srcY, srcWidth, srcHeight];
+          if (dstWidth > 0 && dstHeight > 0) {
+            var scale = width / initialWidth;
+            params.push(dstX * scale, dstY * scale, dstWidth * scale, dstHeight * scale);
+          }
+          context.drawImage.apply(context, [source].concat(_toConsumableArray(params.map(function(param) {
+            return Math.floor(normalizeDecimalNumber(param));
+          }))));
+          return canvas;
+        },
+        /**
+         * Change the aspect ratio of the crop box.
+         * @param {number} aspectRatio - The new aspect ratio.
+         * @returns {Cropper} this
+         */
+        setAspectRatio: function setAspectRatio(aspectRatio) {
+          var options = this.options;
+          if (!this.disabled && !isUndefined(aspectRatio)) {
+            options.aspectRatio = Math.max(0, aspectRatio) || NaN;
+            if (this.ready) {
+              this.initCropBox();
+              if (this.cropped) {
+                this.renderCropBox();
+              }
+            }
+          }
+          return this;
+        },
+        /**
+         * Change the drag mode.
+         * @param {string} mode - The new drag mode.
+         * @returns {Cropper} this
+         */
+        setDragMode: function setDragMode(mode) {
+          var options = this.options, dragBox = this.dragBox, face = this.face;
+          if (this.ready && !this.disabled) {
+            var croppable = mode === DRAG_MODE_CROP;
+            var movable = options.movable && mode === DRAG_MODE_MOVE;
+            mode = croppable || movable ? mode : DRAG_MODE_NONE;
+            options.dragMode = mode;
+            setData(dragBox, DATA_ACTION, mode);
+            toggleClass(dragBox, CLASS_CROP, croppable);
+            toggleClass(dragBox, CLASS_MOVE, movable);
+            if (!options.cropBoxMovable) {
+              setData(face, DATA_ACTION, mode);
+              toggleClass(face, CLASS_CROP, croppable);
+              toggleClass(face, CLASS_MOVE, movable);
+            }
+          }
+          return this;
+        }
+      };
+      var AnotherCropper = WINDOW.Cropper;
+      var Cropper2 = /* @__PURE__ */ (function() {
+        function Cropper3(element) {
+          var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+          _classCallCheck(this, Cropper3);
+          if (!element || !REGEXP_TAG_NAME.test(element.tagName)) {
+            throw new Error("The first argument is required and must be an <img> or <canvas> element.");
+          }
+          this.element = element;
+          this.options = assign({}, DEFAULTS, isPlainObject(options) && options);
+          this.cropped = false;
+          this.disabled = false;
+          this.pointers = {};
+          this.ready = false;
+          this.reloading = false;
+          this.replaced = false;
+          this.sized = false;
+          this.sizing = false;
+          this.init();
+        }
+        return _createClass(Cropper3, [{
+          key: "init",
+          value: function init() {
+            var element = this.element;
+            var tagName = element.tagName.toLowerCase();
+            var url;
+            if (element[NAMESPACE]) {
+              return;
+            }
+            element[NAMESPACE] = this;
+            if (tagName === "img") {
+              this.isImg = true;
+              url = element.getAttribute("src") || "";
+              this.originalUrl = url;
+              if (!url) {
+                return;
+              }
+              url = element.src;
+            } else if (tagName === "canvas" && window.HTMLCanvasElement) {
+              url = element.toDataURL();
+            }
+            this.load(url);
+          }
+        }, {
+          key: "load",
+          value: function load(url) {
+            var _this = this;
+            if (!url) {
+              return;
+            }
+            this.url = url;
+            this.imageData = {};
+            var element = this.element, options = this.options;
+            if (!options.rotatable && !options.scalable) {
+              options.checkOrientation = false;
+            }
+            if (!options.checkOrientation || !window.ArrayBuffer) {
+              this.clone();
+              return;
+            }
+            if (REGEXP_DATA_URL.test(url)) {
+              if (REGEXP_DATA_URL_JPEG.test(url)) {
+                this.read(dataURLToArrayBuffer(url));
+              } else {
+                this.clone();
+              }
+              return;
+            }
+            var xhr = new XMLHttpRequest();
+            var clone = this.clone.bind(this);
+            this.reloading = true;
+            this.xhr = xhr;
+            xhr.onabort = clone;
+            xhr.onerror = clone;
+            xhr.ontimeout = clone;
+            xhr.onprogress = function() {
+              if (xhr.getResponseHeader("content-type") !== MIME_TYPE_JPEG) {
+                xhr.abort();
+              }
+            };
+            xhr.onload = function() {
+              _this.read(xhr.response);
+            };
+            xhr.onloadend = function() {
+              _this.reloading = false;
+              _this.xhr = null;
+            };
+            if (options.checkCrossOrigin && isCrossOriginURL(url) && element.crossOrigin) {
+              url = addTimestamp(url);
+            }
+            xhr.open("GET", url, true);
+            xhr.responseType = "arraybuffer";
+            xhr.withCredentials = element.crossOrigin === "use-credentials";
+            xhr.send();
+          }
+        }, {
+          key: "read",
+          value: function read(arrayBuffer) {
+            var options = this.options, imageData = this.imageData;
+            var orientation = resetAndGetOrientation(arrayBuffer);
+            var rotate = 0;
+            var scaleX = 1;
+            var scaleY = 1;
+            if (orientation > 1) {
+              this.url = arrayBufferToDataURL(arrayBuffer, MIME_TYPE_JPEG);
+              var _parseOrientation = parseOrientation(orientation);
+              rotate = _parseOrientation.rotate;
+              scaleX = _parseOrientation.scaleX;
+              scaleY = _parseOrientation.scaleY;
+            }
+            if (options.rotatable) {
+              imageData.rotate = rotate;
+            }
+            if (options.scalable) {
+              imageData.scaleX = scaleX;
+              imageData.scaleY = scaleY;
+            }
+            this.clone();
+          }
+        }, {
+          key: "clone",
+          value: function clone() {
+            var element = this.element, url = this.url;
+            var crossOrigin = element.crossOrigin;
+            var crossOriginUrl = url;
+            if (this.options.checkCrossOrigin && isCrossOriginURL(url)) {
+              if (!crossOrigin) {
+                crossOrigin = "anonymous";
+              }
+              crossOriginUrl = addTimestamp(url);
+            }
+            this.crossOrigin = crossOrigin;
+            this.crossOriginUrl = crossOriginUrl;
+            var image = document.createElement("img");
+            if (crossOrigin) {
+              image.crossOrigin = crossOrigin;
+            }
+            image.src = crossOriginUrl || url;
+            image.alt = element.alt || "The image to crop";
+            this.image = image;
+            image.onload = this.start.bind(this);
+            image.onerror = this.stop.bind(this);
+            addClass(image, CLASS_HIDE);
+            element.parentNode.insertBefore(image, element.nextSibling);
+          }
+        }, {
+          key: "start",
+          value: function start() {
+            var _this2 = this;
+            var image = this.image;
+            image.onload = null;
+            image.onerror = null;
+            this.sizing = true;
+            var isIOSWebKit = WINDOW.navigator && /(?:iPad|iPhone|iPod).*?AppleWebKit/i.test(WINDOW.navigator.userAgent);
+            var done = function done2(naturalWidth, naturalHeight) {
+              assign(_this2.imageData, {
+                naturalWidth,
+                naturalHeight,
+                aspectRatio: naturalWidth / naturalHeight
+              });
+              _this2.initialImageData = assign({}, _this2.imageData);
+              _this2.sizing = false;
+              _this2.sized = true;
+              _this2.build();
+            };
+            if (image.naturalWidth && !isIOSWebKit) {
+              done(image.naturalWidth, image.naturalHeight);
+              return;
+            }
+            var sizingImage = document.createElement("img");
+            var body = document.body || document.documentElement;
+            this.sizingImage = sizingImage;
+            sizingImage.onload = function() {
+              done(sizingImage.width, sizingImage.height);
+              if (!isIOSWebKit) {
+                body.removeChild(sizingImage);
+              }
+            };
+            sizingImage.src = image.src;
+            if (!isIOSWebKit) {
+              sizingImage.style.cssText = "left:0;max-height:none!important;max-width:none!important;min-height:0!important;min-width:0!important;opacity:0;position:absolute;top:0;z-index:-1;";
+              body.appendChild(sizingImage);
+            }
+          }
+        }, {
+          key: "stop",
+          value: function stop() {
+            var image = this.image;
+            image.onload = null;
+            image.onerror = null;
+            image.parentNode.removeChild(image);
+            this.image = null;
+          }
+        }, {
+          key: "build",
+          value: function build() {
+            if (!this.sized || this.ready) {
+              return;
+            }
+            var element = this.element, options = this.options, image = this.image;
+            var container = element.parentNode;
+            var template = document.createElement("div");
+            template.innerHTML = TEMPLATE;
+            var cropper = template.querySelector(".".concat(NAMESPACE, "-container"));
+            var canvas = cropper.querySelector(".".concat(NAMESPACE, "-canvas"));
+            var dragBox = cropper.querySelector(".".concat(NAMESPACE, "-drag-box"));
+            var cropBox = cropper.querySelector(".".concat(NAMESPACE, "-crop-box"));
+            var face = cropBox.querySelector(".".concat(NAMESPACE, "-face"));
+            this.container = container;
+            this.cropper = cropper;
+            this.canvas = canvas;
+            this.dragBox = dragBox;
+            this.cropBox = cropBox;
+            this.viewBox = cropper.querySelector(".".concat(NAMESPACE, "-view-box"));
+            this.face = face;
+            canvas.appendChild(image);
+            addClass(element, CLASS_HIDDEN);
+            container.insertBefore(cropper, element.nextSibling);
+            removeClass(image, CLASS_HIDE);
+            this.initPreview();
+            this.bind();
+            options.initialAspectRatio = Math.max(0, options.initialAspectRatio) || NaN;
+            options.aspectRatio = Math.max(0, options.aspectRatio) || NaN;
+            options.viewMode = Math.max(0, Math.min(3, Math.round(options.viewMode))) || 0;
+            addClass(cropBox, CLASS_HIDDEN);
+            if (!options.guides) {
+              addClass(cropBox.getElementsByClassName("".concat(NAMESPACE, "-dashed")), CLASS_HIDDEN);
+            }
+            if (!options.center) {
+              addClass(cropBox.getElementsByClassName("".concat(NAMESPACE, "-center")), CLASS_HIDDEN);
+            }
+            if (options.background) {
+              addClass(cropper, "".concat(NAMESPACE, "-bg"));
+            }
+            if (!options.highlight) {
+              addClass(face, CLASS_INVISIBLE);
+            }
+            if (options.cropBoxMovable) {
+              addClass(face, CLASS_MOVE);
+              setData(face, DATA_ACTION, ACTION_ALL);
+            }
+            if (!options.cropBoxResizable) {
+              addClass(cropBox.getElementsByClassName("".concat(NAMESPACE, "-line")), CLASS_HIDDEN);
+              addClass(cropBox.getElementsByClassName("".concat(NAMESPACE, "-point")), CLASS_HIDDEN);
+            }
+            this.render();
+            this.ready = true;
+            this.setDragMode(options.dragMode);
+            if (options.autoCrop) {
+              this.crop();
+            }
+            this.setData(options.data);
+            if (isFunction(options.ready)) {
+              addListener(element, EVENT_READY, options.ready, {
+                once: true
+              });
+            }
+            dispatchEvent(element, EVENT_READY);
+          }
+        }, {
+          key: "unbuild",
+          value: function unbuild() {
+            if (!this.ready) {
+              return;
+            }
+            this.ready = false;
+            this.unbind();
+            this.resetPreview();
+            var parentNode = this.cropper.parentNode;
+            if (parentNode) {
+              parentNode.removeChild(this.cropper);
+            }
+            removeClass(this.element, CLASS_HIDDEN);
+          }
+        }, {
+          key: "uncreate",
+          value: function uncreate() {
+            if (this.ready) {
+              this.unbuild();
+              this.ready = false;
+              this.cropped = false;
+            } else if (this.sizing) {
+              this.sizingImage.onload = null;
+              this.sizing = false;
+              this.sized = false;
+            } else if (this.reloading) {
+              this.xhr.onabort = null;
+              this.xhr.abort();
+            } else if (this.image) {
+              this.stop();
+            }
+          }
+          /**
+           * Get the no conflict cropper class.
+           * @returns {Cropper} The cropper class.
+           */
+        }], [{
+          key: "noConflict",
+          value: function noConflict() {
+            window.Cropper = AnotherCropper;
+            return Cropper3;
+          }
+          /**
+           * Change the default options.
+           * @param {Object} options - The new default options.
+           */
+        }, {
+          key: "setDefaults",
+          value: function setDefaults(options) {
+            assign(DEFAULTS, isPlainObject(options) && options);
+          }
+        }]);
+      })();
+      assign(Cropper2.prototype, render, preview, events, handlers, change, methods);
+      return Cropper2;
+    }));
+  }
+});
 
 // ../../../node_modules/.pnpm/filepond@4.32.12/node_modules/filepond/dist/filepond.js
 var require_filepond = __commonJS({
@@ -5290,23 +8051,23 @@ var require_filepond = __commonJS({
               dispatch2("REVERT_ITEM_PROCESSING", { query: item2 });
               return;
             }
-            var handleRevert = function handleRevert2(shouldRevert) {
+            var handleRevert2 = function handleRevert3(shouldRevert) {
               if (!shouldRevert) return;
               dispatch2("REVERT_ITEM_PROCESSING", { query: item2 });
             };
             var fn2 = query("GET_BEFORE_REMOVE_FILE");
             if (!fn2) {
-              return handleRevert(true);
+              return handleRevert2(true);
             }
             var requestRemoveResult = fn2(createItemAPI(item2));
             if (requestRemoveResult == null) {
-              return handleRevert(true);
+              return handleRevert2(true);
             }
             if (typeof requestRemoveResult === "boolean") {
-              return handleRevert(requestRemoveResult);
+              return handleRevert2(requestRemoveResult);
             }
             if (typeof requestRemoveResult.then === "function") {
-              requestRemoveResult.then(handleRevert);
+              requestRemoveResult.then(handleRevert2);
             }
           }),
           REVERT_ITEM_PROCESSING: getItemByQueryFromState(state2, function(item2) {
@@ -9370,6 +12131,521 @@ var require_filepond_plugin_file_validate_type = __commonJS({
   }
 });
 
+// ../../../node_modules/.pnpm/filepond-plugin-image-crop@2.0.6_filepond@4.32.12/node_modules/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js
+var require_filepond_plugin_image_crop = __commonJS({
+  "../../../node_modules/.pnpm/filepond-plugin-image-crop@2.0.6_filepond@4.32.12/node_modules/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"(exports, module) {
+    (function(global, factory) {
+      typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : (global = global || self, global.FilePondPluginImageCrop = factory());
+    })(exports, function() {
+      "use strict";
+      var isImage = function isImage2(file) {
+        return /^image/.test(file.type);
+      };
+      var plugin = function plugin2(_ref) {
+        var addFilter = _ref.addFilter, utils = _ref.utils;
+        var Type = utils.Type, isFile = utils.isFile, getNumericAspectRatioFromString = utils.getNumericAspectRatioFromString;
+        var allowCrop = function allowCrop2(item, query) {
+          return !(!isImage(item.file) || !query("GET_ALLOW_IMAGE_CROP"));
+        };
+        var isObject = function isObject2(value) {
+          return typeof value === "object";
+        };
+        var isNumber = function isNumber2(value) {
+          return typeof value === "number";
+        };
+        var updateCrop = function updateCrop2(item, obj) {
+          return item.setMetadata(
+            "crop",
+            Object.assign({}, item.getMetadata("crop"), obj)
+          );
+        };
+        addFilter("DID_CREATE_ITEM", function(item, _ref2) {
+          var query = _ref2.query;
+          item.extend("setImageCrop", function(crop) {
+            if (!allowCrop(item, query) || !isObject(center)) return;
+            item.setMetadata("crop", crop);
+            return crop;
+          });
+          item.extend("setImageCropCenter", function(center2) {
+            if (!allowCrop(item, query) || !isObject(center2)) return;
+            return updateCrop(item, { center: center2 });
+          });
+          item.extend("setImageCropZoom", function(zoom) {
+            if (!allowCrop(item, query) || !isNumber(zoom)) return;
+            return updateCrop(item, { zoom: Math.max(1, zoom) });
+          });
+          item.extend("setImageCropRotation", function(rotation) {
+            if (!allowCrop(item, query) || !isNumber(rotation)) return;
+            return updateCrop(item, { rotation });
+          });
+          item.extend("setImageCropFlip", function(flip) {
+            if (!allowCrop(item, query) || !isObject(flip)) return;
+            return updateCrop(item, { flip });
+          });
+          item.extend("setImageCropAspectRatio", function(newAspectRatio) {
+            if (!allowCrop(item, query) || typeof newAspectRatio === "undefined")
+              return;
+            var currentCrop = item.getMetadata("crop");
+            var aspectRatio = getNumericAspectRatioFromString(newAspectRatio);
+            var newCrop = {
+              center: {
+                x: 0.5,
+                y: 0.5
+              },
+              flip: currentCrop ? Object.assign({}, currentCrop.flip) : {
+                horizontal: false,
+                vertical: false
+              },
+              rotation: 0,
+              zoom: 1,
+              aspectRatio
+            };
+            item.setMetadata("crop", newCrop);
+            return newCrop;
+          });
+        });
+        addFilter("DID_LOAD_ITEM", function(item, _ref3) {
+          var query = _ref3.query;
+          return new Promise(function(resolve, reject) {
+            var file = item.file;
+            if (!isFile(file) || !isImage(file) || !query("GET_ALLOW_IMAGE_CROP")) {
+              return resolve(item);
+            }
+            var crop = item.getMetadata("crop");
+            if (crop) {
+              return resolve(item);
+            }
+            var humanAspectRatio = query("GET_IMAGE_CROP_ASPECT_RATIO");
+            item.setMetadata("crop", {
+              center: {
+                x: 0.5,
+                y: 0.5
+              },
+              flip: {
+                horizontal: false,
+                vertical: false
+              },
+              rotation: 0,
+              zoom: 1,
+              aspectRatio: humanAspectRatio ? getNumericAspectRatioFromString(humanAspectRatio) : null
+            });
+            resolve(item);
+          });
+        });
+        return {
+          options: {
+            // enable or disable image cropping
+            allowImageCrop: [true, Type.BOOLEAN],
+            // the aspect ratio of the crop ('1:1', '16:9', etc)
+            imageCropAspectRatio: [null, Type.STRING]
+          }
+        };
+      };
+      var isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
+      if (isBrowser) {
+        document.dispatchEvent(
+          new CustomEvent("FilePond:pluginloaded", { detail: plugin })
+        );
+      }
+      return plugin;
+    });
+  }
+});
+
+// ../../../node_modules/.pnpm/filepond-plugin-image-edit@1.6.3_filepond@4.32.12/node_modules/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.js
+var require_filepond_plugin_image_edit = __commonJS({
+  "../../../node_modules/.pnpm/filepond-plugin-image-edit@1.6.3_filepond@4.32.12/node_modules/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.js"(exports, module) {
+    (function(global, factory) {
+      typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : (global = global || self, global.FilePondPluginImageEdit = factory());
+    })(exports, function() {
+      "use strict";
+      var isPreviewableImage = function isPreviewableImage2(file) {
+        return /^image/.test(file.type);
+      };
+      var plugin = function plugin2(_) {
+        var addFilter = _.addFilter, utils = _.utils, views = _.views;
+        var Type = utils.Type, createRoute = utils.createRoute, _utils$createItemAPI = utils.createItemAPI, createItemAPI = _utils$createItemAPI === void 0 ? function(item) {
+          return item;
+        } : _utils$createItemAPI;
+        var fileActionButton = views.fileActionButton;
+        addFilter("SHOULD_REMOVE_ON_REVERT", function(shouldRemove, _ref) {
+          var item = _ref.item, query = _ref.query;
+          return new Promise(function(resolve) {
+            var file = item.file;
+            var canEdit = query("GET_ALLOW_IMAGE_EDIT") && query("GET_IMAGE_EDIT_ALLOW_EDIT") && isPreviewableImage(file);
+            resolve(!canEdit);
+          });
+        });
+        addFilter("DID_LOAD_ITEM", function(item, _ref2) {
+          var query = _ref2.query, dispatch = _ref2.dispatch;
+          return new Promise(function(resolve, reject) {
+            if (item.origin > 1) {
+              resolve(item);
+              return;
+            }
+            var file = item.file;
+            if (!query("GET_ALLOW_IMAGE_EDIT") || !query("GET_IMAGE_EDIT_INSTANT_EDIT")) {
+              resolve(item);
+              return;
+            }
+            if (!isPreviewableImage(file)) {
+              resolve(item);
+              return;
+            }
+            var createEditorResponseHandler = function createEditorResponseHandler2(item2, resolve2, reject2) {
+              return function(userDidConfirm) {
+                editRequestQueue.shift();
+                if (userDidConfirm) {
+                  resolve2(item2);
+                } else {
+                  reject2(item2);
+                }
+                dispatch("KICK");
+                requestEdit();
+              };
+            };
+            var requestEdit = function requestEdit2() {
+              if (!editRequestQueue.length) return;
+              var _editRequestQueue$ = editRequestQueue[0], item2 = _editRequestQueue$.item, resolve2 = _editRequestQueue$.resolve, reject2 = _editRequestQueue$.reject;
+              dispatch("EDIT_ITEM", {
+                id: item2.id,
+                handleEditorResponse: createEditorResponseHandler(
+                  item2,
+                  resolve2,
+                  reject2
+                )
+              });
+            };
+            queueEditRequest({ item, resolve, reject });
+            if (editRequestQueue.length === 1) {
+              requestEdit();
+            }
+          });
+        });
+        addFilter("DID_CREATE_ITEM", function(item, _ref3) {
+          var query = _ref3.query, dispatch = _ref3.dispatch;
+          item.extend("edit", function() {
+            dispatch("EDIT_ITEM", { id: item.id });
+          });
+        });
+        var editRequestQueue = [];
+        var queueEditRequest = function queueEditRequest2(editRequest) {
+          editRequestQueue.push(editRequest);
+          return editRequest;
+        };
+        addFilter("CREATE_VIEW", function(viewAPI) {
+          var is = viewAPI.is, view = viewAPI.view, query = viewAPI.query;
+          if (!query("GET_ALLOW_IMAGE_EDIT")) return;
+          var canShowImagePreview = query("GET_ALLOW_IMAGE_PREVIEW");
+          var shouldExtendView = is("file-info") && !canShowImagePreview || is("file") && canShowImagePreview;
+          if (!shouldExtendView) return;
+          var editor = query("GET_IMAGE_EDIT_EDITOR");
+          if (!editor) return;
+          if (!editor.filepondCallbackBridge) {
+            editor.outputData = true;
+            editor.outputFile = false;
+            editor.filepondCallbackBridge = {
+              onconfirm: editor.onconfirm || function() {
+              },
+              oncancel: editor.oncancel || function() {
+              }
+            };
+          }
+          var openEditor = function openEditor2(_ref4) {
+            var root = _ref4.root, props = _ref4.props, action = _ref4.action;
+            var id = props.id;
+            var handleEditorResponse = action.handleEditorResponse;
+            editor.cropAspectRatio = root.query("GET_IMAGE_CROP_ASPECT_RATIO") || editor.cropAspectRatio;
+            editor.outputCanvasBackgroundColor = root.query("GET_IMAGE_TRANSFORM_CANVAS_BACKGROUND_COLOR") || editor.outputCanvasBackgroundColor;
+            var item = root.query("GET_ITEM", id);
+            if (!item) return;
+            var file = item.file;
+            var crop = item.getMetadata("crop");
+            var cropDefault = {
+              center: {
+                x: 0.5,
+                y: 0.5
+              },
+              flip: {
+                horizontal: false,
+                vertical: false
+              },
+              zoom: 1,
+              rotation: 0,
+              aspectRatio: null
+            };
+            var resize = item.getMetadata("resize");
+            var filter = item.getMetadata("filter") || null;
+            var filters = item.getMetadata("filters") || null;
+            var colors = item.getMetadata("colors") || null;
+            var markup = item.getMetadata("markup") || null;
+            var imageParameters = {
+              crop: crop || cropDefault,
+              size: resize ? {
+                upscale: resize.upscale,
+                mode: resize.mode,
+                width: resize.size.width,
+                height: resize.size.height
+              } : null,
+              filter: filters ? filters.id || filters.matrix : root.query("GET_ALLOW_IMAGE_FILTER") && root.query("GET_IMAGE_FILTER_COLOR_MATRIX") && !colors ? filter : null,
+              color: colors,
+              markup
+            };
+            editor.onconfirm = function(_ref5) {
+              var data2 = _ref5.data;
+              var crop2 = data2.crop, size = data2.size, filter2 = data2.filter, color = data2.color, colorMatrix = data2.colorMatrix, markup2 = data2.markup;
+              var metadata = {};
+              if (crop2) {
+                metadata.crop = crop2;
+              }
+              if (size) {
+                var initialSize = (item.getMetadata("resize") || {}).size;
+                var targetSize = {
+                  width: size.width,
+                  height: size.height
+                };
+                if (!(targetSize.width && targetSize.height) && initialSize) {
+                  targetSize.width = initialSize.width;
+                  targetSize.height = initialSize.height;
+                }
+                if (targetSize.width || targetSize.height) {
+                  metadata.resize = {
+                    upscale: size.upscale,
+                    mode: size.mode,
+                    size: targetSize
+                  };
+                }
+              }
+              if (markup2) {
+                metadata.markup = markup2;
+              }
+              metadata.colors = color;
+              metadata.filters = filter2;
+              metadata.filter = colorMatrix;
+              item.setMetadata(metadata);
+              editor.filepondCallbackBridge.onconfirm(data2, createItemAPI(item));
+              if (!handleEditorResponse) return;
+              editor.onclose = function() {
+                handleEditorResponse(true);
+                editor.onclose = null;
+              };
+            };
+            editor.oncancel = function() {
+              editor.filepondCallbackBridge.oncancel(createItemAPI(item));
+              if (!handleEditorResponse) return;
+              editor.onclose = function() {
+                handleEditorResponse(false);
+                editor.onclose = null;
+              };
+            };
+            editor.open(file, imageParameters);
+          };
+          var didLoadItem = function didLoadItem2(_ref6) {
+            var root = _ref6.root, props = _ref6.props;
+            if (!query("GET_IMAGE_EDIT_ALLOW_EDIT")) return;
+            var id = props.id;
+            var item = query("GET_ITEM", id);
+            if (!item) return;
+            var file = item.file;
+            if (!isPreviewableImage(file)) return;
+            root.ref.handleEdit = function(e) {
+              e.stopPropagation();
+              root.dispatch("EDIT_ITEM", { id });
+            };
+            if (canShowImagePreview) {
+              var buttonView = view.createChildView(fileActionButton, {
+                label: "edit",
+                icon: query("GET_IMAGE_EDIT_ICON_EDIT"),
+                opacity: 0
+              });
+              buttonView.element.classList.add("filepond--action-edit-item");
+              buttonView.element.dataset.align = query(
+                "GET_STYLE_IMAGE_EDIT_BUTTON_EDIT_ITEM_POSITION"
+              );
+              buttonView.on("click", root.ref.handleEdit);
+              root.ref.buttonEditItem = view.appendChildView(buttonView);
+            } else {
+              var filenameElement = view.element.querySelector(
+                ".filepond--file-info-main"
+              );
+              var editButton = document.createElement("button");
+              editButton.className = "filepond--action-edit-item-alt";
+              editButton.innerHTML = query("GET_IMAGE_EDIT_ICON_EDIT") + "<span>edit</span>";
+              editButton.addEventListener("click", root.ref.handleEdit);
+              filenameElement.appendChild(editButton);
+              root.ref.editButton = editButton;
+            }
+          };
+          view.registerDestroyer(function(_ref7) {
+            var root = _ref7.root;
+            if (root.ref.buttonEditItem) {
+              root.ref.buttonEditItem.off("click", root.ref.handleEdit);
+            }
+            if (root.ref.editButton) {
+              root.ref.editButton.removeEventListener("click", root.ref.handleEdit);
+            }
+          });
+          var routes = {
+            EDIT_ITEM: openEditor,
+            DID_LOAD_ITEM: didLoadItem
+          };
+          if (canShowImagePreview) {
+            var didPreviewUpdate = function didPreviewUpdate2(_ref8) {
+              var root = _ref8.root;
+              if (!root.ref.buttonEditItem) return;
+              root.ref.buttonEditItem.opacity = 1;
+            };
+            routes.DID_IMAGE_PREVIEW_SHOW = didPreviewUpdate;
+          } else {
+          }
+          view.registerWriter(createRoute(routes));
+        });
+        return {
+          options: {
+            // enable or disable image editing
+            allowImageEdit: [true, Type.BOOLEAN],
+            // location of processing button
+            styleImageEditButtonEditItemPosition: ["bottom center", Type.STRING],
+            // open editor when image is dropped
+            imageEditInstantEdit: [false, Type.BOOLEAN],
+            // allow editing
+            imageEditAllowEdit: [true, Type.BOOLEAN],
+            // the icon to use for the edit button
+            imageEditIconEdit: [
+              '<svg width="26" height="26" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M8.5 17h1.586l7-7L15.5 8.414l-7 7V17zm-1.707-2.707l8-8a1 1 0 0 1 1.414 0l3 3a1 1 0 0 1 0 1.414l-8 8A1 1 0 0 1 10.5 19h-3a1 1 0 0 1-1-1v-3a1 1 0 0 1 .293-.707z" fill="currentColor" fill-rule="nonzero"/></svg>',
+              Type.STRING
+            ],
+            // editor object
+            imageEditEditor: [null, Type.OBJECT]
+          }
+        };
+      };
+      var isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
+      if (isBrowser) {
+        document.dispatchEvent(
+          new CustomEvent("FilePond:pluginloaded", { detail: plugin })
+        );
+      }
+      return plugin;
+    });
+  }
+});
+
+// ../../../node_modules/.pnpm/filepond-plugin-image-exif-orientation@1.0.11_filepond@4.32.12/node_modules/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js
+var require_filepond_plugin_image_exif_orientation = __commonJS({
+  "../../../node_modules/.pnpm/filepond-plugin-image-exif-orientation@1.0.11_filepond@4.32.12/node_modules/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"(exports, module) {
+    (function(global, factory) {
+      typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : (global = global || self, global.FilePondPluginImageExifOrientation = factory());
+    })(exports, function() {
+      "use strict";
+      var isJPEG = function isJPEG2(file) {
+        return /^image\/jpeg/.test(file.type);
+      };
+      var Marker = {
+        JPEG: 65496,
+        APP1: 65505,
+        EXIF: 1165519206,
+        TIFF: 18761,
+        Orientation: 274,
+        Unknown: 65280
+      };
+      var getUint16 = function getUint162(view, offset) {
+        var little = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : false;
+        return view.getUint16(offset, little);
+      };
+      var getUint32 = function getUint322(view, offset) {
+        var little = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : false;
+        return view.getUint32(offset, little);
+      };
+      var getImageOrientation = function getImageOrientation2(file) {
+        return new Promise(function(resolve, reject) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var view = new DataView(e.target.result);
+            if (getUint16(view, 0) !== Marker.JPEG) {
+              resolve(-1);
+              return;
+            }
+            var length = view.byteLength;
+            var offset = 2;
+            while (offset < length) {
+              var marker = getUint16(view, offset);
+              offset += 2;
+              if (marker === Marker.APP1) {
+                if (getUint32(view, offset += 2) !== Marker.EXIF) {
+                  break;
+                }
+                var little = getUint16(view, offset += 6) === Marker.TIFF;
+                offset += getUint32(view, offset + 4, little);
+                var tags = getUint16(view, offset, little);
+                offset += 2;
+                for (var i = 0; i < tags; i++) {
+                  if (getUint16(view, offset + i * 12, little) === Marker.Orientation) {
+                    resolve(getUint16(view, offset + i * 12 + 8, little));
+                    return;
+                  }
+                }
+              } else if ((marker & Marker.Unknown) !== Marker.Unknown) {
+                break;
+              } else {
+                offset += getUint16(view, offset);
+              }
+            }
+            resolve(-1);
+          };
+          reader.readAsArrayBuffer(file.slice(0, 64 * 1024));
+        });
+      };
+      var IS_BROWSER = (function() {
+        return typeof window !== "undefined" && typeof window.document !== "undefined";
+      })();
+      var isBrowser = function isBrowser2() {
+        return IS_BROWSER;
+      };
+      var testSrc = "data:image/jpg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/4QA6RXhpZgAATU0AKgAAAAgAAwESAAMAAAABAAYAAAEoAAMAAAABAAIAAAITAAMAAAABAAEAAAAAAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wAALCAABAAIBASIA/8QAJgABAAAAAAAAAAAAAAAAAAAAAxABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQAAPwBH/9k=";
+      var shouldCorrect = void 0;
+      var testImage = isBrowser() ? new Image() : {};
+      testImage.onload = function() {
+        return shouldCorrect = testImage.naturalWidth > testImage.naturalHeight;
+      };
+      testImage.src = testSrc;
+      var shouldCorrectImageExifOrientation = function shouldCorrectImageExifOrientation2() {
+        return shouldCorrect;
+      };
+      var plugin = function plugin2(_ref) {
+        var addFilter = _ref.addFilter, utils = _ref.utils;
+        var Type = utils.Type, isFile = utils.isFile;
+        addFilter("DID_LOAD_ITEM", function(item, _ref2) {
+          var query = _ref2.query;
+          return new Promise(function(resolve, reject) {
+            var file = item.file;
+            if (!isFile(file) || !isJPEG(file) || !query("GET_ALLOW_IMAGE_EXIF_ORIENTATION") || !shouldCorrectImageExifOrientation()) {
+              return resolve(item);
+            }
+            getImageOrientation(file).then(function(orientation) {
+              item.setMetadata("exif", { orientation });
+              resolve(item);
+            });
+          });
+        });
+        return {
+          options: {
+            // Enable or disable image orientation reading
+            allowImageExifOrientation: [true, Type.BOOLEAN]
+          }
+        };
+      };
+      var isBrowser$1 = typeof window !== "undefined" && typeof window.document !== "undefined";
+      if (isBrowser$1) {
+        document.dispatchEvent(
+          new CustomEvent("FilePond:pluginloaded", { detail: plugin })
+        );
+      }
+      return plugin;
+    });
+  }
+});
+
 // ../../../node_modules/.pnpm/filepond-plugin-image-preview@4.6.12_filepond@4.32.12/node_modules/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js
 var require_filepond_plugin_image_preview = __commonJS({
   "../../../node_modules/.pnpm/filepond-plugin-image-preview@4.6.12_filepond@4.32.12/node_modules/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"(exports, module) {
@@ -11095,9 +14371,9 @@ var require_filepond_plugin_image_preview = __commonJS({
           height
         };
       };
-      var getImageRectZoomFactor = function getImageRectZoomFactor2(imageRect, cropRect, rotation, center) {
-        var cx = center.x > 0.5 ? 1 - center.x : center.x;
-        var cy = center.y > 0.5 ? 1 - center.y : center.y;
+      var getImageRectZoomFactor = function getImageRectZoomFactor2(imageRect, cropRect, rotation, center2) {
+        var cx = center2.x > 0.5 ? 1 - center2.x : center2.x;
+        var cy = center2.y > 0.5 ? 1 - center2.y : center2.y;
         var imageWidth = cx * 2 * imageRect.width;
         var imageHeight = cy * 2 * imageRect.height;
         var rotatedCropSize = getRotatedRectSize(cropRect, rotation);
@@ -11124,7 +14400,7 @@ var require_filepond_plugin_image_preview = __commonJS({
       };
       var getCurrentCropSize = function getCurrentCropSize2(imageSize) {
         var crop = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
-        var zoom = crop.zoom, rotation = crop.rotation, center = crop.center, aspectRatio = crop.aspectRatio;
+        var zoom = crop.zoom, rotation = crop.rotation, center2 = crop.center, aspectRatio = crop.aspectRatio;
         if (!aspectRatio) aspectRatio = imageSize.height / imageSize.width;
         var canvasSize = calculateCanvasSize(imageSize, aspectRatio, zoom);
         var canvasCenter = {
@@ -11143,7 +14419,7 @@ var require_filepond_plugin_image_preview = __commonJS({
           imageSize,
           getCenteredCropRect(stage, aspectRatio),
           rotation,
-          shouldLimit ? center : { x: 0.5, y: 0.5 }
+          shouldLimit ? center2 : { x: 0.5, y: 0.5 }
         );
         var scale = zoom * stageZoomFactor;
         return {
@@ -12148,6 +15424,2934 @@ var require_filepond_plugin_image_preview = __commonJS({
   }
 });
 
+// ../../../node_modules/.pnpm/filepond-plugin-image-resize@2.0.10_filepond@4.32.12/node_modules/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js
+var require_filepond_plugin_image_resize = __commonJS({
+  "../../../node_modules/.pnpm/filepond-plugin-image-resize@2.0.10_filepond@4.32.12/node_modules/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js"(exports, module) {
+    (function(global, factory) {
+      typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : (global = global || self, global.FilePondPluginImageResize = factory());
+    })(exports, function() {
+      "use strict";
+      var isImage = function isImage2(file) {
+        return /^image/.test(file.type);
+      };
+      var getImageSize = function getImageSize2(url, cb) {
+        var image = new Image();
+        image.onload = function() {
+          var width = image.naturalWidth;
+          var height = image.naturalHeight;
+          image = null;
+          cb({ width, height });
+        };
+        image.onerror = function() {
+          return cb(null);
+        };
+        image.src = url;
+      };
+      var plugin = function plugin2(_ref) {
+        var addFilter = _ref.addFilter, utils = _ref.utils;
+        var Type = utils.Type;
+        addFilter("DID_LOAD_ITEM", function(item, _ref2) {
+          var query = _ref2.query;
+          return new Promise(function(resolve, reject) {
+            var file = item.file;
+            if (!isImage(file) || !query("GET_ALLOW_IMAGE_RESIZE")) {
+              return resolve(item);
+            }
+            var mode = query("GET_IMAGE_RESIZE_MODE");
+            var width = query("GET_IMAGE_RESIZE_TARGET_WIDTH");
+            var height = query("GET_IMAGE_RESIZE_TARGET_HEIGHT");
+            var upscale = query("GET_IMAGE_RESIZE_UPSCALE");
+            if (width === null && height === null) return resolve(item);
+            var targetWidth = width === null ? height : width;
+            var targetHeight = height === null ? targetWidth : height;
+            var fileURL = URL.createObjectURL(file);
+            getImageSize(fileURL, function(size) {
+              URL.revokeObjectURL(fileURL);
+              if (!size) return resolve(item);
+              var imageWidth = size.width, imageHeight = size.height;
+              var orientation = (item.getMetadata("exif") || {}).orientation || -1;
+              if (orientation >= 5 && orientation <= 8) {
+                var _ref3 = [imageHeight, imageWidth];
+                imageWidth = _ref3[0];
+                imageHeight = _ref3[1];
+              }
+              if (imageWidth === targetWidth && imageHeight === targetHeight)
+                return resolve(item);
+              if (!upscale) {
+                if (mode === "cover") {
+                  if (imageWidth <= targetWidth || imageHeight <= targetHeight)
+                    return resolve(item);
+                } else if (imageWidth <= targetWidth && imageHeight <= targetWidth) {
+                  return resolve(item);
+                }
+              }
+              item.setMetadata("resize", {
+                mode,
+                upscale,
+                size: {
+                  width: targetWidth,
+                  height: targetHeight
+                }
+              });
+              resolve(item);
+            });
+          });
+        });
+        return {
+          options: {
+            // Enable or disable image resizing
+            allowImageResize: [true, Type.BOOLEAN],
+            // the method of rescaling
+            // - force => force set size
+            // - cover => pick biggest dimension
+            // - contain => pick smaller dimension
+            imageResizeMode: ["cover", Type.STRING],
+            // set to false to disable upscaling of image smaller than the target width / height
+            imageResizeUpscale: [true, Type.BOOLEAN],
+            // target width
+            imageResizeTargetWidth: [null, Type.INT],
+            // target height
+            imageResizeTargetHeight: [null, Type.INT]
+          }
+        };
+      };
+      var isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
+      if (isBrowser) {
+        document.dispatchEvent(new CustomEvent("FilePond:pluginloaded", { detail: plugin }));
+      }
+      return plugin;
+    });
+  }
+});
+
+// ../../../node_modules/.pnpm/filepond-plugin-image-transform@3.8.8_filepond@4.32.12/node_modules/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js
+var require_filepond_plugin_image_transform = __commonJS({
+  "../../../node_modules/.pnpm/filepond-plugin-image-transform@3.8.8_filepond@4.32.12/node_modules/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"(exports, module) {
+    (function(global, factory) {
+      typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : (global = global || self, global.FilePondPluginImageTransform = factory());
+    })(exports, function() {
+      "use strict";
+      var isImage = function isImage2(file) {
+        return /^image/.test(file.type);
+      };
+      var getFilenameWithoutExtension = function getFilenameWithoutExtension2(name) {
+        return name.substr(0, name.lastIndexOf(".")) || name;
+      };
+      var ExtensionMap = {
+        jpeg: "jpg",
+        "svg+xml": "svg"
+      };
+      var renameFileToMatchMimeType = function renameFileToMatchMimeType2(filename, mimeType) {
+        var name = getFilenameWithoutExtension(filename);
+        var type = mimeType.split("/")[1];
+        var extension = ExtensionMap[type] || type;
+        return "".concat(name, ".").concat(extension);
+      };
+      var getValidOutputMimeType = function getValidOutputMimeType2(type) {
+        return /jpeg|png|svg\+xml/.test(type) ? type : "image/jpeg";
+      };
+      var isImage$1 = function isImage2(file) {
+        return /^image/.test(file.type);
+      };
+      var MATRICES = {
+        1: function _() {
+          return [1, 0, 0, 1, 0, 0];
+        },
+        2: function _(width) {
+          return [-1, 0, 0, 1, width, 0];
+        },
+        3: function _(width, height) {
+          return [-1, 0, 0, -1, width, height];
+        },
+        4: function _(width, height) {
+          return [1, 0, 0, -1, 0, height];
+        },
+        5: function _() {
+          return [0, 1, 1, 0, 0, 0];
+        },
+        6: function _(width, height) {
+          return [0, 1, -1, 0, height, 0];
+        },
+        7: function _(width, height) {
+          return [0, -1, -1, 0, height, width];
+        },
+        8: function _(width) {
+          return [0, -1, 1, 0, 0, width];
+        }
+      };
+      var getImageOrientationMatrix = function getImageOrientationMatrix2(width, height, orientation) {
+        if (orientation === -1) {
+          orientation = 1;
+        }
+        return MATRICES[orientation](width, height);
+      };
+      var createVector = function createVector2(x, y) {
+        return { x, y };
+      };
+      var vectorDot = function vectorDot2(a, b) {
+        return a.x * b.x + a.y * b.y;
+      };
+      var vectorSubtract = function vectorSubtract2(a, b) {
+        return createVector(a.x - b.x, a.y - b.y);
+      };
+      var vectorDistanceSquared = function vectorDistanceSquared2(a, b) {
+        return vectorDot(vectorSubtract(a, b), vectorSubtract(a, b));
+      };
+      var vectorDistance = function vectorDistance2(a, b) {
+        return Math.sqrt(vectorDistanceSquared(a, b));
+      };
+      var getOffsetPointOnEdge = function getOffsetPointOnEdge2(length, rotation) {
+        var a = length;
+        var A = 1.5707963267948966;
+        var B = rotation;
+        var C = 1.5707963267948966 - rotation;
+        var sinA = Math.sin(A);
+        var sinB = Math.sin(B);
+        var sinC = Math.sin(C);
+        var cosC = Math.cos(C);
+        var ratio = a / sinA;
+        var b = ratio * sinB;
+        var c = ratio * sinC;
+        return createVector(cosC * b, cosC * c);
+      };
+      var getRotatedRectSize = function getRotatedRectSize2(rect, rotation) {
+        var w = rect.width;
+        var h = rect.height;
+        var hor = getOffsetPointOnEdge(w, rotation);
+        var ver = getOffsetPointOnEdge(h, rotation);
+        var tl = createVector(rect.x + Math.abs(hor.x), rect.y - Math.abs(hor.y));
+        var tr = createVector(rect.x + rect.width + Math.abs(ver.y), rect.y + Math.abs(ver.x));
+        var bl = createVector(rect.x - Math.abs(ver.y), rect.y + rect.height - Math.abs(ver.x));
+        return {
+          width: vectorDistance(tl, tr),
+          height: vectorDistance(tl, bl)
+        };
+      };
+      var getImageRectZoomFactor = function getImageRectZoomFactor2(imageRect, cropRect) {
+        var rotation = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : 0;
+        var center2 = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : { x: 0.5, y: 0.5 };
+        var cx = center2.x > 0.5 ? 1 - center2.x : center2.x;
+        var cy = center2.y > 0.5 ? 1 - center2.y : center2.y;
+        var imageWidth = cx * 2 * imageRect.width;
+        var imageHeight = cy * 2 * imageRect.height;
+        var rotatedCropSize = getRotatedRectSize(cropRect, rotation);
+        return Math.max(rotatedCropSize.width / imageWidth, rotatedCropSize.height / imageHeight);
+      };
+      var getCenteredCropRect = function getCenteredCropRect2(container, aspectRatio) {
+        var width = container.width;
+        var height = width * aspectRatio;
+        if (height > container.height) {
+          height = container.height;
+          width = height / aspectRatio;
+        }
+        var x = (container.width - width) * 0.5;
+        var y = (container.height - height) * 0.5;
+        return {
+          x,
+          y,
+          width,
+          height
+        };
+      };
+      var calculateCanvasSize = function calculateCanvasSize2(image, canvasAspectRatio) {
+        var zoom = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : 1;
+        var imageAspectRatio = image.height / image.width;
+        var canvasWidth = 1;
+        var canvasHeight = canvasAspectRatio;
+        var imgWidth = 1;
+        var imgHeight = imageAspectRatio;
+        if (imgHeight > canvasHeight) {
+          imgHeight = canvasHeight;
+          imgWidth = imgHeight / imageAspectRatio;
+        }
+        var scalar = Math.max(canvasWidth / imgWidth, canvasHeight / imgHeight);
+        var width = image.width / (zoom * scalar * imgWidth);
+        var height = width * canvasAspectRatio;
+        return {
+          width,
+          height
+        };
+      };
+      var canvasRelease = function canvasRelease2(canvas) {
+        canvas.width = 1;
+        canvas.height = 1;
+        var ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, 1, 1);
+      };
+      var isFlipped = function isFlipped2(flip) {
+        return flip && (flip.horizontal || flip.vertical);
+      };
+      var getBitmap = function getBitmap2(image, orientation, flip) {
+        if (orientation <= 1 && !isFlipped(flip)) {
+          image.width = image.naturalWidth;
+          image.height = image.naturalHeight;
+          return image;
+        }
+        var canvas = document.createElement("canvas");
+        var width = image.naturalWidth;
+        var height = image.naturalHeight;
+        var swapped = orientation >= 5 && orientation <= 8;
+        if (swapped) {
+          canvas.width = height;
+          canvas.height = width;
+        } else {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        var ctx = canvas.getContext("2d");
+        if (orientation) {
+          ctx.transform.apply(ctx, getImageOrientationMatrix(width, height, orientation));
+        }
+        if (isFlipped(flip)) {
+          var matrix = [1, 0, 0, 1, 0, 0];
+          if (!swapped && flip.horizontal || swapped & flip.vertical) {
+            matrix[0] = -1;
+            matrix[4] = width;
+          }
+          if (!swapped && flip.vertical || swapped && flip.horizontal) {
+            matrix[3] = -1;
+            matrix[5] = height;
+          }
+          ctx.transform.apply(ctx, matrix);
+        }
+        ctx.drawImage(image, 0, 0, width, height);
+        return canvas;
+      };
+      var imageToImageData = function imageToImageData2(imageElement, orientation) {
+        var crop = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : {};
+        var options = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {};
+        var canvasMemoryLimit = options.canvasMemoryLimit, _options$background = options.background, background = _options$background === void 0 ? null : _options$background;
+        var zoom = crop.zoom || 1;
+        var bitmap = getBitmap(imageElement, orientation, crop.flip);
+        var imageSize = {
+          width: bitmap.width,
+          height: bitmap.height
+        };
+        var aspectRatio = crop.aspectRatio || imageSize.height / imageSize.width;
+        var canvasSize = calculateCanvasSize(imageSize, aspectRatio, zoom);
+        if (canvasMemoryLimit) {
+          var requiredMemory = canvasSize.width * canvasSize.height;
+          if (requiredMemory > canvasMemoryLimit) {
+            var scalar = Math.sqrt(canvasMemoryLimit) / Math.sqrt(requiredMemory);
+            imageSize.width = Math.floor(imageSize.width * scalar);
+            imageSize.height = Math.floor(imageSize.height * scalar);
+            canvasSize = calculateCanvasSize(imageSize, aspectRatio, zoom);
+          }
+        }
+        var canvas = document.createElement("canvas");
+        var canvasCenter = {
+          x: canvasSize.width * 0.5,
+          y: canvasSize.height * 0.5
+        };
+        var stage = {
+          x: 0,
+          y: 0,
+          width: canvasSize.width,
+          height: canvasSize.height,
+          center: canvasCenter
+        };
+        var shouldLimit = typeof crop.scaleToFit === "undefined" || crop.scaleToFit;
+        var scale = zoom * getImageRectZoomFactor(
+          imageSize,
+          getCenteredCropRect(stage, aspectRatio),
+          crop.rotation,
+          shouldLimit ? crop.center : { x: 0.5, y: 0.5 }
+        );
+        canvas.width = Math.round(canvasSize.width / scale);
+        canvas.height = Math.round(canvasSize.height / scale);
+        canvasCenter.x /= scale;
+        canvasCenter.y /= scale;
+        var imageOffset = {
+          x: canvasCenter.x - imageSize.width * (crop.center ? crop.center.x : 0.5),
+          y: canvasCenter.y - imageSize.height * (crop.center ? crop.center.y : 0.5)
+        };
+        var ctx = canvas.getContext("2d");
+        if (background) {
+          ctx.fillStyle = background;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        ctx.translate(canvasCenter.x, canvasCenter.y);
+        ctx.rotate(crop.rotation || 0);
+        ctx.drawImage(
+          bitmap,
+          imageOffset.x - canvasCenter.x,
+          imageOffset.y - canvasCenter.y,
+          imageSize.width,
+          imageSize.height
+        );
+        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        canvasRelease(canvas);
+        return imageData;
+      };
+      var IS_BROWSER = (function() {
+        return typeof window !== "undefined" && typeof window.document !== "undefined";
+      })();
+      if (IS_BROWSER) {
+        if (!HTMLCanvasElement.prototype.toBlob) {
+          Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", {
+            value: function value(callback, type, quality) {
+              var dataURL = this.toDataURL(type, quality).split(",")[1];
+              setTimeout(function() {
+                var binStr = atob(dataURL);
+                var len = binStr.length;
+                var arr = new Uint8Array(len);
+                for (var i = 0; i < len; i++) {
+                  arr[i] = binStr.charCodeAt(i);
+                }
+                callback(new Blob([arr], { type: type || "image/png" }));
+              });
+            }
+          });
+        }
+      }
+      var canvasToBlob = function canvasToBlob2(canvas, options) {
+        var beforeCreateBlob = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : null;
+        return new Promise(function(resolve) {
+          var promisedImage = beforeCreateBlob ? beforeCreateBlob(canvas) : canvas;
+          Promise.resolve(promisedImage).then(function(canvas2) {
+            canvas2.toBlob(resolve, options.type, options.quality);
+          });
+        });
+      };
+      var vectorMultiply = function vectorMultiply2(v, amount) {
+        return createVector$1(v.x * amount, v.y * amount);
+      };
+      var vectorAdd = function vectorAdd2(a, b) {
+        return createVector$1(a.x + b.x, a.y + b.y);
+      };
+      var vectorNormalize = function vectorNormalize2(v) {
+        var l = Math.sqrt(v.x * v.x + v.y * v.y);
+        if (l === 0) {
+          return {
+            x: 0,
+            y: 0
+          };
+        }
+        return createVector$1(v.x / l, v.y / l);
+      };
+      var vectorRotate = function vectorRotate2(v, radians, origin) {
+        var cos = Math.cos(radians);
+        var sin = Math.sin(radians);
+        var t = createVector$1(v.x - origin.x, v.y - origin.y);
+        return createVector$1(origin.x + cos * t.x - sin * t.y, origin.y + sin * t.x + cos * t.y);
+      };
+      var createVector$1 = function createVector2() {
+        var x = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : 0;
+        var y = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 0;
+        return { x, y };
+      };
+      var getMarkupValue = function getMarkupValue2(value, size) {
+        var scalar = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : 1;
+        var axis = arguments.length > 3 ? arguments[3] : void 0;
+        if (typeof value === "string") {
+          return parseFloat(value) * scalar;
+        }
+        if (typeof value === "number") {
+          return value * (axis ? size[axis] : Math.min(size.width, size.height));
+        }
+        return;
+      };
+      var getMarkupStyles = function getMarkupStyles2(markup, size, scale) {
+        var lineStyle = markup.borderStyle || markup.lineStyle || "solid";
+        var fill = markup.backgroundColor || markup.fontColor || "transparent";
+        var stroke = markup.borderColor || markup.lineColor || "transparent";
+        var strokeWidth = getMarkupValue(markup.borderWidth || markup.lineWidth, size, scale);
+        var lineCap = markup.lineCap || "round";
+        var lineJoin = markup.lineJoin || "round";
+        var dashes = typeof lineStyle === "string" ? "" : lineStyle.map(function(v) {
+          return getMarkupValue(v, size, scale);
+        }).join(",");
+        var opacity = markup.opacity || 1;
+        return {
+          "stroke-linecap": lineCap,
+          "stroke-linejoin": lineJoin,
+          "stroke-width": strokeWidth || 0,
+          "stroke-dasharray": dashes,
+          stroke,
+          fill,
+          opacity
+        };
+      };
+      var isDefined = function isDefined2(value) {
+        return value != null;
+      };
+      var getMarkupRect = function getMarkupRect2(rect, size) {
+        var scalar = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : 1;
+        var left = getMarkupValue(rect.x, size, scalar, "width") || getMarkupValue(rect.left, size, scalar, "width");
+        var top = getMarkupValue(rect.y, size, scalar, "height") || getMarkupValue(rect.top, size, scalar, "height");
+        var width = getMarkupValue(rect.width, size, scalar, "width");
+        var height = getMarkupValue(rect.height, size, scalar, "height");
+        var right = getMarkupValue(rect.right, size, scalar, "width");
+        var bottom = getMarkupValue(rect.bottom, size, scalar, "height");
+        if (!isDefined(top)) {
+          if (isDefined(height) && isDefined(bottom)) {
+            top = size.height - height - bottom;
+          } else {
+            top = bottom;
+          }
+        }
+        if (!isDefined(left)) {
+          if (isDefined(width) && isDefined(right)) {
+            left = size.width - width - right;
+          } else {
+            left = right;
+          }
+        }
+        if (!isDefined(width)) {
+          if (isDefined(left) && isDefined(right)) {
+            width = size.width - left - right;
+          } else {
+            width = 0;
+          }
+        }
+        if (!isDefined(height)) {
+          if (isDefined(top) && isDefined(bottom)) {
+            height = size.height - top - bottom;
+          } else {
+            height = 0;
+          }
+        }
+        return {
+          x: left || 0,
+          y: top || 0,
+          width: width || 0,
+          height: height || 0
+        };
+      };
+      var pointsToPathShape = function pointsToPathShape2(points) {
+        return points.map(function(point, index) {
+          return "".concat(index === 0 ? "M" : "L", " ").concat(point.x, " ").concat(point.y);
+        }).join(" ");
+      };
+      var setAttributes = function setAttributes2(element, attr) {
+        return Object.keys(attr).forEach(function(key) {
+          return element.setAttribute(key, attr[key]);
+        });
+      };
+      var ns = "http://www.w3.org/2000/svg";
+      var svg = function svg2(tag, attr) {
+        var element = document.createElementNS(ns, tag);
+        if (attr) {
+          setAttributes(element, attr);
+        }
+        return element;
+      };
+      var updateRect = function updateRect2(element) {
+        return setAttributes(element, Object.assign({}, element.rect, element.styles));
+      };
+      var updateEllipse = function updateEllipse2(element) {
+        var cx = element.rect.x + element.rect.width * 0.5;
+        var cy = element.rect.y + element.rect.height * 0.5;
+        var rx = element.rect.width * 0.5;
+        var ry = element.rect.height * 0.5;
+        return setAttributes(
+          element,
+          Object.assign(
+            {
+              cx,
+              cy,
+              rx,
+              ry
+            },
+            element.styles
+          )
+        );
+      };
+      var IMAGE_FIT_STYLE = {
+        contain: "xMidYMid meet",
+        cover: "xMidYMid slice"
+      };
+      var updateImage = function updateImage2(element, markup) {
+        setAttributes(
+          element,
+          Object.assign({}, element.rect, element.styles, {
+            preserveAspectRatio: IMAGE_FIT_STYLE[markup.fit] || "none"
+          })
+        );
+      };
+      var TEXT_ANCHOR = {
+        left: "start",
+        center: "middle",
+        right: "end"
+      };
+      var updateText = function updateText2(element, markup, size, scale) {
+        var fontSize = getMarkupValue(markup.fontSize, size, scale);
+        var fontFamily = markup.fontFamily || "sans-serif";
+        var fontWeight = markup.fontWeight || "normal";
+        var textAlign = TEXT_ANCHOR[markup.textAlign] || "start";
+        setAttributes(
+          element,
+          Object.assign({}, element.rect, element.styles, {
+            "stroke-width": 0,
+            "font-weight": fontWeight,
+            "font-size": fontSize,
+            "font-family": fontFamily,
+            "text-anchor": textAlign
+          })
+        );
+        if (element.text !== markup.text) {
+          element.text = markup.text;
+          element.textContent = markup.text.length ? markup.text : " ";
+        }
+      };
+      var updateLine = function updateLine2(element, markup, size, scale) {
+        setAttributes(
+          element,
+          Object.assign({}, element.rect, element.styles, {
+            fill: "none"
+          })
+        );
+        var line = element.childNodes[0];
+        var begin = element.childNodes[1];
+        var end = element.childNodes[2];
+        var origin = element.rect;
+        var target = {
+          x: element.rect.x + element.rect.width,
+          y: element.rect.y + element.rect.height
+        };
+        setAttributes(line, {
+          x1: origin.x,
+          y1: origin.y,
+          x2: target.x,
+          y2: target.y
+        });
+        if (!markup.lineDecoration) return;
+        begin.style.display = "none";
+        end.style.display = "none";
+        var v = vectorNormalize({
+          x: target.x - origin.x,
+          y: target.y - origin.y
+        });
+        var l = getMarkupValue(0.05, size, scale);
+        if (markup.lineDecoration.indexOf("arrow-begin") !== -1) {
+          var arrowBeginRotationPoint = vectorMultiply(v, l);
+          var arrowBeginCenter = vectorAdd(origin, arrowBeginRotationPoint);
+          var arrowBeginA = vectorRotate(origin, 2, arrowBeginCenter);
+          var arrowBeginB = vectorRotate(origin, -2, arrowBeginCenter);
+          setAttributes(begin, {
+            style: "display:block;",
+            d: "M".concat(arrowBeginA.x, ",").concat(arrowBeginA.y, " L").concat(origin.x, ",").concat(origin.y, " L").concat(arrowBeginB.x, ",").concat(arrowBeginB.y)
+          });
+        }
+        if (markup.lineDecoration.indexOf("arrow-end") !== -1) {
+          var arrowEndRotationPoint = vectorMultiply(v, -l);
+          var arrowEndCenter = vectorAdd(target, arrowEndRotationPoint);
+          var arrowEndA = vectorRotate(target, 2, arrowEndCenter);
+          var arrowEndB = vectorRotate(target, -2, arrowEndCenter);
+          setAttributes(end, {
+            style: "display:block;",
+            d: "M".concat(arrowEndA.x, ",").concat(arrowEndA.y, " L").concat(target.x, ",").concat(target.y, " L").concat(arrowEndB.x, ",").concat(arrowEndB.y)
+          });
+        }
+      };
+      var updatePath = function updatePath2(element, markup, size, scale) {
+        setAttributes(
+          element,
+          Object.assign({}, element.styles, {
+            fill: "none",
+            d: pointsToPathShape(
+              markup.points.map(function(point) {
+                return {
+                  x: getMarkupValue(point.x, size, scale, "width"),
+                  y: getMarkupValue(point.y, size, scale, "height")
+                };
+              })
+            )
+          })
+        );
+      };
+      var createShape = function createShape2(node) {
+        return function(markup) {
+          return svg(node, { id: markup.id });
+        };
+      };
+      var createImage = function createImage2(markup) {
+        var shape = svg("image", {
+          id: markup.id,
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round",
+          opacity: "0"
+        });
+        shape.onload = function() {
+          shape.setAttribute("opacity", markup.opacity || 1);
+        };
+        shape.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", markup.src);
+        return shape;
+      };
+      var createLine = function createLine2(markup) {
+        var shape = svg("g", {
+          id: markup.id,
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round"
+        });
+        var line = svg("line");
+        shape.appendChild(line);
+        var begin = svg("path");
+        shape.appendChild(begin);
+        var end = svg("path");
+        shape.appendChild(end);
+        return shape;
+      };
+      var CREATE_TYPE_ROUTES = {
+        image: createImage,
+        rect: createShape("rect"),
+        ellipse: createShape("ellipse"),
+        text: createShape("text"),
+        path: createShape("path"),
+        line: createLine
+      };
+      var UPDATE_TYPE_ROUTES = {
+        rect: updateRect,
+        ellipse: updateEllipse,
+        image: updateImage,
+        text: updateText,
+        path: updatePath,
+        line: updateLine
+      };
+      var createMarkupByType = function createMarkupByType2(type, markup) {
+        return CREATE_TYPE_ROUTES[type](markup);
+      };
+      var updateMarkupByType = function updateMarkupByType2(element, type, markup, size, scale) {
+        if (type !== "path") {
+          element.rect = getMarkupRect(markup, size, scale);
+        }
+        element.styles = getMarkupStyles(markup, size, scale);
+        UPDATE_TYPE_ROUTES[type](element, markup, size, scale);
+      };
+      var sortMarkupByZIndex = function sortMarkupByZIndex2(a, b) {
+        if (a[1].zIndex > b[1].zIndex) {
+          return 1;
+        }
+        if (a[1].zIndex < b[1].zIndex) {
+          return -1;
+        }
+        return 0;
+      };
+      var cropSVG = function cropSVG2(blob) {
+        var crop = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+        var markup = arguments.length > 2 ? arguments[2] : void 0;
+        var options = arguments.length > 3 ? arguments[3] : void 0;
+        return new Promise(function(resolve) {
+          var _options$background = options.background, background = _options$background === void 0 ? null : _options$background;
+          var fr = new FileReader();
+          fr.onloadend = function() {
+            var text = fr.result;
+            var original = document.createElement("div");
+            original.style.cssText = "position:absolute;pointer-events:none;width:0;height:0;visibility:hidden;";
+            original.innerHTML = text;
+            var originalNode = original.querySelector("svg");
+            document.body.appendChild(original);
+            var bBox = originalNode.getBBox();
+            original.parentNode.removeChild(original);
+            var titleNode = original.querySelector("title");
+            var viewBoxAttribute = originalNode.getAttribute("viewBox") || "";
+            var widthAttribute = originalNode.getAttribute("width") || "";
+            var heightAttribute = originalNode.getAttribute("height") || "";
+            var width = parseFloat(widthAttribute) || null;
+            var height = parseFloat(heightAttribute) || null;
+            var widthUnits = (widthAttribute.match(/[a-z]+/) || [])[0] || "";
+            var heightUnits = (heightAttribute.match(/[a-z]+/) || [])[0] || "";
+            var viewBoxList = viewBoxAttribute.split(" ").map(parseFloat);
+            var viewBox = viewBoxList.length ? {
+              x: viewBoxList[0],
+              y: viewBoxList[1],
+              width: viewBoxList[2],
+              height: viewBoxList[3]
+            } : bBox;
+            var imageWidth = width != null ? width : viewBox.width;
+            var imageHeight = height != null ? height : viewBox.height;
+            originalNode.style.overflow = "visible";
+            originalNode.setAttribute("width", imageWidth);
+            originalNode.setAttribute("height", imageHeight);
+            var markupSVG = "";
+            if (markup && markup.length) {
+              var size = {
+                width: imageWidth,
+                height: imageHeight
+              };
+              markupSVG = markup.sort(sortMarkupByZIndex).reduce(function(prev, shape) {
+                var el = createMarkupByType(shape[0], shape[1]);
+                updateMarkupByType(el, shape[0], shape[1], size);
+                el.removeAttribute("id");
+                if (el.getAttribute("opacity") === 1) {
+                  el.removeAttribute("opacity");
+                }
+                return prev + "\n" + el.outerHTML + "\n";
+              }, "");
+              markupSVG = "\n\n<g>".concat(markupSVG.replace(/&nbsp;/g, " "), "</g>\n\n");
+            }
+            var aspectRatio = crop.aspectRatio || imageHeight / imageWidth;
+            var canvasWidth = imageWidth;
+            var canvasHeight = canvasWidth * aspectRatio;
+            var shouldLimit = typeof crop.scaleToFit === "undefined" || crop.scaleToFit;
+            var cropCenterX = crop.center ? crop.center.x : 0.5;
+            var cropCenterY = crop.center ? crop.center.y : 0.5;
+            var canvasZoomFactor = getImageRectZoomFactor(
+              {
+                width: imageWidth,
+                height: imageHeight
+              },
+              getCenteredCropRect(
+                {
+                  width: canvasWidth,
+                  height: canvasHeight
+                },
+                aspectRatio
+              ),
+              crop.rotation,
+              shouldLimit ? { x: cropCenterX, y: cropCenterY } : {
+                x: 0.5,
+                y: 0.5
+              }
+            );
+            var scale = crop.zoom * canvasZoomFactor;
+            var rotation = crop.rotation * (180 / Math.PI);
+            var canvasCenter = {
+              x: canvasWidth * 0.5,
+              y: canvasHeight * 0.5
+            };
+            var imageOffset = {
+              x: canvasCenter.x - imageWidth * cropCenterX,
+              y: canvasCenter.y - imageHeight * cropCenterY
+            };
+            var cropTransforms = [
+              // rotate
+              "rotate(".concat(rotation, " ").concat(canvasCenter.x, " ").concat(canvasCenter.y, ")"),
+              // scale
+              "translate(".concat(canvasCenter.x, " ").concat(canvasCenter.y, ")"),
+              "scale(".concat(scale, ")"),
+              "translate(".concat(-canvasCenter.x, " ").concat(-canvasCenter.y, ")"),
+              // offset
+              "translate(".concat(imageOffset.x, " ").concat(imageOffset.y, ")")
+            ];
+            var cropFlipHorizontal = crop.flip && crop.flip.horizontal;
+            var cropFlipVertical = crop.flip && crop.flip.vertical;
+            var flipTransforms = [
+              "scale(".concat(cropFlipHorizontal ? -1 : 1, " ").concat(cropFlipVertical ? -1 : 1, ")"),
+              "translate(".concat(cropFlipHorizontal ? -imageWidth : 0, " ").concat(cropFlipVertical ? -imageHeight : 0, ")")
+            ];
+            var transformed = '<?xml version="1.0" encoding="UTF-8"?>\n<svg width="'.concat(canvasWidth).concat(widthUnits, '" height="').concat(canvasHeight).concat(heightUnits, '" \nviewBox="0 0 ').concat(canvasWidth, " ").concat(canvasHeight, '" ').concat(
+              background ? 'style="background:' + background + '" ' : "",
+              '\npreserveAspectRatio="xMinYMin"\nxmlns:xlink="http://www.w3.org/1999/xlink"\nxmlns="http://www.w3.org/2000/svg">\n<!-- Generated by PQINA - https://pqina.nl/ -->\n<title>'
+            ).concat(titleNode ? titleNode.textContent : "", '</title>\n<g transform="').concat(cropTransforms.join(" "), '">\n<g transform="').concat(flipTransforms.join(" "), '">\n').concat(originalNode.outerHTML).concat(markupSVG, "\n</g>\n</g>\n</svg>");
+            resolve(transformed);
+          };
+          fr.readAsText(blob);
+        });
+      };
+      var objectToImageData = function objectToImageData2(obj) {
+        var imageData;
+        try {
+          imageData = new ImageData(obj.width, obj.height);
+        } catch (e) {
+          var canvas = document.createElement("canvas");
+          imageData = canvas.getContext("2d").createImageData(obj.width, obj.height);
+        }
+        imageData.data.set(obj.data);
+        return imageData;
+      };
+      var TransformWorker = function TransformWorker2() {
+        var TRANSFORMS = { resize, filter };
+        var applyTransforms = function applyTransforms2(transforms, imageData) {
+          transforms.forEach(function(transform2) {
+            imageData = TRANSFORMS[transform2.type](imageData, transform2.data);
+          });
+          return imageData;
+        };
+        var transform = function transform2(data2, cb) {
+          var transforms = data2.transforms;
+          var filterTransform = null;
+          transforms.forEach(function(transform3) {
+            if (transform3.type === "filter") {
+              filterTransform = transform3;
+            }
+          });
+          if (filterTransform) {
+            var resizeTransform = null;
+            transforms.forEach(function(transform3) {
+              if (transform3.type === "resize") {
+                resizeTransform = transform3;
+              }
+            });
+            if (resizeTransform) {
+              resizeTransform.data.matrix = filterTransform.data;
+              transforms = transforms.filter(function(transform3) {
+                return transform3.type !== "filter";
+              });
+            }
+          }
+          cb(applyTransforms(transforms, data2.imageData));
+        };
+        self.onmessage = function(e) {
+          transform(e.data.message, function(response) {
+            self.postMessage({ id: e.data.id, message: response }, [response.data.buffer]);
+          });
+        };
+        var br = 1;
+        var bg = 1;
+        var bb = 1;
+        function applyFilterMatrix(index, data2, m) {
+          var ir = data2[index] / 255;
+          var ig = data2[index + 1] / 255;
+          var ib = data2[index + 2] / 255;
+          var ia = data2[index + 3] / 255;
+          var mr = ir * m[0] + ig * m[1] + ib * m[2] + ia * m[3] + m[4];
+          var mg = ir * m[5] + ig * m[6] + ib * m[7] + ia * m[8] + m[9];
+          var mb = ir * m[10] + ig * m[11] + ib * m[12] + ia * m[13] + m[14];
+          var ma = ir * m[15] + ig * m[16] + ib * m[17] + ia * m[18] + m[19];
+          var or = Math.max(0, mr * ma) + br * (1 - ma);
+          var og = Math.max(0, mg * ma) + bg * (1 - ma);
+          var ob = Math.max(0, mb * ma) + bb * (1 - ma);
+          data2[index] = Math.max(0, Math.min(1, or)) * 255;
+          data2[index + 1] = Math.max(0, Math.min(1, og)) * 255;
+          data2[index + 2] = Math.max(0, Math.min(1, ob)) * 255;
+        }
+        var identityMatrix = self.JSON.stringify([
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ]);
+        function isIdentityMatrix(filter2) {
+          return self.JSON.stringify(filter2 || []) === identityMatrix;
+        }
+        function filter(imageData, matrix) {
+          if (!matrix || isIdentityMatrix(matrix)) return imageData;
+          var data2 = imageData.data;
+          var l = data2.length;
+          var m11 = matrix[0];
+          var m12 = matrix[1];
+          var m13 = matrix[2];
+          var m14 = matrix[3];
+          var m15 = matrix[4];
+          var m21 = matrix[5];
+          var m22 = matrix[6];
+          var m23 = matrix[7];
+          var m24 = matrix[8];
+          var m25 = matrix[9];
+          var m31 = matrix[10];
+          var m32 = matrix[11];
+          var m33 = matrix[12];
+          var m34 = matrix[13];
+          var m35 = matrix[14];
+          var m41 = matrix[15];
+          var m42 = matrix[16];
+          var m43 = matrix[17];
+          var m44 = matrix[18];
+          var m45 = matrix[19];
+          var index = 0, r = 0, g = 0, b = 0, a = 0, mr = 0, mg = 0, mb = 0, ma = 0, or = 0, og = 0, ob = 0;
+          for (; index < l; index += 4) {
+            r = data2[index] / 255;
+            g = data2[index + 1] / 255;
+            b = data2[index + 2] / 255;
+            a = data2[index + 3] / 255;
+            mr = r * m11 + g * m12 + b * m13 + a * m14 + m15;
+            mg = r * m21 + g * m22 + b * m23 + a * m24 + m25;
+            mb = r * m31 + g * m32 + b * m33 + a * m34 + m35;
+            ma = r * m41 + g * m42 + b * m43 + a * m44 + m45;
+            or = Math.max(0, mr * ma) + br * (1 - ma);
+            og = Math.max(0, mg * ma) + bg * (1 - ma);
+            ob = Math.max(0, mb * ma) + bb * (1 - ma);
+            data2[index] = Math.max(0, Math.min(1, or)) * 255;
+            data2[index + 1] = Math.max(0, Math.min(1, og)) * 255;
+            data2[index + 2] = Math.max(0, Math.min(1, ob)) * 255;
+          }
+          return imageData;
+        }
+        function resize(imageData, data2) {
+          var _data$mode = data2.mode, mode = _data$mode === void 0 ? "contain" : _data$mode, _data$upscale = data2.upscale, upscale = _data$upscale === void 0 ? false : _data$upscale, width = data2.width, height = data2.height, matrix = data2.matrix;
+          matrix = !matrix || isIdentityMatrix(matrix) ? null : matrix;
+          if (!width && !height) {
+            return filter(imageData, matrix);
+          }
+          if (width === null) {
+            width = height;
+          } else if (height === null) {
+            height = width;
+          }
+          if (mode !== "force") {
+            var scalarWidth = width / imageData.width;
+            var scalarHeight = height / imageData.height;
+            var scalar = 1;
+            if (mode === "cover") {
+              scalar = Math.max(scalarWidth, scalarHeight);
+            } else if (mode === "contain") {
+              scalar = Math.min(scalarWidth, scalarHeight);
+            }
+            if (scalar > 1 && upscale === false) {
+              return filter(imageData, matrix);
+            }
+            width = imageData.width * scalar;
+            height = imageData.height * scalar;
+          }
+          var originWidth = imageData.width;
+          var originHeight = imageData.height;
+          var targetWidth = Math.round(width);
+          var targetHeight = Math.round(height);
+          var inputData = imageData.data;
+          var outputData = new Uint8ClampedArray(targetWidth * targetHeight * 4);
+          var ratioWidth = originWidth / targetWidth;
+          var ratioHeight = originHeight / targetHeight;
+          var ratioWidthHalf = Math.ceil(ratioWidth * 0.5);
+          var ratioHeightHalf = Math.ceil(ratioHeight * 0.5);
+          for (var j = 0; j < targetHeight; j++) {
+            for (var i = 0; i < targetWidth; i++) {
+              var x2 = (i + j * targetWidth) * 4;
+              var weight = 0;
+              var weights = 0;
+              var weightsAlpha = 0;
+              var r = 0;
+              var g = 0;
+              var b = 0;
+              var a = 0;
+              var centerY = (j + 0.5) * ratioHeight;
+              for (var yy = Math.floor(j * ratioHeight); yy < (j + 1) * ratioHeight; yy++) {
+                var dy = Math.abs(centerY - (yy + 0.5)) / ratioHeightHalf;
+                var centerX = (i + 0.5) * ratioWidth;
+                var w0 = dy * dy;
+                for (var xx = Math.floor(i * ratioWidth); xx < (i + 1) * ratioWidth; xx++) {
+                  var dx = Math.abs(centerX - (xx + 0.5)) / ratioWidthHalf;
+                  var w = Math.sqrt(w0 + dx * dx);
+                  if (w >= -1 && w <= 1) {
+                    weight = 2 * w * w * w - 3 * w * w + 1;
+                    if (weight > 0) {
+                      dx = 4 * (xx + yy * originWidth);
+                      var ref = inputData[dx + 3];
+                      a += weight * ref;
+                      weightsAlpha += weight;
+                      if (ref < 255) {
+                        weight = weight * ref / 250;
+                      }
+                      r += weight * inputData[dx];
+                      g += weight * inputData[dx + 1];
+                      b += weight * inputData[dx + 2];
+                      weights += weight;
+                    }
+                  }
+                }
+              }
+              outputData[x2] = r / weights;
+              outputData[x2 + 1] = g / weights;
+              outputData[x2 + 2] = b / weights;
+              outputData[x2 + 3] = a / weightsAlpha;
+              matrix && applyFilterMatrix(x2, outputData, matrix);
+            }
+          }
+          return {
+            data: outputData,
+            width: targetWidth,
+            height: targetHeight
+          };
+        }
+      };
+      var correctOrientation = function correctOrientation2(view, offset) {
+        if (view.getUint32(offset + 4, false) !== 1165519206) return;
+        offset += 4;
+        var intelByteAligned = view.getUint16(offset += 6, false) === 18761;
+        offset += view.getUint32(offset + 4, intelByteAligned);
+        var tags = view.getUint16(offset, intelByteAligned);
+        offset += 2;
+        for (var i = 0; i < tags; i++) {
+          if (view.getUint16(offset + i * 12, intelByteAligned) === 274) {
+            view.setUint16(offset + i * 12 + 8, 1, intelByteAligned);
+            return true;
+          }
+        }
+        return false;
+      };
+      var readData = function readData2(data2) {
+        var view = new DataView(data2);
+        if (view.getUint16(0) !== 65496) return null;
+        var offset = 2;
+        var marker;
+        var markerLength;
+        var orientationCorrected = false;
+        while (offset < view.byteLength) {
+          marker = view.getUint16(offset, false);
+          markerLength = view.getUint16(offset + 2, false) + 2;
+          var isData = marker >= 65504 && marker <= 65519 || marker === 65534;
+          if (!isData) {
+            break;
+          }
+          if (!orientationCorrected) {
+            orientationCorrected = correctOrientation(view, offset, markerLength);
+          }
+          if (offset + markerLength > view.byteLength) {
+            break;
+          }
+          offset += markerLength;
+        }
+        return data2.slice(0, offset);
+      };
+      var getImageHead = function getImageHead2(file) {
+        return new Promise(function(resolve) {
+          var reader = new FileReader();
+          reader.onload = function() {
+            return resolve(readData(reader.result) || null);
+          };
+          reader.readAsArrayBuffer(file.slice(0, 256 * 1024));
+        });
+      };
+      var getBlobBuilder = function getBlobBuilder2() {
+        return window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
+      };
+      var createBlob = function createBlob2(arrayBuffer, mimeType) {
+        var BB = getBlobBuilder();
+        if (BB) {
+          var bb = new BB();
+          bb.append(arrayBuffer);
+          return bb.getBlob(mimeType);
+        }
+        return new Blob([arrayBuffer], {
+          type: mimeType
+        });
+      };
+      var getUniqueId = function getUniqueId2() {
+        return Math.random().toString(36).substr(2, 9);
+      };
+      var createWorker = function createWorker2(fn) {
+        var workerBlob = new Blob(["(", fn.toString(), ")()"], { type: "application/javascript" });
+        var workerURL = URL.createObjectURL(workerBlob);
+        var worker = new Worker(workerURL);
+        var trips = [];
+        return {
+          transfer: function transfer() {
+          },
+          // (message, cb) => {}
+          post: function post(message, cb, transferList) {
+            var id2 = getUniqueId();
+            trips[id2] = cb;
+            worker.onmessage = function(e) {
+              var cb2 = trips[e.data.id];
+              if (!cb2) return;
+              cb2(e.data.message);
+              delete trips[e.data.id];
+            };
+            worker.postMessage(
+              {
+                id: id2,
+                message
+              },
+              transferList
+            );
+          },
+          terminate: function terminate() {
+            worker.terminate();
+            URL.revokeObjectURL(workerURL);
+          }
+        };
+      };
+      var loadImage = function loadImage2(url) {
+        return new Promise(function(resolve, reject) {
+          var img = new Image();
+          img.onload = function() {
+            resolve(img);
+          };
+          img.onerror = function(e) {
+            reject(e);
+          };
+          img.src = url;
+        });
+      };
+      var chain = function chain2(funcs) {
+        return funcs.reduce(function(promise, func) {
+          return promise.then(function(result) {
+            return func().then(Array.prototype.concat.bind(result));
+          });
+        }, Promise.resolve([]));
+      };
+      var canvasApplyMarkup = function canvasApplyMarkup2(canvas, markup) {
+        return new Promise(function(resolve) {
+          var size = {
+            width: canvas.width,
+            height: canvas.height
+          };
+          var ctx = canvas.getContext("2d");
+          var drawers = markup.sort(sortMarkupByZIndex).map(function(item) {
+            return function() {
+              return new Promise(function(resolve2) {
+                var result = TYPE_DRAW_ROUTES[item[0]](ctx, size, item[1], resolve2);
+                if (result) resolve2();
+              });
+            };
+          });
+          chain(drawers).then(function() {
+            return resolve(canvas);
+          });
+        });
+      };
+      var applyMarkupStyles = function applyMarkupStyles2(ctx, styles) {
+        ctx.beginPath();
+        ctx.lineCap = styles["stroke-linecap"];
+        ctx.lineJoin = styles["stroke-linejoin"];
+        ctx.lineWidth = styles["stroke-width"];
+        if (styles["stroke-dasharray"].length) {
+          ctx.setLineDash(styles["stroke-dasharray"].split(","));
+        }
+        ctx.fillStyle = styles["fill"];
+        ctx.strokeStyle = styles["stroke"];
+        ctx.globalAlpha = styles.opacity || 1;
+      };
+      var drawMarkupStyles = function drawMarkupStyles2(ctx) {
+        ctx.fill();
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      };
+      var drawRect = function drawRect2(ctx, size, markup) {
+        var rect = getMarkupRect(markup, size);
+        var styles = getMarkupStyles(markup, size);
+        applyMarkupStyles(ctx, styles);
+        ctx.rect(rect.x, rect.y, rect.width, rect.height);
+        drawMarkupStyles(ctx, styles);
+        return true;
+      };
+      var drawEllipse = function drawEllipse2(ctx, size, markup) {
+        var rect = getMarkupRect(markup, size);
+        var styles = getMarkupStyles(markup, size);
+        applyMarkupStyles(ctx, styles);
+        var x = rect.x, y = rect.y, w = rect.width, h = rect.height, kappa = 0.5522848, ox = w / 2 * kappa, oy = h / 2 * kappa, xe = x + w, ye = y + h, xm = x + w / 2, ym = y + h / 2;
+        ctx.moveTo(x, ym);
+        ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+        ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+        ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+        ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+        drawMarkupStyles(ctx, styles);
+        return true;
+      };
+      var drawImage = function drawImage2(ctx, size, markup, done) {
+        var rect = getMarkupRect(markup, size);
+        var styles = getMarkupStyles(markup, size);
+        applyMarkupStyles(ctx, styles);
+        var image = new Image();
+        var isCrossOriginImage = new URL(markup.src, window.location.href).origin !== window.location.origin;
+        if (isCrossOriginImage) image.crossOrigin = "";
+        image.onload = function() {
+          if (markup.fit === "cover") {
+            var ar = rect.width / rect.height;
+            var width = ar > 1 ? image.width : image.height * ar;
+            var height = ar > 1 ? image.width / ar : image.height;
+            var x = image.width * 0.5 - width * 0.5;
+            var y = image.height * 0.5 - height * 0.5;
+            ctx.drawImage(image, x, y, width, height, rect.x, rect.y, rect.width, rect.height);
+          } else if (markup.fit === "contain") {
+            var scalar = Math.min(rect.width / image.width, rect.height / image.height);
+            var _width = scalar * image.width;
+            var _height = scalar * image.height;
+            var _x = rect.x + rect.width * 0.5 - _width * 0.5;
+            var _y = rect.y + rect.height * 0.5 - _height * 0.5;
+            ctx.drawImage(image, 0, 0, image.width, image.height, _x, _y, _width, _height);
+          } else {
+            ctx.drawImage(
+              image,
+              0,
+              0,
+              image.width,
+              image.height,
+              rect.x,
+              rect.y,
+              rect.width,
+              rect.height
+            );
+          }
+          drawMarkupStyles(ctx, styles);
+          done();
+        };
+        image.src = markup.src;
+      };
+      var drawText = function drawText2(ctx, size, markup) {
+        var rect = getMarkupRect(markup, size);
+        var styles = getMarkupStyles(markup, size);
+        applyMarkupStyles(ctx, styles);
+        var fontSize = getMarkupValue(markup.fontSize, size);
+        var fontFamily = markup.fontFamily || "sans-serif";
+        var fontWeight = markup.fontWeight || "normal";
+        var textAlign = markup.textAlign || "left";
+        ctx.font = "".concat(fontWeight, " ").concat(fontSize, "px ").concat(fontFamily);
+        ctx.textAlign = textAlign;
+        ctx.fillText(markup.text, rect.x, rect.y);
+        drawMarkupStyles(ctx, styles);
+        return true;
+      };
+      var drawPath = function drawPath2(ctx, size, markup) {
+        var styles = getMarkupStyles(markup, size);
+        applyMarkupStyles(ctx, styles);
+        ctx.beginPath();
+        var points = markup.points.map(function(point) {
+          return {
+            x: getMarkupValue(point.x, size, 1, "width"),
+            y: getMarkupValue(point.y, size, 1, "height")
+          };
+        });
+        ctx.moveTo(points[0].x, points[0].y);
+        var l = points.length;
+        for (var i = 1; i < l; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        drawMarkupStyles(ctx, styles);
+        return true;
+      };
+      var drawLine = function drawLine2(ctx, size, markup) {
+        var rect = getMarkupRect(markup, size);
+        var styles = getMarkupStyles(markup, size);
+        applyMarkupStyles(ctx, styles);
+        ctx.beginPath();
+        var origin = {
+          x: rect.x,
+          y: rect.y
+        };
+        var target = {
+          x: rect.x + rect.width,
+          y: rect.y + rect.height
+        };
+        ctx.moveTo(origin.x, origin.y);
+        ctx.lineTo(target.x, target.y);
+        var v = vectorNormalize({
+          x: target.x - origin.x,
+          y: target.y - origin.y
+        });
+        var l = 0.04 * Math.min(size.width, size.height);
+        if (markup.lineDecoration.indexOf("arrow-begin") !== -1) {
+          var arrowBeginRotationPoint = vectorMultiply(v, l);
+          var arrowBeginCenter = vectorAdd(origin, arrowBeginRotationPoint);
+          var arrowBeginA = vectorRotate(origin, 2, arrowBeginCenter);
+          var arrowBeginB = vectorRotate(origin, -2, arrowBeginCenter);
+          ctx.moveTo(arrowBeginA.x, arrowBeginA.y);
+          ctx.lineTo(origin.x, origin.y);
+          ctx.lineTo(arrowBeginB.x, arrowBeginB.y);
+        }
+        if (markup.lineDecoration.indexOf("arrow-end") !== -1) {
+          var arrowEndRotationPoint = vectorMultiply(v, -l);
+          var arrowEndCenter = vectorAdd(target, arrowEndRotationPoint);
+          var arrowEndA = vectorRotate(target, 2, arrowEndCenter);
+          var arrowEndB = vectorRotate(target, -2, arrowEndCenter);
+          ctx.moveTo(arrowEndA.x, arrowEndA.y);
+          ctx.lineTo(target.x, target.y);
+          ctx.lineTo(arrowEndB.x, arrowEndB.y);
+        }
+        drawMarkupStyles(ctx, styles);
+        return true;
+      };
+      var TYPE_DRAW_ROUTES = {
+        rect: drawRect,
+        ellipse: drawEllipse,
+        image: drawImage,
+        text: drawText,
+        line: drawLine,
+        path: drawPath
+      };
+      var imageDataToCanvas = function imageDataToCanvas2(imageData) {
+        var image = document.createElement("canvas");
+        image.width = imageData.width;
+        image.height = imageData.height;
+        var ctx = image.getContext("2d");
+        ctx.putImageData(imageData, 0, 0);
+        return image;
+      };
+      var transformImage = function transformImage2(file, instructions) {
+        var options = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : {};
+        return new Promise(function(resolve, reject) {
+          if (!file || !isImage$1(file))
+            return reject({ status: "not an image file", file });
+          var stripImageHead = options.stripImageHead, beforeCreateBlob = options.beforeCreateBlob, afterCreateBlob = options.afterCreateBlob, canvasMemoryLimit = options.canvasMemoryLimit;
+          var crop = instructions.crop, size = instructions.size, filter = instructions.filter, markup = instructions.markup, output = instructions.output;
+          var orientation = instructions.image && instructions.image.orientation ? Math.max(1, Math.min(8, instructions.image.orientation)) : null;
+          var qualityAsPercentage = output && output.quality;
+          var quality = qualityAsPercentage === null ? null : qualityAsPercentage / 100;
+          var type = output && output.type || null;
+          var background = output && output.background || null;
+          var transforms = [];
+          if (size && (typeof size.width === "number" || typeof size.height === "number")) {
+            transforms.push({ type: "resize", data: size });
+          }
+          if (filter && filter.length === 20) {
+            transforms.push({ type: "filter", data: filter });
+          }
+          var resolveWithBlob = function resolveWithBlob2(blob) {
+            var promisedBlob = afterCreateBlob ? afterCreateBlob(blob) : blob;
+            Promise.resolve(promisedBlob).then(resolve);
+          };
+          var toBlob = function toBlob2(imageData, options2) {
+            var canvas = imageDataToCanvas(imageData);
+            var promisedCanvas = markup.length ? canvasApplyMarkup(canvas, markup) : canvas;
+            Promise.resolve(promisedCanvas).then(function(canvas2) {
+              canvasToBlob(canvas2, options2, beforeCreateBlob).then(function(blob) {
+                canvasRelease(canvas2);
+                if (stripImageHead) return resolveWithBlob(blob);
+                getImageHead(file).then(function(imageHead) {
+                  if (imageHead !== null) {
+                    blob = new Blob([imageHead, blob.slice(20)], {
+                      type: blob.type
+                    });
+                  }
+                  resolveWithBlob(blob);
+                });
+              }).catch(reject);
+            });
+          };
+          if (/svg/.test(file.type) && type === null) {
+            return cropSVG(file, crop, markup, { background }).then(function(text) {
+              resolve(createBlob(text, "image/svg+xml"));
+            });
+          }
+          var url = URL.createObjectURL(file);
+          loadImage(url).then(function(image) {
+            URL.revokeObjectURL(url);
+            var imageData = imageToImageData(image, orientation, crop, {
+              canvasMemoryLimit,
+              background
+            });
+            var outputFormat = {
+              quality,
+              type: type || file.type
+            };
+            if (!transforms.length) {
+              return toBlob(imageData, outputFormat);
+            }
+            var worker = createWorker(TransformWorker);
+            worker.post(
+              {
+                transforms,
+                imageData
+              },
+              function(response) {
+                toBlob(objectToImageData(response), outputFormat);
+                worker.terminate();
+              },
+              [imageData.data.buffer]
+            );
+          }).catch(reject);
+        });
+      };
+      function _typeof(obj) {
+        if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+          _typeof = function(obj2) {
+            return typeof obj2;
+          };
+        } else {
+          _typeof = function(obj2) {
+            return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
+          };
+        }
+        return _typeof(obj);
+      }
+      var REACT_ELEMENT_TYPE;
+      function _jsx(type, props, key, children) {
+        if (!REACT_ELEMENT_TYPE) {
+          REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && /* @__PURE__ */ Symbol.for("react.element") || 60103;
+        }
+        var defaultProps = type && type.defaultProps;
+        var childrenLength = arguments.length - 3;
+        if (!props && childrenLength !== 0) {
+          props = {
+            children: void 0
+          };
+        }
+        if (props && defaultProps) {
+          for (var propName in defaultProps) {
+            if (props[propName] === void 0) {
+              props[propName] = defaultProps[propName];
+            }
+          }
+        } else if (!props) {
+          props = defaultProps || {};
+        }
+        if (childrenLength === 1) {
+          props.children = children;
+        } else if (childrenLength > 1) {
+          var childArray = new Array(childrenLength);
+          for (var i = 0; i < childrenLength; i++) {
+            childArray[i] = arguments[i + 3];
+          }
+          props.children = childArray;
+        }
+        return {
+          $$typeof: REACT_ELEMENT_TYPE,
+          type,
+          key: key === void 0 ? null : "" + key,
+          ref: null,
+          props,
+          _owner: null
+        };
+      }
+      function _asyncIterator(iterable) {
+        var method;
+        if (typeof Symbol === "function") {
+          if (Symbol.asyncIterator) {
+            method = iterable[Symbol.asyncIterator];
+            if (method != null) return method.call(iterable);
+          }
+          if (Symbol.iterator) {
+            method = iterable[Symbol.iterator];
+            if (method != null) return method.call(iterable);
+          }
+        }
+        throw new TypeError("Object is not async iterable");
+      }
+      function _AwaitValue(value) {
+        this.wrapped = value;
+      }
+      function _AsyncGenerator(gen) {
+        var front, back;
+        function send(key, arg) {
+          return new Promise(function(resolve, reject) {
+            var request = {
+              key,
+              arg,
+              resolve,
+              reject,
+              next: null
+            };
+            if (back) {
+              back = back.next = request;
+            } else {
+              front = back = request;
+              resume(key, arg);
+            }
+          });
+        }
+        function resume(key, arg) {
+          try {
+            var result = gen[key](arg);
+            var value = result.value;
+            var wrappedAwait = value instanceof _AwaitValue;
+            Promise.resolve(wrappedAwait ? value.wrapped : value).then(
+              function(arg2) {
+                if (wrappedAwait) {
+                  resume("next", arg2);
+                  return;
+                }
+                settle(result.done ? "return" : "normal", arg2);
+              },
+              function(err) {
+                resume("throw", err);
+              }
+            );
+          } catch (err) {
+            settle("throw", err);
+          }
+        }
+        function settle(type, value) {
+          switch (type) {
+            case "return":
+              front.resolve({
+                value,
+                done: true
+              });
+              break;
+            case "throw":
+              front.reject(value);
+              break;
+            default:
+              front.resolve({
+                value,
+                done: false
+              });
+              break;
+          }
+          front = front.next;
+          if (front) {
+            resume(front.key, front.arg);
+          } else {
+            back = null;
+          }
+        }
+        this._invoke = send;
+        if (typeof gen.return !== "function") {
+          this.return = void 0;
+        }
+      }
+      if (typeof Symbol === "function" && Symbol.asyncIterator) {
+        _AsyncGenerator.prototype[Symbol.asyncIterator] = function() {
+          return this;
+        };
+      }
+      _AsyncGenerator.prototype.next = function(arg) {
+        return this._invoke("next", arg);
+      };
+      _AsyncGenerator.prototype.throw = function(arg) {
+        return this._invoke("throw", arg);
+      };
+      _AsyncGenerator.prototype.return = function(arg) {
+        return this._invoke("return", arg);
+      };
+      function _wrapAsyncGenerator(fn) {
+        return function() {
+          return new _AsyncGenerator(fn.apply(this, arguments));
+        };
+      }
+      function _awaitAsyncGenerator(value) {
+        return new _AwaitValue(value);
+      }
+      function _asyncGeneratorDelegate(inner, awaitWrap) {
+        var iter = {}, waiting = false;
+        function pump(key, value) {
+          waiting = true;
+          value = new Promise(function(resolve) {
+            resolve(inner[key](value));
+          });
+          return {
+            done: false,
+            value: awaitWrap(value)
+          };
+        }
+        if (typeof Symbol === "function" && Symbol.iterator) {
+          iter[Symbol.iterator] = function() {
+            return this;
+          };
+        }
+        iter.next = function(value) {
+          if (waiting) {
+            waiting = false;
+            return value;
+          }
+          return pump("next", value);
+        };
+        if (typeof inner.throw === "function") {
+          iter.throw = function(value) {
+            if (waiting) {
+              waiting = false;
+              throw value;
+            }
+            return pump("throw", value);
+          };
+        }
+        if (typeof inner.return === "function") {
+          iter.return = function(value) {
+            return pump("return", value);
+          };
+        }
+        return iter;
+      }
+      function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+        try {
+          var info = gen[key](arg);
+          var value = info.value;
+        } catch (error) {
+          reject(error);
+          return;
+        }
+        if (info.done) {
+          resolve(value);
+        } else {
+          Promise.resolve(value).then(_next, _throw);
+        }
+      }
+      function _asyncToGenerator(fn) {
+        return function() {
+          var self2 = this, args = arguments;
+          return new Promise(function(resolve, reject) {
+            var gen = fn.apply(self2, args);
+            function _next(value) {
+              asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+            }
+            function _throw(err) {
+              asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+            }
+            _next(void 0);
+          });
+        };
+      }
+      function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+          throw new TypeError("Cannot call a class as a function");
+        }
+      }
+      function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
+        }
+      }
+      function _createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) _defineProperties(Constructor, staticProps);
+        return Constructor;
+      }
+      function _defineEnumerableProperties(obj, descs) {
+        for (var key in descs) {
+          var desc = descs[key];
+          desc.configurable = desc.enumerable = true;
+          if ("value" in desc) desc.writable = true;
+          Object.defineProperty(obj, key, desc);
+        }
+        if (Object.getOwnPropertySymbols) {
+          var objectSymbols = Object.getOwnPropertySymbols(descs);
+          for (var i = 0; i < objectSymbols.length; i++) {
+            var sym = objectSymbols[i];
+            var desc = descs[sym];
+            desc.configurable = desc.enumerable = true;
+            if ("value" in desc) desc.writable = true;
+            Object.defineProperty(obj, sym, desc);
+          }
+        }
+        return obj;
+      }
+      function _defaults(obj, defaults) {
+        var keys = Object.getOwnPropertyNames(defaults);
+        for (var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var value = Object.getOwnPropertyDescriptor(defaults, key);
+          if (value && value.configurable && obj[key] === void 0) {
+            Object.defineProperty(obj, key, value);
+          }
+        }
+        return obj;
+      }
+      function _defineProperty(obj, key, value) {
+        if (key in obj) {
+          Object.defineProperty(obj, key, {
+            value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+          });
+        } else {
+          obj[key] = value;
+        }
+        return obj;
+      }
+      function _extends() {
+        _extends = Object.assign || function(target) {
+          for (var i = 1; i < arguments.length; i++) {
+            var source = arguments[i];
+            for (var key in source) {
+              if (Object.prototype.hasOwnProperty.call(source, key)) {
+                target[key] = source[key];
+              }
+            }
+          }
+          return target;
+        };
+        return _extends.apply(this, arguments);
+      }
+      function _objectSpread(target) {
+        for (var i = 1; i < arguments.length; i++) {
+          var source = arguments[i] != null ? arguments[i] : {};
+          var ownKeys = Object.keys(source);
+          if (typeof Object.getOwnPropertySymbols === "function") {
+            ownKeys = ownKeys.concat(
+              Object.getOwnPropertySymbols(source).filter(function(sym) {
+                return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+              })
+            );
+          }
+          ownKeys.forEach(function(key) {
+            _defineProperty(target, key, source[key]);
+          });
+        }
+        return target;
+      }
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function");
+        }
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+          constructor: {
+            value: subClass,
+            writable: true,
+            configurable: true
+          }
+        });
+        if (superClass) _setPrototypeOf(subClass, superClass);
+      }
+      function _inheritsLoose(subClass, superClass) {
+        subClass.prototype = Object.create(superClass.prototype);
+        subClass.prototype.constructor = subClass;
+        subClass.__proto__ = superClass;
+      }
+      function _getPrototypeOf(o) {
+        _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf2(o2) {
+          return o2.__proto__ || Object.getPrototypeOf(o2);
+        };
+        return _getPrototypeOf(o);
+      }
+      function _setPrototypeOf(o, p) {
+        _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf2(o2, p2) {
+          o2.__proto__ = p2;
+          return o2;
+        };
+        return _setPrototypeOf(o, p);
+      }
+      function isNativeReflectConstruct() {
+        if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+        if (Reflect.construct.sham) return false;
+        if (typeof Proxy === "function") return true;
+        try {
+          Date.prototype.toString.call(Reflect.construct(Date, [], function() {
+          }));
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+      function _construct(Parent, args, Class) {
+        if (isNativeReflectConstruct()) {
+          _construct = Reflect.construct;
+        } else {
+          _construct = function _construct2(Parent2, args2, Class2) {
+            var a = [null];
+            a.push.apply(a, args2);
+            var Constructor = Function.bind.apply(Parent2, a);
+            var instance = new Constructor();
+            if (Class2) _setPrototypeOf(instance, Class2.prototype);
+            return instance;
+          };
+        }
+        return _construct.apply(null, arguments);
+      }
+      function _isNativeFunction(fn) {
+        return Function.toString.call(fn).indexOf("[native code]") !== -1;
+      }
+      function _wrapNativeSuper(Class) {
+        var _cache = typeof Map === "function" ? /* @__PURE__ */ new Map() : void 0;
+        _wrapNativeSuper = function _wrapNativeSuper2(Class2) {
+          if (Class2 === null || !_isNativeFunction(Class2)) return Class2;
+          if (typeof Class2 !== "function") {
+            throw new TypeError("Super expression must either be null or a function");
+          }
+          if (typeof _cache !== "undefined") {
+            if (_cache.has(Class2)) return _cache.get(Class2);
+            _cache.set(Class2, Wrapper);
+          }
+          function Wrapper() {
+            return _construct(Class2, arguments, _getPrototypeOf(this).constructor);
+          }
+          Wrapper.prototype = Object.create(Class2.prototype, {
+            constructor: {
+              value: Wrapper,
+              enumerable: false,
+              writable: true,
+              configurable: true
+            }
+          });
+          return _setPrototypeOf(Wrapper, Class2);
+        };
+        return _wrapNativeSuper(Class);
+      }
+      function _instanceof(left, right) {
+        if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+          return right[Symbol.hasInstance](left);
+        } else {
+          return left instanceof right;
+        }
+      }
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
+      function _interopRequireWildcard(obj) {
+        if (obj && obj.__esModule) {
+          return obj;
+        } else {
+          var newObj = {};
+          if (obj != null) {
+            for (var key in obj) {
+              if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {};
+                if (desc.get || desc.set) {
+                  Object.defineProperty(newObj, key, desc);
+                } else {
+                  newObj[key] = obj[key];
+                }
+              }
+            }
+          }
+          newObj.default = obj;
+          return newObj;
+        }
+      }
+      function _newArrowCheck(innerThis, boundThis) {
+        if (innerThis !== boundThis) {
+          throw new TypeError("Cannot instantiate an arrow function");
+        }
+      }
+      function _objectDestructuringEmpty(obj) {
+        if (obj == null) throw new TypeError("Cannot destructure undefined");
+      }
+      function _objectWithoutPropertiesLoose(source, excluded) {
+        if (source == null) return {};
+        var target = {};
+        var sourceKeys = Object.keys(source);
+        var key, i;
+        for (i = 0; i < sourceKeys.length; i++) {
+          key = sourceKeys[i];
+          if (excluded.indexOf(key) >= 0) continue;
+          target[key] = source[key];
+        }
+        return target;
+      }
+      function _objectWithoutProperties(source, excluded) {
+        if (source == null) return {};
+        var target = _objectWithoutPropertiesLoose(source, excluded);
+        var key, i;
+        if (Object.getOwnPropertySymbols) {
+          var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+          for (i = 0; i < sourceSymbolKeys.length; i++) {
+            key = sourceSymbolKeys[i];
+            if (excluded.indexOf(key) >= 0) continue;
+            if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+            target[key] = source[key];
+          }
+        }
+        return target;
+      }
+      function _assertThisInitialized(self2) {
+        if (self2 === void 0) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+        return self2;
+      }
+      function _possibleConstructorReturn(self2, call) {
+        if (call && (typeof call === "object" || typeof call === "function")) {
+          return call;
+        }
+        return _assertThisInitialized(self2);
+      }
+      function _superPropBase(object, property) {
+        while (!Object.prototype.hasOwnProperty.call(object, property)) {
+          object = _getPrototypeOf(object);
+          if (object === null) break;
+        }
+        return object;
+      }
+      function _get(target, property, receiver) {
+        if (typeof Reflect !== "undefined" && Reflect.get) {
+          _get = Reflect.get;
+        } else {
+          _get = function _get2(target2, property2, receiver2) {
+            var base = _superPropBase(target2, property2);
+            if (!base) return;
+            var desc = Object.getOwnPropertyDescriptor(base, property2);
+            if (desc.get) {
+              return desc.get.call(receiver2);
+            }
+            return desc.value;
+          };
+        }
+        return _get(target, property, receiver || target);
+      }
+      function set(target, property, value, receiver) {
+        if (typeof Reflect !== "undefined" && Reflect.set) {
+          set = Reflect.set;
+        } else {
+          set = function set2(target2, property2, value2, receiver2) {
+            var base = _superPropBase(target2, property2);
+            var desc;
+            if (base) {
+              desc = Object.getOwnPropertyDescriptor(base, property2);
+              if (desc.set) {
+                desc.set.call(receiver2, value2);
+                return true;
+              } else if (!desc.writable) {
+                return false;
+              }
+            }
+            desc = Object.getOwnPropertyDescriptor(receiver2, property2);
+            if (desc) {
+              if (!desc.writable) {
+                return false;
+              }
+              desc.value = value2;
+              Object.defineProperty(receiver2, property2, desc);
+            } else {
+              _defineProperty(receiver2, property2, value2);
+            }
+            return true;
+          };
+        }
+        return set(target, property, value, receiver);
+      }
+      function _set(target, property, value, receiver, isStrict) {
+        var s = set(target, property, value, receiver || target);
+        if (!s && isStrict) {
+          throw new Error("failed to set property");
+        }
+        return value;
+      }
+      function _taggedTemplateLiteral(strings, raw) {
+        if (!raw) {
+          raw = strings.slice(0);
+        }
+        return Object.freeze(
+          Object.defineProperties(strings, {
+            raw: {
+              value: Object.freeze(raw)
+            }
+          })
+        );
+      }
+      function _taggedTemplateLiteralLoose(strings, raw) {
+        if (!raw) {
+          raw = strings.slice(0);
+        }
+        strings.raw = raw;
+        return strings;
+      }
+      function _temporalRef(val, name) {
+        if (val === _temporalUndefined) {
+          throw new ReferenceError(name + " is not defined - temporal dead zone");
+        } else {
+          return val;
+        }
+      }
+      function _readOnlyError(name) {
+        throw new Error('"' + name + '" is read-only');
+      }
+      function _classNameTDZError(name) {
+        throw new Error('Class "' + name + '" cannot be referenced in computed property keys.');
+      }
+      var _temporalUndefined = {};
+      function _slicedToArray(arr, i) {
+        return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+      }
+      function _slicedToArrayLoose(arr, i) {
+        return _arrayWithHoles(arr) || _iterableToArrayLimitLoose(arr, i) || _nonIterableRest();
+      }
+      function _toArray(arr) {
+        return _arrayWithHoles(arr) || _iterableToArray(arr) || _nonIterableRest();
+      }
+      function _toConsumableArray(arr) {
+        return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+      }
+      function _arrayWithoutHoles(arr) {
+        if (Array.isArray(arr)) {
+          for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+          return arr2;
+        }
+      }
+      function _arrayWithHoles(arr) {
+        if (Array.isArray(arr)) return arr;
+      }
+      function _iterableToArray(iter) {
+        if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]")
+          return Array.from(iter);
+      }
+      function _iterableToArrayLimit(arr, i) {
+        var _arr = [];
+        var _n = true;
+        var _d = false;
+        var _e = void 0;
+        try {
+          for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+            _arr.push(_s.value);
+            if (i && _arr.length === i) break;
+          }
+        } catch (err) {
+          _d = true;
+          _e = err;
+        } finally {
+          try {
+            if (!_n && _i["return"] != null) _i["return"]();
+          } finally {
+            if (_d) throw _e;
+          }
+        }
+        return _arr;
+      }
+      function _iterableToArrayLimitLoose(arr, i) {
+        var _arr = [];
+        for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done; ) {
+          _arr.push(_step.value);
+          if (i && _arr.length === i) break;
+        }
+        return _arr;
+      }
+      function _nonIterableSpread() {
+        throw new TypeError("Invalid attempt to spread non-iterable instance");
+      }
+      function _nonIterableRest() {
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      }
+      function _skipFirstGeneratorNext(fn) {
+        return function() {
+          var it = fn.apply(this, arguments);
+          it.next();
+          return it;
+        };
+      }
+      function _toPrimitive(input, hint) {
+        if (typeof input !== "object" || input === null) return input;
+        var prim = input[Symbol.toPrimitive];
+        if (prim !== void 0) {
+          var res = prim.call(input, hint || "default");
+          if (typeof res !== "object") return res;
+          throw new TypeError("@@toPrimitive must return a primitive value.");
+        }
+        return (hint === "string" ? String : Number)(input);
+      }
+      function _toPropertyKey(arg) {
+        var key = _toPrimitive(arg, "string");
+        return typeof key === "symbol" ? key : String(key);
+      }
+      function _initializerWarningHelper(descriptor, context) {
+        throw new Error(
+          "Decorating class property failed. Please ensure that proposal-class-properties is enabled and set to use loose mode. To use proposal-class-properties in spec mode with decorators, wait for the next major version of decorators in stage 2."
+        );
+      }
+      function _initializerDefineProperty(target, property, descriptor, context) {
+        if (!descriptor) return;
+        Object.defineProperty(target, property, {
+          enumerable: descriptor.enumerable,
+          configurable: descriptor.configurable,
+          writable: descriptor.writable,
+          value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+        });
+      }
+      function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+        var desc = {};
+        Object.keys(descriptor).forEach(function(key) {
+          desc[key] = descriptor[key];
+        });
+        desc.enumerable = !!desc.enumerable;
+        desc.configurable = !!desc.configurable;
+        if ("value" in desc || desc.initializer) {
+          desc.writable = true;
+        }
+        desc = decorators.slice().reverse().reduce(function(desc2, decorator) {
+          return decorator(target, property, desc2) || desc2;
+        }, desc);
+        if (context && desc.initializer !== void 0) {
+          desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+          desc.initializer = void 0;
+        }
+        if (desc.initializer === void 0) {
+          Object.defineProperty(target, property, desc);
+          desc = null;
+        }
+        return desc;
+      }
+      var id = 0;
+      function _classPrivateFieldLooseKey(name) {
+        return "__private_" + id++ + "_" + name;
+      }
+      function _classPrivateFieldLooseBase(receiver, privateKey) {
+        if (!Object.prototype.hasOwnProperty.call(receiver, privateKey)) {
+          throw new TypeError("attempted to use private field on non-instance");
+        }
+        return receiver;
+      }
+      function _classPrivateFieldGet(receiver, privateMap) {
+        if (!privateMap.has(receiver)) {
+          throw new TypeError("attempted to get private field on non-instance");
+        }
+        var descriptor = privateMap.get(receiver);
+        if (descriptor.get) {
+          return descriptor.get.call(receiver);
+        }
+        return descriptor.value;
+      }
+      function _classPrivateFieldSet(receiver, privateMap, value) {
+        if (!privateMap.has(receiver)) {
+          throw new TypeError("attempted to set private field on non-instance");
+        }
+        var descriptor = privateMap.get(receiver);
+        if (descriptor.set) {
+          descriptor.set.call(receiver, value);
+        } else {
+          if (!descriptor.writable) {
+            throw new TypeError("attempted to set read only private field");
+          }
+          descriptor.value = value;
+        }
+        return value;
+      }
+      function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) {
+        if (receiver !== classConstructor) {
+          throw new TypeError("Private static access of wrong provenance");
+        }
+        return descriptor.value;
+      }
+      function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) {
+        if (receiver !== classConstructor) {
+          throw new TypeError("Private static access of wrong provenance");
+        }
+        if (!descriptor.writable) {
+          throw new TypeError("attempted to set read only private field");
+        }
+        descriptor.value = value;
+        return value;
+      }
+      function _classStaticPrivateMethodGet(receiver, classConstructor, method) {
+        if (receiver !== classConstructor) {
+          throw new TypeError("Private static access of wrong provenance");
+        }
+        return method;
+      }
+      function _classStaticPrivateMethodSet() {
+        throw new TypeError("attempted to set read only static private field");
+      }
+      function _decorate(decorators, factory, superClass, mixins) {
+        var api = _getDecoratorsApi();
+        if (mixins) {
+          for (var i = 0; i < mixins.length; i++) {
+            api = mixins[i](api);
+          }
+        }
+        var r = factory(function initialize(O) {
+          api.initializeInstanceElements(O, decorated.elements);
+        }, superClass);
+        var decorated = api.decorateClass(
+          _coalesceClassElements(r.d.map(_createElementDescriptor)),
+          decorators
+        );
+        api.initializeClassElements(r.F, decorated.elements);
+        return api.runClassFinishers(r.F, decorated.finishers);
+      }
+      function _getDecoratorsApi() {
+        _getDecoratorsApi = function() {
+          return api;
+        };
+        var api = {
+          elementsDefinitionOrder: [["method"], ["field"]],
+          initializeInstanceElements: function(O, elements) {
+            ["method", "field"].forEach(function(kind) {
+              elements.forEach(function(element) {
+                if (element.kind === kind && element.placement === "own") {
+                  this.defineClassElement(O, element);
+                }
+              }, this);
+            }, this);
+          },
+          initializeClassElements: function(F, elements) {
+            var proto = F.prototype;
+            ["method", "field"].forEach(function(kind) {
+              elements.forEach(function(element) {
+                var placement = element.placement;
+                if (element.kind === kind && (placement === "static" || placement === "prototype")) {
+                  var receiver = placement === "static" ? F : proto;
+                  this.defineClassElement(receiver, element);
+                }
+              }, this);
+            }, this);
+          },
+          defineClassElement: function(receiver, element) {
+            var descriptor = element.descriptor;
+            if (element.kind === "field") {
+              var initializer = element.initializer;
+              descriptor = {
+                enumerable: descriptor.enumerable,
+                writable: descriptor.writable,
+                configurable: descriptor.configurable,
+                value: initializer === void 0 ? void 0 : initializer.call(receiver)
+              };
+            }
+            Object.defineProperty(receiver, element.key, descriptor);
+          },
+          decorateClass: function(elements, decorators) {
+            var newElements = [];
+            var finishers = [];
+            var placements = {
+              static: [],
+              prototype: [],
+              own: []
+            };
+            elements.forEach(function(element) {
+              this.addElementPlacement(element, placements);
+            }, this);
+            elements.forEach(function(element) {
+              if (!_hasDecorators(element)) return newElements.push(element);
+              var elementFinishersExtras = this.decorateElement(element, placements);
+              newElements.push(elementFinishersExtras.element);
+              newElements.push.apply(newElements, elementFinishersExtras.extras);
+              finishers.push.apply(finishers, elementFinishersExtras.finishers);
+            }, this);
+            if (!decorators) {
+              return {
+                elements: newElements,
+                finishers
+              };
+            }
+            var result = this.decorateConstructor(newElements, decorators);
+            finishers.push.apply(finishers, result.finishers);
+            result.finishers = finishers;
+            return result;
+          },
+          addElementPlacement: function(element, placements, silent) {
+            var keys = placements[element.placement];
+            if (!silent && keys.indexOf(element.key) !== -1) {
+              throw new TypeError("Duplicated element (" + element.key + ")");
+            }
+            keys.push(element.key);
+          },
+          decorateElement: function(element, placements) {
+            var extras = [];
+            var finishers = [];
+            for (var decorators = element.decorators, i = decorators.length - 1; i >= 0; i--) {
+              var keys = placements[element.placement];
+              keys.splice(keys.indexOf(element.key), 1);
+              var elementObject = this.fromElementDescriptor(element);
+              var elementFinisherExtras = this.toElementFinisherExtras(
+                (0, decorators[i])(elementObject) || elementObject
+              );
+              element = elementFinisherExtras.element;
+              this.addElementPlacement(element, placements);
+              if (elementFinisherExtras.finisher) {
+                finishers.push(elementFinisherExtras.finisher);
+              }
+              var newExtras = elementFinisherExtras.extras;
+              if (newExtras) {
+                for (var j = 0; j < newExtras.length; j++) {
+                  this.addElementPlacement(newExtras[j], placements);
+                }
+                extras.push.apply(extras, newExtras);
+              }
+            }
+            return {
+              element,
+              finishers,
+              extras
+            };
+          },
+          decorateConstructor: function(elements, decorators) {
+            var finishers = [];
+            for (var i = decorators.length - 1; i >= 0; i--) {
+              var obj = this.fromClassDescriptor(elements);
+              var elementsAndFinisher = this.toClassDescriptor(
+                (0, decorators[i])(obj) || obj
+              );
+              if (elementsAndFinisher.finisher !== void 0) {
+                finishers.push(elementsAndFinisher.finisher);
+              }
+              if (elementsAndFinisher.elements !== void 0) {
+                elements = elementsAndFinisher.elements;
+                for (var j = 0; j < elements.length - 1; j++) {
+                  for (var k = j + 1; k < elements.length; k++) {
+                    if (elements[j].key === elements[k].key && elements[j].placement === elements[k].placement) {
+                      throw new TypeError(
+                        "Duplicated element (" + elements[j].key + ")"
+                      );
+                    }
+                  }
+                }
+              }
+            }
+            return {
+              elements,
+              finishers
+            };
+          },
+          fromElementDescriptor: function(element) {
+            var obj = {
+              kind: element.kind,
+              key: element.key,
+              placement: element.placement,
+              descriptor: element.descriptor
+            };
+            var desc = {
+              value: "Descriptor",
+              configurable: true
+            };
+            Object.defineProperty(obj, Symbol.toStringTag, desc);
+            if (element.kind === "field") obj.initializer = element.initializer;
+            return obj;
+          },
+          toElementDescriptors: function(elementObjects) {
+            if (elementObjects === void 0) return;
+            return _toArray(elementObjects).map(function(elementObject) {
+              var element = this.toElementDescriptor(elementObject);
+              this.disallowProperty(elementObject, "finisher", "An element descriptor");
+              this.disallowProperty(elementObject, "extras", "An element descriptor");
+              return element;
+            }, this);
+          },
+          toElementDescriptor: function(elementObject) {
+            var kind = String(elementObject.kind);
+            if (kind !== "method" && kind !== "field") {
+              throw new TypeError(
+                `An element descriptor's .kind property must be either "method" or "field", but a decorator created an element descriptor with .kind "` + kind + '"'
+              );
+            }
+            var key = _toPropertyKey(elementObject.key);
+            var placement = String(elementObject.placement);
+            if (placement !== "static" && placement !== "prototype" && placement !== "own") {
+              throw new TypeError(
+                `An element descriptor's .placement property must be one of "static", "prototype" or "own", but a decorator created an element descriptor with .placement "` + placement + '"'
+              );
+            }
+            var descriptor = elementObject.descriptor;
+            this.disallowProperty(elementObject, "elements", "An element descriptor");
+            var element = {
+              kind,
+              key,
+              placement,
+              descriptor: Object.assign({}, descriptor)
+            };
+            if (kind !== "field") {
+              this.disallowProperty(elementObject, "initializer", "A method descriptor");
+            } else {
+              this.disallowProperty(
+                descriptor,
+                "get",
+                "The property descriptor of a field descriptor"
+              );
+              this.disallowProperty(
+                descriptor,
+                "set",
+                "The property descriptor of a field descriptor"
+              );
+              this.disallowProperty(
+                descriptor,
+                "value",
+                "The property descriptor of a field descriptor"
+              );
+              element.initializer = elementObject.initializer;
+            }
+            return element;
+          },
+          toElementFinisherExtras: function(elementObject) {
+            var element = this.toElementDescriptor(elementObject);
+            var finisher = _optionalCallableProperty(elementObject, "finisher");
+            var extras = this.toElementDescriptors(elementObject.extras);
+            return {
+              element,
+              finisher,
+              extras
+            };
+          },
+          fromClassDescriptor: function(elements) {
+            var obj = {
+              kind: "class",
+              elements: elements.map(this.fromElementDescriptor, this)
+            };
+            var desc = {
+              value: "Descriptor",
+              configurable: true
+            };
+            Object.defineProperty(obj, Symbol.toStringTag, desc);
+            return obj;
+          },
+          toClassDescriptor: function(obj) {
+            var kind = String(obj.kind);
+            if (kind !== "class") {
+              throw new TypeError(
+                `A class descriptor's .kind property must be "class", but a decorator created a class descriptor with .kind "` + kind + '"'
+              );
+            }
+            this.disallowProperty(obj, "key", "A class descriptor");
+            this.disallowProperty(obj, "placement", "A class descriptor");
+            this.disallowProperty(obj, "descriptor", "A class descriptor");
+            this.disallowProperty(obj, "initializer", "A class descriptor");
+            this.disallowProperty(obj, "extras", "A class descriptor");
+            var finisher = _optionalCallableProperty(obj, "finisher");
+            var elements = this.toElementDescriptors(obj.elements);
+            return {
+              elements,
+              finisher
+            };
+          },
+          runClassFinishers: function(constructor, finishers) {
+            for (var i = 0; i < finishers.length; i++) {
+              var newConstructor = (0, finishers[i])(constructor);
+              if (newConstructor !== void 0) {
+                if (typeof newConstructor !== "function") {
+                  throw new TypeError("Finishers must return a constructor.");
+                }
+                constructor = newConstructor;
+              }
+            }
+            return constructor;
+          },
+          disallowProperty: function(obj, name, objectType) {
+            if (obj[name] !== void 0) {
+              throw new TypeError(objectType + " can't have a ." + name + " property.");
+            }
+          }
+        };
+        return api;
+      }
+      function _createElementDescriptor(def) {
+        var key = _toPropertyKey(def.key);
+        var descriptor;
+        if (def.kind === "method") {
+          descriptor = {
+            value: def.value,
+            writable: true,
+            configurable: true,
+            enumerable: false
+          };
+        } else if (def.kind === "get") {
+          descriptor = {
+            get: def.value,
+            configurable: true,
+            enumerable: false
+          };
+        } else if (def.kind === "set") {
+          descriptor = {
+            set: def.value,
+            configurable: true,
+            enumerable: false
+          };
+        } else if (def.kind === "field") {
+          descriptor = {
+            configurable: true,
+            writable: true,
+            enumerable: true
+          };
+        }
+        var element = {
+          kind: def.kind === "field" ? "field" : "method",
+          key,
+          placement: def.static ? "static" : def.kind === "field" ? "own" : "prototype",
+          descriptor
+        };
+        if (def.decorators) element.decorators = def.decorators;
+        if (def.kind === "field") element.initializer = def.value;
+        return element;
+      }
+      function _coalesceGetterSetter(element, other) {
+        if (element.descriptor.get !== void 0) {
+          other.descriptor.get = element.descriptor.get;
+        } else {
+          other.descriptor.set = element.descriptor.set;
+        }
+      }
+      function _coalesceClassElements(elements) {
+        var newElements = [];
+        var isSameElement = function(other2) {
+          return other2.kind === "method" && other2.key === element.key && other2.placement === element.placement;
+        };
+        for (var i = 0; i < elements.length; i++) {
+          var element = elements[i];
+          var other;
+          if (element.kind === "method" && (other = newElements.find(isSameElement))) {
+            if (_isDataDescriptor(element.descriptor) || _isDataDescriptor(other.descriptor)) {
+              if (_hasDecorators(element) || _hasDecorators(other)) {
+                throw new ReferenceError(
+                  "Duplicated methods (" + element.key + ") can't be decorated."
+                );
+              }
+              other.descriptor = element.descriptor;
+            } else {
+              if (_hasDecorators(element)) {
+                if (_hasDecorators(other)) {
+                  throw new ReferenceError(
+                    "Decorators can't be placed on different accessors with for the same property (" + element.key + ")."
+                  );
+                }
+                other.decorators = element.decorators;
+              }
+              _coalesceGetterSetter(element, other);
+            }
+          } else {
+            newElements.push(element);
+          }
+        }
+        return newElements;
+      }
+      function _hasDecorators(element) {
+        return element.decorators && element.decorators.length;
+      }
+      function _isDataDescriptor(desc) {
+        return desc !== void 0 && !(desc.value === void 0 && desc.writable === void 0);
+      }
+      function _optionalCallableProperty(obj, name) {
+        var value = obj[name];
+        if (value !== void 0 && typeof value !== "function") {
+          throw new TypeError("Expected '" + name + "' to be a function");
+        }
+        return value;
+      }
+      function _classPrivateMethodGet(receiver, privateSet, fn) {
+        if (!privateSet.has(receiver)) {
+          throw new TypeError("attempted to get private field on non-instance");
+        }
+        return fn;
+      }
+      function _classPrivateMethodSet() {
+        throw new TypeError("attempted to reassign private method");
+      }
+      function _wrapRegExp(re, groups) {
+        _wrapRegExp = function(re2, groups2) {
+          return new BabelRegExp(re2, groups2);
+        };
+        var _RegExp = _wrapNativeSuper(RegExp);
+        var _super = RegExp.prototype;
+        var _groups = /* @__PURE__ */ new WeakMap();
+        function BabelRegExp(re2, groups2) {
+          var _this = _RegExp.call(this, re2);
+          _groups.set(_this, groups2);
+          return _this;
+        }
+        _inherits(BabelRegExp, _RegExp);
+        BabelRegExp.prototype.exec = function(str) {
+          var result = _super.exec.call(this, str);
+          if (result) result.groups = buildGroups(result, this);
+          return result;
+        };
+        BabelRegExp.prototype[Symbol.replace] = function(str, substitution) {
+          if (typeof substitution === "string") {
+            var groups2 = _groups.get(this);
+            return _super[Symbol.replace].call(
+              this,
+              str,
+              substitution.replace(/\$<([^>]+)>/g, function(_, name) {
+                return "$" + groups2[name];
+              })
+            );
+          } else if (typeof substitution === "function") {
+            var _this = this;
+            return _super[Symbol.replace].call(this, str, function() {
+              var args = [];
+              args.push.apply(args, arguments);
+              if (typeof args[args.length - 1] !== "object") {
+                args.push(buildGroups(args, _this));
+              }
+              return substitution.apply(this, args);
+            });
+          } else {
+            return _super[Symbol.replace].call(this, str, substitution);
+          }
+        };
+        function buildGroups(result, re2) {
+          var g = _groups.get(re2);
+          return Object.keys(g).reduce(function(groups2, name) {
+            groups2[name] = result[g[name]];
+            return groups2;
+          }, /* @__PURE__ */ Object.create(null));
+        }
+        return _wrapRegExp.apply(this, arguments);
+      }
+      var MARKUP_RECT = ["x", "y", "left", "top", "right", "bottom", "width", "height"];
+      var toOptionalFraction = function toOptionalFraction2(value) {
+        return typeof value === "string" && /%/.test(value) ? parseFloat(value) / 100 : value;
+      };
+      var prepareMarkup = function prepareMarkup2(markup) {
+        var _markup = _slicedToArray(markup, 2), type = _markup[0], props = _markup[1];
+        var rect = props.points ? {} : MARKUP_RECT.reduce(function(prev, curr) {
+          prev[curr] = toOptionalFraction(props[curr]);
+          return prev;
+        }, {});
+        return [
+          type,
+          Object.assign(
+            {
+              zIndex: 0
+            },
+            props,
+            rect
+          )
+        ];
+      };
+      var getImageSize = function getImageSize2(file) {
+        return new Promise(function(resolve, reject) {
+          var imageElement = new Image();
+          imageElement.src = URL.createObjectURL(file);
+          var measure = function measure2() {
+            var width = imageElement.naturalWidth;
+            var height = imageElement.naturalHeight;
+            var hasSize = width && height;
+            if (!hasSize) return;
+            URL.revokeObjectURL(imageElement.src);
+            clearInterval(intervalId);
+            resolve({ width, height });
+          };
+          imageElement.onerror = function(err) {
+            URL.revokeObjectURL(imageElement.src);
+            clearInterval(intervalId);
+            reject(err);
+          };
+          var intervalId = setInterval(measure, 1);
+          measure();
+        });
+      };
+      if (typeof window !== "undefined" && typeof window.document !== "undefined") {
+        if (!HTMLCanvasElement.prototype.toBlob) {
+          Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", {
+            value: function value(cb, type, quality) {
+              var canvas = this;
+              setTimeout(function() {
+                var dataURL = canvas.toDataURL(type, quality).split(",")[1];
+                var binStr = atob(dataURL);
+                var index = binStr.length;
+                var data2 = new Uint8Array(index);
+                while (index--) {
+                  data2[index] = binStr.charCodeAt(index);
+                }
+                cb(new Blob([data2], { type: type || "image/png" }));
+              });
+            }
+          });
+        }
+      }
+      var isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
+      var isIOS = isBrowser && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      var plugin = function plugin2(_ref) {
+        var addFilter = _ref.addFilter, utils = _ref.utils;
+        var Type = utils.Type, forin = utils.forin, getFileFromBlob = utils.getFileFromBlob, isFile = utils.isFile;
+        var TRANSFORM_LIST = ["crop", "resize", "filter", "markup", "output"];
+        var createVariantCreator = function createVariantCreator2(updateMetadata) {
+          return function(transform, file, metadata) {
+            return transform(file, updateMetadata ? updateMetadata(metadata) : metadata);
+          };
+        };
+        var isDefaultCrop = function isDefaultCrop2(crop) {
+          return crop.aspectRatio === null && crop.rotation === 0 && crop.zoom === 1 && crop.center && crop.center.x === 0.5 && crop.center.y === 0.5 && crop.flip && crop.flip.horizontal === false && crop.flip.vertical === false;
+        };
+        addFilter("SHOULD_PREPARE_OUTPUT", function(shouldPrepareOutput, _ref2) {
+          var query = _ref2.query;
+          return new Promise(function(resolve) {
+            resolve(!query("IS_ASYNC"));
+          });
+        });
+        var shouldTransformFile = function shouldTransformFile2(query, file, item) {
+          return new Promise(function(resolve) {
+            if (!query("GET_ALLOW_IMAGE_TRANSFORM") || item.archived || !isFile(file) || !isImage(file)) {
+              return resolve(false);
+            }
+            getImageSize(file).then(function() {
+              var fn = query("GET_IMAGE_TRANSFORM_IMAGE_FILTER");
+              if (fn) {
+                var filterResult = fn(file);
+                if (filterResult == null) {
+                  return handleRevert(true);
+                }
+                if (typeof filterResult === "boolean") {
+                  return resolve(filterResult);
+                }
+                if (typeof filterResult.then === "function") {
+                  return filterResult.then(resolve);
+                }
+              }
+              resolve(true);
+            }).catch(function(err) {
+              resolve(false);
+            });
+          });
+        };
+        addFilter("DID_CREATE_ITEM", function(item, _ref3) {
+          var query = _ref3.query, dispatch = _ref3.dispatch;
+          if (!query("GET_ALLOW_IMAGE_TRANSFORM")) return;
+          item.extend("requestPrepare", function() {
+            return new Promise(function(resolve, reject) {
+              dispatch(
+                "REQUEST_PREPARE_OUTPUT",
+                {
+                  query: item.id,
+                  item,
+                  success: resolve,
+                  failure: reject
+                },
+                true
+              );
+            });
+          });
+        });
+        addFilter("PREPARE_OUTPUT", function(file, _ref4) {
+          var query = _ref4.query, item = _ref4.item;
+          return new Promise(function(resolve) {
+            shouldTransformFile(query, file, item).then(function(shouldTransform) {
+              if (!shouldTransform) return resolve(file);
+              var variants = [];
+              if (query("GET_IMAGE_TRANSFORM_VARIANTS_INCLUDE_ORIGINAL")) {
+                variants.push(function() {
+                  return new Promise(function(resolve2) {
+                    resolve2({
+                      name: query("GET_IMAGE_TRANSFORM_VARIANTS_ORIGINAL_NAME"),
+                      file
+                    });
+                  });
+                });
+              }
+              if (query("GET_IMAGE_TRANSFORM_VARIANTS_INCLUDE_DEFAULT")) {
+                variants.push(function(transform2, file2, metadata) {
+                  return new Promise(function(resolve2) {
+                    transform2(file2, metadata).then(function(file3) {
+                      return resolve2({
+                        name: query("GET_IMAGE_TRANSFORM_VARIANTS_DEFAULT_NAME"),
+                        file: file3
+                      });
+                    });
+                  });
+                });
+              }
+              var variantsDefinition = query("GET_IMAGE_TRANSFORM_VARIANTS") || {};
+              forin(variantsDefinition, function(key, fn) {
+                var createVariant = createVariantCreator(fn);
+                variants.push(function(transform2, file2, metadata) {
+                  return new Promise(function(resolve2) {
+                    createVariant(transform2, file2, metadata).then(function(file3) {
+                      return resolve2({ name: key, file: file3 });
+                    });
+                  });
+                });
+              });
+              var qualityAsPercentage = query("GET_IMAGE_TRANSFORM_OUTPUT_QUALITY");
+              var qualityMode = query("GET_IMAGE_TRANSFORM_OUTPUT_QUALITY_MODE");
+              var quality = qualityAsPercentage === null ? null : qualityAsPercentage / 100;
+              var type = query("GET_IMAGE_TRANSFORM_OUTPUT_MIME_TYPE");
+              var clientTransforms = query("GET_IMAGE_TRANSFORM_CLIENT_TRANSFORMS") || TRANSFORM_LIST;
+              item.setMetadata(
+                "output",
+                {
+                  type,
+                  quality,
+                  client: clientTransforms
+                },
+                true
+              );
+              var transform = function transform2(file2, metadata) {
+                return new Promise(function(resolve2, reject) {
+                  var filteredMetadata = Object.assign({}, metadata);
+                  Object.keys(filteredMetadata).filter(function(instruction) {
+                    return instruction !== "exif";
+                  }).forEach(function(instruction) {
+                    if (clientTransforms.indexOf(instruction) === -1) {
+                      delete filteredMetadata[instruction];
+                    }
+                  });
+                  var resize = filteredMetadata.resize, exif = filteredMetadata.exif, output = filteredMetadata.output, crop = filteredMetadata.crop, filter = filteredMetadata.filter, markup = filteredMetadata.markup;
+                  var instructions = {
+                    image: {
+                      orientation: exif ? exif.orientation : null
+                    },
+                    output: output && (output.type || typeof output.quality === "number" || output.background) ? {
+                      type: output.type,
+                      quality: typeof output.quality === "number" ? output.quality * 100 : null,
+                      background: output.background || query(
+                        "GET_IMAGE_TRANSFORM_CANVAS_BACKGROUND_COLOR"
+                      ) || null
+                    } : void 0,
+                    size: resize && (resize.size.width || resize.size.height) ? Object.assign(
+                      {
+                        mode: resize.mode,
+                        upscale: resize.upscale
+                      },
+                      resize.size
+                    ) : void 0,
+                    crop: crop && !isDefaultCrop(crop) ? Object.assign(
+                      {},
+                      crop
+                    ) : void 0,
+                    markup: markup && markup.length ? markup.map(prepareMarkup) : [],
+                    filter
+                  };
+                  if (instructions.output) {
+                    var willChangeType = output.type ? (
+                      // type set
+                      output.type !== file2.type
+                    ) : (
+                      // type not set
+                      false
+                    );
+                    var canChangeQuality = /\/jpe?g$/.test(file2.type);
+                    var willChangeQuality = output.quality !== null ? (
+                      // quality set
+                      canChangeQuality && qualityMode === "always"
+                    ) : (
+                      // quality not set
+                      false
+                    );
+                    var willModifyImageData = !!(instructions.size || instructions.crop || instructions.filter || willChangeType || willChangeQuality);
+                    if (!willModifyImageData) return resolve2(file2);
+                  }
+                  var options = {
+                    beforeCreateBlob: query("GET_IMAGE_TRANSFORM_BEFORE_CREATE_BLOB"),
+                    afterCreateBlob: query("GET_IMAGE_TRANSFORM_AFTER_CREATE_BLOB"),
+                    canvasMemoryLimit: query("GET_IMAGE_TRANSFORM_CANVAS_MEMORY_LIMIT"),
+                    stripImageHead: query(
+                      "GET_IMAGE_TRANSFORM_OUTPUT_STRIP_IMAGE_HEAD"
+                    )
+                  };
+                  transformImage(file2, instructions, options).then(function(blob) {
+                    var out = getFileFromBlob(
+                      blob,
+                      // rename the original filename to match the mime type of the output image
+                      renameFileToMatchMimeType(
+                        file2.name,
+                        getValidOutputMimeType(blob.type)
+                      )
+                    );
+                    resolve2(out);
+                  }).catch(reject);
+                });
+              };
+              var variantPromises = variants.map(function(create2) {
+                return create2(transform, file, item.getMetadata());
+              });
+              Promise.all(variantPromises).then(function(files) {
+                resolve(
+                  files.length === 1 && files[0].name === null ? (
+                    // return the File object
+                    files[0].file
+                  ) : (
+                    // return an array of files { name:'name', file:File }
+                    files
+                  )
+                );
+              });
+            });
+          });
+        });
+        return {
+          options: {
+            allowImageTransform: [true, Type.BOOLEAN],
+            // filter images to transform
+            imageTransformImageFilter: [null, Type.FUNCTION],
+            // null, 'image/jpeg', 'image/png'
+            imageTransformOutputMimeType: [null, Type.STRING],
+            // null, 0 - 100
+            imageTransformOutputQuality: [null, Type.INT],
+            // set to false to copy image exif data to output
+            imageTransformOutputStripImageHead: [true, Type.BOOLEAN],
+            // only apply transforms in this list
+            imageTransformClientTransforms: [null, Type.ARRAY],
+            // only apply output quality when a transform is required
+            imageTransformOutputQualityMode: ["always", Type.STRING],
+            // 'always'
+            // 'optional'
+            // 'mismatch' (future feature, only applied if quality differs from input)
+            // get image transform variants
+            imageTransformVariants: [null, Type.OBJECT],
+            // should we post the default transformed file
+            imageTransformVariantsIncludeDefault: [true, Type.BOOLEAN],
+            // which name to prefix the default transformed file with
+            imageTransformVariantsDefaultName: [null, Type.STRING],
+            // should we post the original file
+            imageTransformVariantsIncludeOriginal: [false, Type.BOOLEAN],
+            // which name to prefix the original file with
+            imageTransformVariantsOriginalName: ["original_", Type.STRING],
+            // called before creating the blob, receives canvas, expects promise resolve with canvas
+            imageTransformBeforeCreateBlob: [null, Type.FUNCTION],
+            // expects promise resolved with blob
+            imageTransformAfterCreateBlob: [null, Type.FUNCTION],
+            // canvas memory limit
+            imageTransformCanvasMemoryLimit: [
+              isBrowser && isIOS ? 4096 * 4096 : null,
+              Type.INT
+            ],
+            // background image of the output canvas
+            imageTransformCanvasBackgroundColor: [null, Type.STRING]
+          }
+        };
+      };
+      if (isBrowser) {
+        document.dispatchEvent(new CustomEvent("FilePond:pluginloaded", { detail: plugin }));
+      }
+      return plugin;
+    });
+  }
+});
+
 // src/controllers/file_upload_controller.ts
 import { Controller } from "@hotwired/stimulus";
 
@@ -12273,25 +18477,56 @@ function listen(component, byKey) {
 }
 
 // src/controllers/file_upload_controller.ts
+var import_cropperjs = __toESM(require_cropper());
 var FilePond = __toESM(require_filepond());
 var import_filepond_plugin_file_validate_size = __toESM(require_filepond_plugin_file_validate_size());
 var import_filepond_plugin_file_validate_type = __toESM(require_filepond_plugin_file_validate_type());
+var import_filepond_plugin_image_crop = __toESM(require_filepond_plugin_image_crop());
+var import_filepond_plugin_image_edit = __toESM(require_filepond_plugin_image_edit());
+var import_filepond_plugin_image_exif_orientation = __toESM(require_filepond_plugin_image_exif_orientation());
 var import_filepond_plugin_image_preview = __toESM(require_filepond_plugin_image_preview());
+var import_filepond_plugin_image_resize = __toESM(require_filepond_plugin_image_resize());
+var import_filepond_plugin_image_transform = __toESM(require_filepond_plugin_image_transform());
 FilePond.registerPlugin(
   import_filepond_plugin_file_validate_size.default,
   import_filepond_plugin_file_validate_type.default,
-  import_filepond_plugin_image_preview.default
+  import_filepond_plugin_image_crop.default,
+  import_filepond_plugin_image_edit.default,
+  import_filepond_plugin_image_exif_orientation.default,
+  import_filepond_plugin_image_preview.default,
+  import_filepond_plugin_image_resize.default,
+  import_filepond_plugin_image_transform.default
 );
 var UPLOAD_ERROR = "The file could not be uploaded.";
 var REMOVE_ERROR = "The file could not be removed.";
 var LOAD_ERROR = "The file could not be loaded.";
+var REORDER_ERROR = "The files could not be reordered.";
 var MAX_FILES_WARNING = "Max files";
 var TEMPORARY_TOKEN_PREFIX = "sylament-file:";
 var AVATAR_PANEL_LAYOUT = "compact circle";
 var PREVIEWABLE_TYPE = /^(audio|image|video)\//;
+var ENCODED_EXTENSIONS = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp"
+};
+var EXTENSION_TYPES = {
+  jpeg: "image/jpeg",
+  jpg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp"
+};
 var INIT_FILE_EVENT = "initfile";
 var file_upload_controller_default = class extends Controller {
-  static targets = ["pond", "input", "error"];
+  static targets = [
+    "pond",
+    "input",
+    "error",
+    "editor",
+    "editorImage",
+    "editorField",
+    "editorRatio"
+  ];
   static values = {
     key: String,
     statePath: String,
@@ -12314,6 +18549,13 @@ var file_upload_controller_default = class extends Controller {
     maxFilesMessage: String,
     maxParallelUploads: Number,
     mimeTypeMap: Object,
+    imageCropAspectRatio: String,
+    imageResizeMode: String,
+    imageResizeTargetWidth: String,
+    imageResizeTargetHeight: String,
+    imageResizeUpscale: { type: Boolean, default: true },
+    orientImagesFromExif: { type: Boolean, default: true },
+    transformImages: Boolean,
     placeholder: String,
     imagePreviewHeight: String,
     itemPanelAspectRatio: String,
@@ -12323,8 +18565,20 @@ var file_upload_controller_default = class extends Controller {
     removeUploadedFileButtonPosition: String,
     uploadButtonPosition: String,
     uploadProgressIndicatorPosition: String,
+    imageEditor: Boolean,
+    imageEditorExplicitlyEnabled: Boolean,
+    circleCropper: Boolean,
+    imageEditorMode: { type: Number, default: 1 },
+    imageEditorEmptyFillColor: String,
+    imageEditorViewportWidth: Number,
+    imageEditorViewportHeight: Number,
+    automaticallyOpenImageEditorForAspectRatio: Number,
+    editableSvgs: { type: Boolean, default: true },
+    confirmSvgEditing: Boolean,
     downloadActionLabel: String,
-    openActionLabel: String
+    openActionLabel: String,
+    confirmSvgEditingMessage: String,
+    disabledSvgEditingMessage: String
   };
   #generation = 0;
   #host = null;
@@ -12339,16 +18593,24 @@ var file_upload_controller_default = class extends Controller {
   #resizeObserver = null;
   #intersectionObserver = null;
   #initializing = false;
+  #editor = null;
+  #editingFile = null;
+  #editorOpenedForAspectRatio = false;
+  /** The name of the file the editor is re-adding — non-null only until that item starts processing. */
+  #editorSwapName = null;
   connect() {
     const generation = ++this.#generation;
     this.#observeVisibility();
-    void resolveLiveHost(this.element).then((host) => {
-      if (generation !== this.#generation) {
-        return;
-      }
-      this.#host = host;
-      this.#init();
-    });
+    resolveLiveHost(this.element).then(
+      (host) => {
+        if (generation !== this.#generation) {
+          return;
+        }
+        this.#host = host;
+        this.#init();
+      },
+      () => this.#showError(UPLOAD_ERROR)
+    );
   }
   disconnect() {
     this.#generation++;
@@ -12357,6 +18619,7 @@ var file_upload_controller_default = class extends Controller {
     this.#resizeObserver = null;
     this.#intersectionObserver = null;
     const input = this.#input;
+    this.#destroyEditor();
     if (this.#pond !== null && input !== null) {
       FilePond.destroy(input);
     }
@@ -12367,6 +18630,9 @@ var file_upload_controller_default = class extends Controller {
     this.#sourceIndex.clear();
     this.#cancelled.clear();
     this.#activeUploads = 0;
+    this.#editorSwapName = null;
+    this.#editingFile = null;
+    this.#editorOpenedForAspectRatio = false;
   }
   stateValueChanged() {
     this.#reconcile();
@@ -12376,6 +18642,74 @@ var file_upload_controller_default = class extends Controller {
   }
   disabledValueChanged() {
     this.#pond?.setOptions({ disabled: this.disabledValue });
+  }
+  editorSetDragMode({ params }) {
+    this.#editor?.setDragMode(params.mode);
+  }
+  editorZoom({ params }) {
+    this.#editor?.zoom(params.ratio);
+  }
+  editorZoomTo({ params }) {
+    this.#editor?.zoomTo(params.ratio);
+  }
+  editorMove({ params }) {
+    this.#editor?.move(params.x, params.y);
+  }
+  editorRotate({ params }) {
+    this.#editor?.rotate(params.degrees);
+  }
+  editorFlip({ params }) {
+    const editor = this.#editor;
+    if (editor === null) {
+      return;
+    }
+    const data2 = editor.getData();
+    if (params.axis === "x") {
+      editor.scaleX(-data2.scaleX || -1);
+    } else {
+      editor.scaleY(-data2.scaleY || -1);
+    }
+  }
+  editorReset() {
+    this.#editor?.reset();
+  }
+  editorSetAspectRatio({
+    params
+  }) {
+    this.#editor?.setAspectRatio(Number(params.ratio));
+    for (const button of this.editorRatioTargets) {
+      button.classList.toggle(
+        "sy-active",
+        button.getAttribute("data-sylament--forms--file-upload-label-param") === String(params.label)
+      );
+    }
+  }
+  editorApplyField(event) {
+    const editor = this.#editor;
+    if (event instanceof KeyboardEvent) {
+      if (event.key !== "Enter") {
+        return;
+      }
+      event.preventDefault();
+    }
+    if (editor === null || !(event.currentTarget instanceof HTMLInputElement)) {
+      return;
+    }
+    const value = Number(event.currentTarget.value);
+    if (event.params.field === "rotation") {
+      editor.rotateTo(value);
+    } else {
+      editor.setData({ ...editor.getData(true), [event.params.field]: value });
+    }
+  }
+  editorSave() {
+    this.#saveEditor();
+  }
+  editorCancel(event) {
+    if (event.type === "cancel") {
+      event.preventDefault();
+    }
+    this.#closeEditor();
   }
   #isHidden() {
     return this.element.offsetParent === null || getComputedStyle(this.element).visibility === "hidden";
@@ -12411,14 +18745,17 @@ var file_upload_controller_default = class extends Controller {
     if (this.#pond !== null || this.#initializing || !this.hasInputTarget || this.#isHidden()) {
       return;
     }
-    this.#initializing = true;
-    const input = this.inputTarget;
-    const pond = FilePond.create(input, this.#options());
-    this.#input = input;
-    this.#pond = pond;
-    this.#lastState = JSON.stringify(this.stateValue);
-    this.#registerEvents(pond);
-    this.#initializing = false;
+    try {
+      this.#initializing = true;
+      const input = this.inputTarget;
+      const pond = FilePond.create(input, this.#options());
+      this.#input = input;
+      this.#pond = pond;
+      this.#lastState = JSON.stringify(this.stateValue);
+      this.#registerEvents(pond);
+    } finally {
+      this.#initializing = false;
+    }
   }
   #options() {
     return {
@@ -12427,13 +18764,31 @@ var file_upload_controller_default = class extends Controller {
       allowRemove: this.deletableValue,
       allowReorder: this.reorderableValue,
       allowImagePreview: this.previewableValue,
+      allowImageExifOrientation: this.orientImagesFromExifValue,
+      allowImageTransform: this.transformImagesValue,
+      imageTransformOutputStripImageHead: false,
+      allowImageEdit: this.imageEditorExplicitlyEnabledValue,
+      imageEditEditor: {
+        open: (file) => this.#loadEditor(file),
+        onconfirm: () => {
+        },
+        oncancel: () => this.#closeEditor(),
+        onclose: () => this.#closeEditor()
+      },
+      beforeAddFile: (item) => this.#beforeAddFile(item),
+      ...this.hasImageCropAspectRatioValue ? { imageCropAspectRatio: this.imageCropAspectRatioValue } : {},
+      ...this.hasImageResizeModeValue ? { imageResizeMode: this.imageResizeModeValue } : {},
+      // The resize targets are Type.INT options parsing a numeric string — the maxFileSize precedent.
+      ...this.hasImageResizeTargetWidthValue ? { imageResizeTargetWidth: Number.parseInt(this.imageResizeTargetWidthValue, 10) } : {},
+      ...this.hasImageResizeTargetHeightValue ? { imageResizeTargetHeight: Number.parseInt(this.imageResizeTargetHeightValue, 10) } : {},
+      imageResizeUpscale: this.imageResizeUpscaleValue,
       credits: false,
       disabled: this.disabledValue,
       files: this.#buildFiles(),
       itemInsertLocation: this.appendFilesValue ? "after" : "before",
       maxFiles: this.hasMaxFilesValue ? this.maxFilesValue : null,
       // The size options are Type.INT and parse a numeric string; the shipped types say `string`.
-      maxFileSize: String(this.maxFileSizeValue),
+      maxFileSize: this.hasMaxFileSizeValue ? String(this.maxFileSizeValue) : null,
       styleButtonProcessItemPosition: this.uploadButtonPositionValue,
       styleButtonRemoveItemPosition: this.removeUploadedFileButtonPositionValue,
       styleItemPanelAspectRatio: this.hasItemPanelAspectRatioValue ? this.itemPanelAspectRatioValue : null,
@@ -12487,7 +18842,7 @@ var file_upload_controller_default = class extends Controller {
   /** The morph's twin of Filament's `$watch('state')`: rebuild the list only for a settled, changed, token-free state. */
   #reconcile() {
     const pond = this.#pond;
-    if (pond === null || this.#activeUploads > 0) {
+    if (pond === null || this.#activeUploads > 0 || this.#editorSwapName !== null) {
       return;
     }
     const state = this.stateValue;
@@ -12506,8 +18861,238 @@ var file_upload_controller_default = class extends Controller {
   }
   #detectType(file, detectedType) {
     const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
-    const mimeType = this.mimeTypeMapValue[extension] ?? detectedType;
+    const mimeType = this.mimeTypeMapValue[extension] || detectedType;
     return mimeType === "" ? Promise.reject(new Error(`The type of ${file.name} could not be detected.`)) : Promise.resolve(mimeType);
+  }
+  /** An image off the configured ratio never enters the pond — it opens the editor instead. */
+  async #beforeAddFile(item) {
+    if (!this.hasAutomaticallyOpenImageEditorForAspectRatioValue) {
+      return true;
+    }
+    const file = item.file;
+    if (!(file instanceof File) || !file.type.startsWith("image/")) {
+      return true;
+    }
+    if (await this.#checkImageAspectRatio(file)) {
+      return true;
+    }
+    this.#editorOpenedForAspectRatio = true;
+    this.#loadEditor(file);
+    return false;
+  }
+  /** A file that will not decode resolves `true`, so it is added unedited rather than lost. */
+  #checkImageAspectRatio(file) {
+    return new Promise((resolve) => {
+      const image = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      image.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(
+          Math.abs(
+            image.width / image.height - this.automaticallyOpenImageEditorForAspectRatioValue
+          ) <= 0.01
+        );
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(true);
+      };
+      image.src = objectUrl;
+    });
+  }
+  #loadEditor(file) {
+    if (this.disabledValue || !this.imageEditorValue || !this.hasEditorTarget) {
+      return;
+    }
+    const isSvg = file.type === "image/svg+xml";
+    if (isSvg && !this.editableSvgsValue) {
+      window.alert(this.disabledSvgEditingMessageValue);
+      return;
+    }
+    if (isSvg && this.confirmSvgEditingValue && !window.confirm(this.confirmSvgEditingMessageValue)) {
+      return;
+    }
+    this.#fixImageDimensions(file, (editingFile) => {
+      this.#editingFile = editingFile;
+      this.#initEditor();
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result === "string") {
+          requestAnimationFrame(() => this.#editor?.replace(result));
+        }
+      };
+      reader.readAsDataURL(editingFile);
+    });
+  }
+  /** An SVG sized only by its viewBox has no intrinsic size for Cropper to measure, so one is written on. */
+  #fixImageDimensions(file, callback) {
+    if (file.type !== "image/svg+xml") {
+      callback(file);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const source = typeof reader.result === "string" ? reader.result : "";
+      const svg = new DOMParser().parseFromString(source, "image/svg+xml").querySelector("svg");
+      const viewBoxAttribute = ["viewBox", "ViewBox", "viewbox"].find(
+        (name) => svg?.hasAttribute(name)
+      );
+      if (svg === null || viewBoxAttribute === void 0) {
+        callback(file);
+        return;
+      }
+      const viewBox = (svg.getAttribute(viewBoxAttribute) ?? "").split(" ");
+      if (viewBox.length !== 4) {
+        callback(file);
+        return;
+      }
+      svg.setAttribute("width", `${Number.parseFloat(viewBox[2] ?? "0")}pt`);
+      svg.setAttribute("height", `${Number.parseFloat(viewBox[3] ?? "0")}pt`);
+      callback(
+        new File(
+          [new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" })],
+          file.name,
+          {
+            type: "image/svg+xml"
+          }
+        )
+      );
+    };
+    reader.readAsText(file);
+  }
+  #initEditor() {
+    const dialog = this.editorTarget;
+    if (!dialog.open) {
+      dialog.showModal();
+      dialog.addEventListener("close", () => this.#closeEditor(), { once: true });
+    }
+    this.#destroyEditor();
+    const options = {
+      aspectRatio: this.hasAutomaticallyOpenImageEditorForAspectRatioValue ? this.automaticallyOpenImageEditorForAspectRatioValue : this.#viewportRatio(),
+      autoCropArea: 1,
+      center: true,
+      cropBoxResizable: true,
+      guides: true,
+      highlight: true,
+      responsive: true,
+      toggleDragModeOnDblclick: true,
+      viewMode: this.imageEditorModeValue,
+      wheelZoomRatio: 0.02
+    };
+    if (this.imageEditorExplicitlyEnabledValue) {
+      options.crop = (event) => {
+        this.#fieldInput("x").value = String(Math.round(event.detail.x));
+        this.#fieldInput("y").value = String(Math.round(event.detail.y));
+        this.#fieldInput("width").value = String(Math.round(event.detail.width));
+        this.#fieldInput("height").value = String(Math.round(event.detail.height));
+        this.#fieldInput("rotation").value = String(event.detail.rotate);
+      };
+    }
+    this.#editor = new import_cropperjs.default(this.editorImageTarget, options);
+  }
+  /** Filament's fallback ratio is the viewport quotient; null over null is NaN, which Cropper reads as free. */
+  #viewportRatio() {
+    return this.hasImageEditorViewportWidthValue && this.hasImageEditorViewportHeightValue ? this.imageEditorViewportWidthValue / this.imageEditorViewportHeightValue : Number.NaN;
+  }
+  #fieldInput(field) {
+    const input = this.editorFieldTargets.find(
+      (candidate) => candidate.getAttribute("data-sylament--forms--file-upload-field-param") === field
+    );
+    if (input === void 0) {
+      throw new Error(`The editor renders no ${field} input.`);
+    }
+    return input;
+  }
+  #closeEditor() {
+    if (this.#editorOpenedForAspectRatio) {
+      const item = this.#editingItem();
+      if (item !== void 0) {
+        this.#pond?.removeFile(item.id, { revert: true });
+      }
+      this.#editorOpenedForAspectRatio = false;
+    }
+    this.#editingFile = null;
+    this.#destroyEditor();
+    if (this.hasEditorTarget && this.editorTarget.open) {
+      this.editorTarget.close();
+    }
+    for (const button of this.editorRatioTargets) {
+      button.classList.remove("sy-active");
+    }
+  }
+  #destroyEditor() {
+    this.#editor?.destroy();
+    this.#editor = null;
+  }
+  #editingItem() {
+    const name = this.#editingFile?.name;
+    return name === void 0 ? void 0 : this.#pond?.getFiles().find((file) => file.filename === name);
+  }
+  #getRoundedCanvas(source) {
+    const canvas = document.createElement("canvas");
+    canvas.width = source.width;
+    canvas.height = source.height;
+    const context = canvas.getContext("2d");
+    if (context === null) {
+      return source;
+    }
+    context.imageSmoothingEnabled = true;
+    context.drawImage(source, 0, 0, source.width, source.height);
+    context.globalCompositeOperation = "destination-in";
+    context.beginPath();
+    context.ellipse(
+      source.width / 2,
+      source.height / 2,
+      source.width / 2,
+      source.height / 2,
+      0,
+      0,
+      2 * Math.PI
+    );
+    context.fill();
+    return canvas;
+  }
+  #saveEditor() {
+    const editor = this.#editor;
+    const editingFile = this.#editingFile;
+    if (this.disabledValue || !this.imageEditorValue || editor === null || editingFile === null) {
+      return;
+    }
+    this.#editorOpenedForAspectRatio = false;
+    let canvas = editor.getCroppedCanvas({
+      fillColor: this.hasImageEditorEmptyFillColorValue ? this.imageEditorEmptyFillColorValue : "transparent",
+      height: this.hasImageResizeTargetHeightValue ? Number.parseInt(this.imageResizeTargetHeightValue, 10) : void 0,
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: "high",
+      width: this.hasImageResizeTargetWidthValue ? Number.parseInt(this.imageResizeTargetWidthValue, 10) : void 0
+    });
+    if (this.circleCropperValue) {
+      canvas = this.#getRoundedCanvas(canvas);
+    }
+    const outputType = this.circleCropperValue || editingFile.type === "image/svg+xml" ? "image/png" : editingFile.type;
+    canvas.toBlob((blob) => {
+      if (blob === null) {
+        this.#closeEditor();
+        return;
+      }
+      const pond = this.#pond;
+      if (pond === null) {
+        this.#closeEditor();
+        return;
+      }
+      const type = blob.type || outputType;
+      const item = this.#editingItem();
+      const name = versionedName(editingFile.name, type);
+      this.#editorSwapName = name;
+      if (item !== void 0) {
+        pond.removeFile(item.id, { revert: true });
+      }
+      pond.addFile(new File([blob], name, { type, lastModified: Date.now() })).then(() => this.#closeEditor()).catch(() => {
+        this.#editorSwapName = null;
+        this.#closeEditor();
+      });
+    }, outputType);
   }
   /** Filament resolves a failed fetch as an empty blob; a stored file that will not load is an error here. */
   #load(source, load, error) {
@@ -12528,8 +19113,11 @@ var file_upload_controller_default = class extends Controller {
    * One live round trip per file, with the file key minted here so the queue, the multipart part
    * name and the state entry all agree. There is no byte progress to report over a live action, so
    * the indicator is indeterminate, and an abort can only be honoured once the request settles.
+   * The transform plugin hands back a named `Blob` rather than a `File`, so it is wrapped before
+   * the seam, which attaches the upload through a `DataTransfer` and takes nothing else.
    */
   #process(file, load, error, progress, abort) {
+    this.#editorSwapName = null;
     const host = this.#host;
     const fileKey = crypto.randomUUID();
     if (host === null) {
@@ -12537,13 +19125,16 @@ var file_upload_controller_default = class extends Controller {
       return { abort: () => {
       } };
     }
+    const upload = file instanceof File ? file : new File([file], file.name, { type: file.type, lastModified: file.lastModified });
     this.#activeUploads++;
     progress(false, 0, 0);
-    void uploadSchemaComponentFile(host, this.keyValue, fileKey, file).then(
+    void uploadSchemaComponentFile(host, this.keyValue, fileKey, upload).then(
       (result) => {
         this.#activeUploads--;
         if (this.#cancelled.delete(fileKey)) {
-          void callSchemaComponentMethod(host, this.keyValue, "removeUploadedFile", { fileKey });
+          callSchemaComponentMethod(host, this.keyValue, "removeUploadedFile", {
+            fileKey
+          }).catch(() => this.#showError(REMOVE_ERROR));
           abort();
           return;
         }
@@ -12556,6 +19147,10 @@ var file_upload_controller_default = class extends Controller {
       },
       () => {
         this.#activeUploads--;
+        if (this.#cancelled.delete(fileKey)) {
+          abort();
+          return;
+        }
         error(UPLOAD_ERROR);
       }
     );
@@ -12596,7 +19191,12 @@ var file_upload_controller_default = class extends Controller {
     pond.on("reorderfiles", (files) => this.#onReorder(files));
     pond.on(INIT_FILE_EVENT, (file) => this.#onInitFile(file));
     pond.on("addfilestart", () => this.#clearError());
-    pond.on("removefile", () => this.#clearError());
+    pond.on("removefile", (_error, file) => {
+      this.#clearError();
+      if (this.#activeUploads === 0 && file.filename === this.#editorSwapName) {
+        this.#editorSwapName = null;
+      }
+    });
     pond.on("warning", (warning) => {
       if (isRecord(warning) && warning.body === MAX_FILES_WARNING && this.hasMaxFilesMessageValue) {
         this.#showError(this.maxFilesMessageValue);
@@ -12623,8 +19223,11 @@ var file_upload_controller_default = class extends Controller {
         fileKeys.push(fileKey);
       }
     }
-    void callSchemaComponentMethod(host, this.keyValue, "reorderUploadedFiles", {
+    callSchemaComponentMethod(host, this.keyValue, "reorderUploadedFiles", {
       fileKeys: this.appendFilesValue ? fileKeys : fileKeys.reverse()
+    }).catch(() => {
+      this.#lastState = null;
+      this.#showError(REORDER_ERROR);
     });
   }
   #onInitFile(file) {
@@ -12700,6 +19303,15 @@ function errorMessage(error) {
   }
   return [error.main, error.sub].filter((part) => typeof part === "string" && part !== "").join(": ").replace("Expects  or", "Expects");
 }
+function versionedName(name, type) {
+  const dot = name.lastIndexOf(".");
+  let base = dot === -1 ? name : name.slice(0, dot);
+  const original = dot === -1 ? "" : name.slice(dot + 1);
+  const extension = EXTENSION_TYPES[original.toLowerCase()] === type ? original : ENCODED_EXTENSIONS[type] ?? original;
+  const version = /-v(\d+)/;
+  base = version.test(base) ? base.replace(version, (_match, number) => `-v${Number(number) + 1}`) : `${base}-v1`;
+  return extension === "" ? base : `${base}.${extension}`;
+}
 function urlFor(file, key) {
   const url = file.getMetadata(key);
   if (typeof url === "string" && url !== "") {
@@ -12728,6 +19340,17 @@ export {
 };
 /*! Bundled license information:
 
+cropperjs/dist/cropper.js:
+  (*!
+   * Cropper.js v1.6.3
+   * https://fengyuanchen.github.io/cropperjs
+   *
+   * Copyright 2015-present Chen Fengyuan
+   * Released under the MIT license
+   *
+   * Date: 2026-08-23T09:24:57.458Z
+   *)
+
 filepond/dist/filepond.js:
   (*!
    * FilePond 4.32.12
@@ -12749,9 +19372,44 @@ filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js:
    * Please visit https://pqina.nl/filepond/ for details.
    *)
 
+filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js:
+  (*!
+   * FilePondPluginImageCrop 2.0.6
+   * Licensed under MIT, https://opensource.org/licenses/MIT/
+   * Please visit https://pqina.nl/filepond/ for details.
+   *)
+
+filepond-plugin-image-edit/dist/filepond-plugin-image-edit.js:
+  (*!
+   * FilePondPluginImageEdit 1.6.3
+   * Licensed under MIT, https://opensource.org/licenses/MIT/
+   * Please visit https://pqina.nl/filepond/ for details.
+   *)
+
+filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js:
+  (*!
+   * FilePondPluginImageExifOrientation 1.0.11
+   * Licensed under MIT, https://opensource.org/licenses/MIT/
+   * Please visit https://pqina.nl/filepond/ for details.
+   *)
+
 filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js:
   (*!
    * FilePondPluginImagePreview 4.6.12
+   * Licensed under MIT, https://opensource.org/licenses/MIT/
+   * Please visit https://pqina.nl/filepond/ for details.
+   *)
+
+filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js:
+  (*!
+   * FilePondPluginImageResize 2.0.10
+   * Licensed under MIT, https://opensource.org/licenses/MIT/
+   * Please visit https://pqina.nl/filepond/ for details.
+   *)
+
+filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js:
+  (*!
+   * FilePondPluginImageTransform 3.8.8
    * Licensed under MIT, https://opensource.org/licenses/MIT/
    * Please visit https://pqina.nl/filepond/ for details.
    *)
