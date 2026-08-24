@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Sylament\Forms\Tests\Fixtures;
 
+use League\FlysystemBundle\FlysystemBundle;
 use Sylament\Actions\SylamentActionsBundle;
 use Sylament\Forms\SylamentFormsBundle;
+use Sylament\Forms\Uploads\TemporaryUploads;
 use Sylament\Schemas\SylamentSchemasBundle;
 use Sylament\Support\SylamentSupportBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
@@ -32,6 +34,7 @@ class Kernel extends BaseKernel
             new UXIconsBundle(),
             new StimulusBundle(),
             new LiveComponentBundle(),
+            new FlysystemBundle(),
 
             new SylamentActionsBundle(),
             new SylamentFormsBundle(),
@@ -69,6 +72,38 @@ class Kernel extends BaseKernel
             'anonymous_template_directory' => 'components',
             'defaults' => [],
         ]);
+
+        // Two local storages under the cache directory: `test.storage` is the field's default —
+        // public, and the only one that can mint a URL, since `public_url` is what gives a local
+        // adapter one at all — and `other.storage` is the foreign disk the move/copy and the
+        // no-URL arms need. `Pest.php` removes the directory after every Integration test.
+        $container->extension('flysystem', [
+            'storages' => [
+                'test.storage' => [
+                    'local' => [
+                        'directory' => $this->getCacheDir() . '/storage/test',
+                    ],
+                    'visibility' => 'public',
+                    'directory_visibility' => 'public',
+                    'public_url' => '/files',
+                ],
+                'other.storage' => [
+                    'local' => [
+                        'directory' => $this->getCacheDir() . '/storage/other',
+                    ],
+                ],
+            ],
+        ]);
+
+        $container->extension('sylament', [
+            'default_filesystem_disk' => 'test.storage',
+        ]);
+
+        // The production alias is private; keep the store reachable by class-string through the
+        // test container even when no fixture references it.
+        $container->services()
+            ->alias('sylament_forms.tests.temporary_uploads', TemporaryUploads::class)
+            ->public();
 
         $container->import(__DIR__ . '/services_doctrine.php');
 
