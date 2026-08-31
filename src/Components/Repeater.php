@@ -212,6 +212,36 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     }
 
     /**
+     * A relationship repeater routes the hooks its *items* declare: the path has
+     * to name one of the items it currently holds and then something the item
+     * schema declares a hook at, read from the very discovery the two edges route
+     * from. Anything else is a decoration schema's — `belowContent()` and its nine
+     * siblings hang off the repeater itself, and neither edge walks them, so a
+     * dotted path of theirs must not be vouched for by a remainder that happens to
+     * name an item hook — and it stays refused rather than silently never firing.
+     */
+    public function routesNestedRelationshipHookAt(string $path): bool
+    {
+        if (! $this->hasRelationship()) {
+            return false;
+        }
+
+        $separator = mb_strpos($path, '.');
+
+        if (($separator === false) || ($separator === 0)) {
+            return false;
+        }
+
+        if (! array_key_exists(mb_substr($path, 0, $separator), $this->getCachedDefaultChildSchemas())) {
+            return false;
+        }
+
+        $itemPath = mb_substr($path, $separator + 1);
+
+        return ($itemPath !== '') && array_key_exists($itemPath, $this->getTemplateNestedRelationshipHooks());
+    }
+
+    /**
      * The set-ward firing point of a declared item cast: record-read objects are
      * deconstructed into value-shaped arrays here, before any hook or descendant
      * reads the items.
@@ -328,6 +358,10 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     /**
      * One child schema per item, each a clone of the `components()` template
      * re-pathed onto the item's key, so two items never share a field instance.
+     * A relationship item is stamped with the child it maps, so everything inside
+     * it — a nested relation-backed field above all — resolves that record rather
+     * than the owner's; an item the client added has no child yet and keeps the
+     * template's class stamp.
      *
      * @return array<array-key, Schema>
      */
@@ -341,11 +375,13 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
         $items = [];
 
         foreach (array_keys($rawState) as $itemKey) {
-            $itemSchema = $this->getChildSchema()?->statePath((string) $itemKey)->key((string) $itemKey)->getClone();
+            $itemSchema = $this->makeItemSchema((string) $itemKey);
 
-            if ($itemSchema instanceof Schema) {
-                $items[$itemKey] = $itemSchema;
+            if (! $itemSchema instanceof Schema) {
+                continue;
             }
+
+            $items[(string) $itemKey] = $itemSchema;
         }
 
         return $items;
@@ -1482,6 +1518,28 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
         return $this->cachedItemsRawStateStructure === array_map(is_array(...), is_array($rawState) ? $rawState : []);
     }
 
+    /**
+     * The item **template** of a relationship repeater is stamped with the
+     * association's target class, so a component inside an item resolves the
+     * child's class before any child exists to resolve — and only the template,
+     * which is the `default` key every item schema is cloned from. A decoration
+     * schema is the repeater's own, not an item's: neither edge walks one, so
+     * framing it on the child would hand its closures a record its own component
+     * never maps. The resolution is soft on purpose: this seam runs from every
+     * structural read, and the fill and save edges own the refusals a mapping
+     * failure earns.
+     */
+    protected function configureChildSchema(Schema $schema, string $key): Schema
+    {
+        $schema = parent::configureChildSchema($schema, $key);
+
+        if (($key !== 'default') || ! $this->hasRelationship()) {
+            return $schema;
+        }
+
+        return $schema->record(fn (): ?string => $this->getSoftRelationshipTargetClass());
+    }
+
     protected function mergeHydratedDefaultStateWithItemsState(): void
     {
         $state = $this->getRawState();
@@ -1574,7 +1632,10 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
     /**
      * The children the record holds, each as an item array keyed by the child's
-     * record key — the identity a save diffs against.
+     * record key — the identity a save diffs against. A relation-backed field
+     * inside the item declares a load hook of its own that no walk of the
+     * record's own graph could answer, so this runs it against the child and
+     * leaves its path out of the leaf read.
      *
      * @return array<string, array<string, mixed>>
      */
@@ -1585,6 +1646,11 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
         $reader = $this->getAssociationReader();
         $accessor = $this->getPropertyAccessor();
         $itemStatePaths = $this->getItemStatePaths();
+
+        $loadHooks = array_filter(
+            $this->getTemplateNestedRelationshipHooks(),
+            static fn (Component $component): bool => $component->hasLoadStateFromRelationships(),
+        );
 
         $related = $accessor->getFromRecord($record, $this->getRelationshipNameOrFail());
 
@@ -1597,7 +1663,15 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
             $itemData = [];
 
+            foreach ($loadHooks as $hookPath => $component) {
+                $accessor->setInArray($itemData, (string) $hookPath, $component->loadStateFromRelationships($child));
+            }
+
             foreach ($itemStatePaths as $itemStatePath) {
+                if ($this->isRoutedItemStatePath($itemStatePath, $loadHooks)) {
+                    continue;
+                }
+
                 try {
                     $value = $accessor->getFromRecord($child, $itemStatePath);
                 } catch (AccessException) {
@@ -1621,7 +1695,10 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
      * Map the submitted items back onto the association: each item is written
      * onto the child it names or onto a freshly constructed one, and the whole
      * desired list is handed to the accessor in state order, whose adder/remover
-     * diffing leaves the kept children untouched and drops the rest.
+     * diffing leaves the kept children untouched and drops the rest. A
+     * relation-backed field inside the item is handed the child instead of a leaf
+     * write, after the item's own leaves have settled and before the collection
+     * write, so the identity pairing that follows sees finished children.
      */
     private function saveItemsToRelationship(object $record, mixed $state): void
     {
@@ -1631,6 +1708,10 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
         $accessor = $this->getPropertyAccessor();
         $itemStatePaths = $this->getItemStatePaths();
         $orderColumn = $this->getOrderColumn();
+        $routesSaveHooks = array_any(
+            $this->getTemplateNestedRelationshipHooks(),
+            static fn (Component $component): bool => $component->hasSaveRelationships(),
+        );
 
         $related = $accessor->getFromRecord($record, $name);
 
@@ -1672,9 +1753,28 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
                 'drop relationship() and add the records by hand after getData().',
             );
 
+            $saveHooks = $routesSaveHooks
+                ? array_filter(
+                    $this->getItemSchemaOrFail((string) $itemKey)->getNestedRelationshipHooks(),
+                    static fn (Component $component): bool => $component->hasSaveRelationships(),
+                )
+                : [];
+
             foreach ($itemStatePaths as $itemStatePath) {
+                if ($this->isRoutedItemStatePath($itemStatePath, $saveHooks)) {
+                    continue;
+                }
+
                 if ($accessor->hasInArray($itemData, $itemStatePath)) {
                     $accessor->setOnRecord($child, $itemStatePath, $accessor->getFromArray($itemData, $itemStatePath));
+                }
+            }
+
+            foreach ($saveHooks as $hookPath => $component) {
+                $hookPath = (string) $hookPath;
+
+                if ($accessor->hasInArray($itemData, $hookPath)) {
+                    $component->saveRelationships($child, $accessor->getFromArray($itemData, $hookPath));
                 }
             }
 
@@ -1689,6 +1789,142 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
         $accessor->setAssociationOnRecord($record, $name, $desiredRecords);
 
         $this->itemKeysByCollectionKey = $this->readItemKeysByCollectionKey($record, $name, $desiredRecords, $desiredItemKeys);
+    }
+
+    /**
+     * The relationship hooks one item declares, keyed by their item-relative
+     * paths — read off the template, because a fill runs before a single item
+     * exists to read from. The same walk answers
+     * {@see routesNestedRelationshipHookAt()}, so what the mapper is told is
+     * routed and what the fill routes are one set.
+     *
+     * @return array<string, Component>
+     */
+    private function getTemplateNestedRelationshipHooks(): array
+    {
+        return $this->getChildSchema()?->getClone()->getNestedRelationshipHooks() ?? [];
+    }
+
+    /**
+     * The schema of a submitted item, whose components are the very ones the
+     * record path map dropped in this repeater's favour. An item key the built
+     * ones do not cover — one a caller added to the state it handed `getData()`
+     * rather than to the repeater's own — is built the same way they are, so a
+     * hand-supplied item routes the hooks its template declares exactly as a
+     * rendered one does.
+     *
+     * @throws LogicException when the repeater declares no item schema at all,
+     *                        leaving the hooks the template carries nothing to
+     *                        run from
+     */
+    private function getItemSchemaOrFail(string $itemKey): Schema
+    {
+        return $this->getChildSchema($itemKey)
+            ?? $this->makeItemSchema($itemKey)
+            ?? throw new LogicException(sprintf(
+                'The [%s] repeater is saving item "%s" and has no item schema to route the relationship hooks beneath it from. Give the repeater components(), or drop the hook.',
+                (string) $this->getName(),
+                $itemKey,
+            ));
+    }
+
+    /**
+     * One item's schema, re-pathed onto its key and — under relationship(), for
+     * an item naming a child — stamped with the child it maps, falling back to
+     * the target class the template already carries.
+     */
+    private function makeItemSchema(string $itemKey): ?Schema
+    {
+        $itemSchema = $this->getChildSchema()?->statePath($itemKey)->key($itemKey)->getClone();
+
+        if (! $itemSchema instanceof Schema) {
+            return null;
+        }
+
+        if ($this->hasRelationship() && str_starts_with($itemKey, self::RECORD_ITEM_KEY_PREFIX)) {
+            $itemSchema->record(fn (): object|string|null => $this->findItemRecordByKey($itemKey) ?? $this->getSoftRelationshipTargetClass());
+        }
+
+        return $itemSchema;
+    }
+
+    /**
+     * Whether an item's leaf path is one a nested hook already speaks for — the
+     * hook's own path or anything beneath it — so the leaf walk leaves it alone.
+     * Subtraction is per edge: a save-only hook keeps its ordinary leaf read on
+     * the fill side, and a load-only one its ordinary write on the save side.
+     *
+     * @param array<string, Component> $routedHooks
+     */
+    private function isRoutedItemStatePath(string $itemStatePath, array $routedHooks): bool
+    {
+        foreach (array_keys($routedHooks) as $hookPath) {
+            $hookPath = (string) $hookPath;
+
+            if (($itemStatePath === $hookPath) || str_starts_with($itemStatePath, $hookPath . '.')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The child an item key names, read off the collection the owner record
+     * holds — null where the item names none, the owner is unbound, or the
+     * association cannot be read at all, since the stamps this answers are
+     * evaluated from structural walks rather than from the mapping edges.
+     */
+    private function findItemRecordByKey(string $itemKey): ?object
+    {
+        if (! str_starts_with($itemKey, self::RECORD_ITEM_KEY_PREFIX)) {
+            return null;
+        }
+
+        $record = $this->getRecord();
+        $name = $this->getRelationshipName();
+
+        if (! is_object($record) || ! filled($name)) {
+            return null;
+        }
+
+        try {
+            $related = $this->getPropertyAccessor()->getFromRecord($record, $name);
+        } catch (AccessException) {
+            return null;
+        }
+
+        $recordKey = mb_substr($itemKey, mb_strlen(self::RECORD_ITEM_KEY_PREFIX));
+        $reader = $this->getAssociationReader();
+
+        foreach (is_iterable($related) ? $related : [] as $child) {
+            if (is_object($child) && ($reader->findRecordKey($child) === $recordKey)) {
+                return $child;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The class the association targets, or null where the mapping cannot say —
+     * the never-throwing twin of {@see requireRelationshipCollectionTarget()},
+     * because the record stamps are read from rendering and from every state
+     * walk, and an eager refusal there would move the fill and save edges'
+     * refusals into all of them.
+     *
+     * @return class-string|null
+     */
+    private function getSoftRelationshipTargetClass(): ?string
+    {
+        $recordClass = $this->getRecordClass();
+        $name = $this->getRelationshipName();
+
+        if (($recordClass === null) || ! filled($name)) {
+            return null;
+        }
+
+        return $this->getAssociationReader()->describe($recordClass, $name)?->targetClass;
     }
 
     /**
@@ -1868,8 +2104,8 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
             return;
         }
 
-        $recordClass = $this->getRootContainer()->getRecordClass();
-        $recordPath = $this->getRecordStatePath();
+        $recordClass = $this->getNearestRecordClass();
+        $recordPath = $this->getNearestRecordStatePath();
 
         if (($recordClass === null) || ($recordPath === null)) {
             return;
@@ -1884,7 +2120,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
         $segments = explode('.', $recordPath);
 
         throw new LogicException(sprintf(
-            'Cannot map state path "%s" onto %s: "%s" is an object collection. Collection items need identity mapping (which state item is which entity), which only relationship() supplies — the Repeater maps plain-array items otherwise. Declare relationship() on this repeater, or map this property by hand after getData().',
+            'Cannot map state path "%s" onto the %s framing it: "%s" is an object collection. Collection items need identity mapping (which state item is which entity), which only relationship() supplies — the Repeater maps plain-array items otherwise. Declare relationship() on this repeater, or map this property by hand after getData().',
             $recordPath,
             $recordClass,
             $segments[count($segments) - 1],
