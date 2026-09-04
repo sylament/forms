@@ -7,6 +7,8 @@ namespace Sylament\Forms\Components;
 use Closure;
 use LogicException;
 use Sylament\Forms\Components\Concerns\CanDisableOptions;
+use Sylament\Forms\Components\Concerns\CanDisableOptionsWhenSelectedInSiblingRepeaterItems;
+use Sylament\Forms\Components\Concerns\CanFixIndistinctState;
 use Sylament\Forms\Components\Concerns\HasColors;
 use Sylament\Forms\Components\Concerns\HasExtraInputAttributes;
 use Sylament\Forms\Components\Concerns\HasGridDirection;
@@ -31,6 +33,8 @@ use function Sylament\Support\filled;
 class ToggleButtons extends Field implements Contracts\CanDisableOptions, HasNestedRecursiveValidationConstraints
 {
     use CanDisableOptions;
+    use CanDisableOptionsWhenSelectedInSiblingRepeaterItems;
+    use CanFixIndistinctState;
     use Concerns\HasNestedRecursiveValidationConstraints;
     use HasColors;
     use HasExtraInputAttributes;

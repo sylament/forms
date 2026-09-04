@@ -21,6 +21,11 @@
         "fetch": "lazy",
         "enabled": true
       },
+      "key-value": {
+        "main": "dist/controllers/key_value_controller.js",
+        "fetch": "eager",
+        "enabled": true
+      },
       "repeater": {
         "main": "dist/controllers/repeater_controller.js",
         "fetch": "eager",
@@ -28,6 +33,21 @@
       },
       "select": {
         "main": "dist/controllers/select_controller.js",
+        "fetch": "eager",
+        "enabled": true
+      },
+      "tags-input": {
+        "main": "dist/controllers/tags_input_controller.js",
+        "fetch": "eager",
+        "enabled": true
+      },
+      "text-input": {
+        "main": "dist/controllers/text_input_controller.js",
+        "fetch": "eager",
+        "enabled": true
+      },
+      "textarea": {
+        "main": "dist/controllers/textarea_controller.js",
         "fetch": "eager",
         "enabled": true
       }

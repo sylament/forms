@@ -35,6 +35,16 @@ input[type='range'].sy-fo-input {
 
 .sy-fo-textarea {
     @apply overflow-hidden;
+
+    &.sy-autosizable {
+        & .sy-fo-textarea-sizer {
+            @apply overflow-hidden;
+        }
+
+        & textarea.sy-fo-input {
+            @apply h-full min-h-0 resize-none;
+        }
+    }
 }
 
 textarea.sy-fo-input {

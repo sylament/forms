@@ -4,12 +4,20 @@ declare(strict_types=1);
 
 namespace Sylament\Forms\Tests\Integration\Components;
 
+use LogicException;
 use Sylament\Actions\Action;
+use Sylament\Forms\Components\Repeater;
 use Sylament\Forms\Components\TextInput;
+use Sylament\Forms\Components\TextInput\Actions\CopyAction;
+use Sylament\Forms\Components\TextInput\Actions\HidePasswordAction;
+use Sylament\Forms\Components\TextInput\Actions\ShowPasswordAction;
 use Sylament\Forms\Tests\Fixtures\Concerns\FieldRenderHost;
+use Sylament\Forms\Twig\FormsIconAlias;
 use Sylament\Forms\Validation\RequiredValue;
 use Sylament\Schemas\Schema;
+use Sylament\Support\Icons\IconManager;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\Length;
@@ -18,8 +26,10 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Twig\Error\RuntimeError;
 
 use function Sylament\Forms\Tests\renderField;
+use function Sylament\Forms\Tests\renderToHtml;
 
 it('renders the field wrapper chrome around the input', function (): void {
     $crawler = new Crawler(renderField(
@@ -159,7 +169,7 @@ it('makes the label screen-reader-only with hiddenLabel', function (): void {
 
     $label = $crawler->filter('label.sy-fo-field-label');
     expect($label->count())->toBe(1)
-        ->and($label->attr('class'))->toContain('sy-fo-sr-only')
+        ->and($label->attr('class'))->toContain('sy-sr-only')
         ->and($label->attr('for'))->toBe('title')
         ->and($label->text())->toBe('Title');
 
@@ -611,4 +621,233 @@ it('mutates state for validation only once trim, strip or a closure is set', fun
         ->and(TextInput::make('n')->trim()->mutatesStateForValidation())->toBeTrue()
         ->and(TextInput::make('n')->stripCharacters(',')->mutatesStateForValidation())->toBeTrue()
         ->and(TextInput::make('n')->mutateStateForValidationUsing(fn (): string => 'x')->mutatesStateForValidation())->toBeTrue();
+});
+
+it('registers both password actions as suffix actions and reads the password back as revealable', function (): void {
+    $field = TextInput::make('secret')->password()->revealable();
+    $actions = $field->getSuffixActions();
+
+    expect($field->isPasswordRevealable())->toBeTrue()
+        ->and(array_keys($actions))->toBe(['showPassword', 'hidePassword'])
+        ->and($actions['showPassword'])->toBeInstanceOf(ShowPasswordAction::class)
+        ->and($actions['hidePassword'])->toBeInstanceOf(HidePasswordAction::class)
+        ->and($actions['showPassword']->isVisible())->toBeTrue()
+        ->and($actions['hidePassword']->isVisible())->toBeTrue();
+});
+
+it('reads a plain text input back as not revealable and registers no affix action for it', function (): void {
+    $field = TextInput::make('title');
+
+    expect($field->isPasswordRevealable())->toBeFalse()
+        ->and($field->getSuffixActions())->toBe([]);
+});
+
+it('answers false for a revealable condition that resolves false, without reaching the password guard', function (): void {
+    expect(TextInput::make('title')->revealable(false)->isPasswordRevealable())->toBeFalse()
+        ->and(TextInput::make('title')->revealable(static fn (): bool => false)->isPasswordRevealable())->toBeFalse();
+});
+
+it('refuses to reveal an input that is not a password', function (): void {
+    $field = TextInput::make('title')->revealable();
+    Schema::make(new FieldRenderHost())->statePath('data')->components([$field])->getComponents();
+
+    expect(static fn (): bool => $field->isPasswordRevealable())
+        ->toThrow(LogicException::class, 'The text input [data.title] is not a [password()], so it cannot be [revealable()].');
+});
+
+it('hides both password actions behind a revealable condition that resolves false', function (): void {
+    $actions = TextInput::make('secret')->password()->revealable(false)->getSuffixActions();
+
+    expect($actions['showPassword']->isVisible())->toBeFalse()
+        ->and($actions['hidePassword']->isVisible())->toBeFalse();
+});
+
+it('registers the copy action as a suffix action and reads the field back as copyable', function (): void {
+    $field = TextInput::make('token')->copyable();
+    $actions = $field->getSuffixActions();
+
+    expect($field->isCopyable())->toBeTrue()
+        ->and(array_keys($actions))->toBe(['copy'])
+        ->and($actions['copy'])->toBeInstanceOf(CopyAction::class)
+        ->and($actions['copy']->isVisible())->toBeTrue();
+});
+
+it('carries the copy message and duration onto the registered action', function (): void {
+    $field = TextInput::make('token')->copyable(copyMessage: 'Token copied', copyMessageDuration: 5000);
+    Schema::make(new FieldRenderHost())->statePath('data')->components([$field])->getComponents();
+
+    $copy = $field->getSuffixActions()['copy'];
+
+    expect($copy)->toBeInstanceOf(CopyAction::class)
+        ->and($copy->getExtraAttributeBag()->toScalarAttributes())
+        ->toMatchArray([
+            'data-sylament--forms--text-input-message-param' => 'Token copied',
+            'data-sylament--forms--text-input-duration-param' => '5000',
+        ]);
+});
+
+it('reads a plain text input back as not copyable and hides a copy action behind a false condition', function (): void {
+    expect(TextInput::make('title')->isCopyable())->toBeFalse()
+        ->and(TextInput::make('token')->copyable(false)->isCopyable())->toBeFalse()
+        ->and(TextInput::make('token')->copyable(false)->getSuffixActions()['copy']->isVisible())->toBeFalse();
+});
+
+it('sees the render-time state in a copy message closure', function (): void {
+    $host = new FieldRenderHost();
+    $host->data = ['token' => 'abc'];
+
+    $field = TextInput::make('token')->copyable(copyMessage: static fn (mixed $state): string => "Copied {$state}");
+    Schema::make($host)->statePath('data')->components([$field])->getComponents();
+
+    expect($field->getSuffixActions()['copy']->getExtraAttributeBag()->toScalarAttributes())
+        ->toMatchArray(['data-sylament--forms--text-input-message-param' => 'Copied abc']);
+});
+
+it('appends the current-password constraint only behind the flag', function (): void {
+    $constraints = TextInput::make('password')->currentPassword()->getValidationConstraints();
+
+    expect($constraints)->toHaveCount(1)
+        ->and($constraints[0])->toBeInstanceOf(UserPassword::class)
+        ->and(TextInput::make('password')->getValidationConstraints())->toBe([])
+        ->and(TextInput::make('password')->currentPassword(false)->getValidationConstraints())->toBe([]);
+});
+
+// One alias per case, and the two actions it does not name are asserted to keep their shipped
+// defaults: registering all three at once to the same glyph passes just as happily when two
+// actions read the same alias constant, which is the only mistake this test exists to catch.
+it('builds the three affix actions through the container, so a registered alias replaces one icon', function (string $alias, string $overridden): void {
+    $this::getContainer()->get(IconManager::class)->register([$alias => 'heroicons:star']);
+
+    $defaults = [
+        ShowPasswordAction::class => 'heroicons:eye-20-solid',
+        HidePasswordAction::class => 'heroicons:eye-slash-20-solid',
+        CopyAction::class => 'heroicons:clipboard-document-list-20-solid',
+    ];
+
+    $icons = [
+        ShowPasswordAction::class => ShowPasswordAction::make()->getIcon(),
+        HidePasswordAction::class => HidePasswordAction::make()->getIcon(),
+        CopyAction::class => CopyAction::make()->getIcon(),
+    ];
+
+    foreach ($icons as $class => $icon) {
+        expect($icon)->toBe($class === $overridden ? 'heroicons:star' : $defaults[$class]);
+    }
+})->with([
+    'show password' => [FormsIconAlias::COMPONENTS_TEXT_INPUT_ACTIONS_SHOW_PASSWORD, ShowPasswordAction::class],
+    'hide password' => [FormsIconAlias::COMPONENTS_TEXT_INPUT_ACTIONS_HIDE_PASSWORD, HidePasswordAction::class],
+    'copy' => [FormsIconAlias::COMPONENTS_TEXT_INPUT_ACTIONS_COPY, CopyAction::class],
+]);
+
+it('marks the wrapper as a text input but binds no controller when neither behaviour is on', function (): void {
+    $crawler = new Crawler(renderField(TextInput::make('title')));
+
+    $wrapper = $crawler->filter('div.sy-input-wrp.sy-fo-text-input');
+    expect($wrapper->count())->toBe(1)
+        ->and($wrapper->attr('data-controller'))->toBeNull();
+
+    $input = $crawler->filter('input.sy-fo-input');
+    expect($input->attr('data-sylament--forms--text-input-target'))->toBeNull()
+        ->and($input->attr('class'))->not->toContain('sy-revealable')
+        ->and($crawler->filter('.sy-fo-text-input-copy-message')->count())->toBe(0);
+});
+
+it('binds the controller and targets the control once a behaviour asks for it', function (): void {
+    $revealable = new Crawler(renderField(TextInput::make('secret')->password()->revealable()));
+    $copyable = new Crawler(renderField(TextInput::make('token')->copyable()));
+
+    expect($revealable->filter('div.sy-fo-text-input')->attr('data-controller'))->toBe('sylament--forms--text-input')
+        ->and($revealable->filter('input.sy-fo-input')->attr('data-sylament--forms--text-input-target'))->toBe('input')
+        ->and($copyable->filter('div.sy-fo-text-input')->attr('data-controller'))->toBe('sylament--forms--text-input')
+        ->and($copyable->filter('input.sy-fo-input')->attr('data-sylament--forms--text-input-target'))->toBe('input');
+});
+
+it('renders both reveal buttons with their glyphs and client bindings, and mounts no live action', function (): void {
+    $crawler = new Crawler(renderField(TextInput::make('secret')->password()->revealable()));
+
+    $show = $crawler->filter('button.sy-fo-text-input-show-password');
+    $hide = $crawler->filter('button.sy-fo-text-input-hide-password');
+
+    expect($show->count())->toBe(1)
+        ->and($show->attr('data-action'))->toBe('sylament--forms--text-input#reveal')
+        ->and($show->attr('aria-label'))->toBe('Show password')
+        ->and($show->attr('data-live-action-param'))->toBeNull()
+        ->and($show->filter('svg')->count())->toBe(1)
+        ->and($hide->count())->toBe(1)
+        ->and($hide->attr('data-action'))->toBe('sylament--forms--text-input#conceal')
+        ->and($hide->attr('aria-label'))->toBe('Hide password')
+        ->and($hide->attr('data-live-action-param'))->toBeNull()
+        ->and($hide->filter('svg')->count())->toBe(1);
+});
+
+it('keeps a revealable password concealed server-side, and marks it for the ms-reveal rule', function (): void {
+    $input = new Crawler(renderField(TextInput::make('secret')->password()->revealable()))
+        ->filter('input.sy-fo-input');
+
+    expect($input->attr('type'))->toBe('password')
+        ->and($input->attr('class'))->toContain('sy-revealable');
+});
+
+it('refuses to render a revealable input that is not a password', function (): void {
+    // Twig wraps whatever a template throws, so the guard reaches a renderer as a RuntimeError
+    // carrying the message; the class itself is pinned on the getter above.
+    expect(static fn (): string => renderField(TextInput::make('title')->revealable()))
+        ->toThrow(RuntimeError::class, 'The text input [data.title] is not a [password()], so it cannot be [revealable()].');
+});
+
+it('renders the copy button with its message and duration params beside a live region', function (): void {
+    $crawler = new Crawler(renderField(
+        TextInput::make('token')->copyable(copyMessage: 'Token copied', copyMessageDuration: 5000),
+    ));
+
+    $copy = $crawler->filter('button.sy-fo-text-input-copy');
+    expect($copy->count())->toBe(1)
+        ->and($copy->attr('data-action'))->toBe('sylament--forms--text-input#copy')
+        ->and($copy->attr('data-sylament--forms--text-input-message-param'))->toBe('Token copied')
+        ->and($copy->attr('data-sylament--forms--text-input-duration-param'))->toBe('5000')
+        ->and($copy->attr('data-live-action-param'))->toBeNull()
+        ->and($copy->filter('svg')->count())->toBe(1);
+
+    $message = $crawler->filter('span.sy-fo-text-input-copy-message');
+    expect($message->count())->toBe(1)
+        ->and($message->attr('role'))->toBe('status')
+        ->and($message->attr('aria-live'))->toBe('polite')
+        // Never `hidden`: a live region must be in the accessibility tree before its text changes.
+        ->and($message->attr('hidden'))->toBeNull()
+        ->and($message->attr('data-sylament--forms--text-input-target'))->toBe('copyMessage')
+        ->and($message->text())->toBe('');
+});
+
+it('renders a copy message closure against the render-time state', function (): void {
+    $host = new FieldRenderHost();
+    $host->data = ['token' => 'abc'];
+
+    $html = renderToHtml(Schema::make($host)->statePath('data')->components([
+        TextInput::make('token')->copyable(copyMessage: static fn (mixed $state): string => "Copied {$state}"),
+    ]));
+
+    expect(new Crawler($html)->filter('button.sy-fo-text-input-copy')->attr('data-sylament--forms--text-input-message-param'))
+        ->toBe('Copied abc');
+});
+
+it('sees the field own state in a copy message closure inside a repeater item', function (): void {
+    $this::getContainer();
+
+    $host = new FieldRenderHost();
+    $host->data = ['tags' => [['name' => 'a']]];
+
+    $repeater = Repeater::make('tags')->components([
+        TextInput::make('name')->copyable(
+            copyMessage: static fn (mixed $state): string => is_array($state) ? 'the repeater array' : "Copied {$state}",
+        ),
+    ]);
+    Schema::make($host)->statePath('data')->components([$repeater])->getComponents();
+
+    $repeater->hydrateItems();
+
+    $field = $repeater->getItems()[array_key_first($host->data['tags'])]->getComponents()[0];
+    assert($field instanceof TextInput);
+
+    expect($field->getSuffixActions()['copy']->getExtraAttributeBag()->toScalarAttributes())
+        ->toMatchArray(['data-sylament--forms--text-input-message-param' => 'Copied a']);
 });

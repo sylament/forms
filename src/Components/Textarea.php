@@ -8,6 +8,7 @@ use Closure;
 use Sylament\Forms\Components\Concerns\CanBeAutocompleted;
 use Sylament\Forms\Components\Concerns\CanBeLengthConstrained;
 use Sylament\Forms\Components\Concerns\CanBeReadOnly;
+use Sylament\Forms\Components\Concerns\CanDisableGrammarly;
 use Sylament\Forms\Components\Concerns\HasExtraInputAttributes;
 use Sylament\Schemas\Components\Concerns\CanStripCharactersFromState;
 use Sylament\Schemas\Components\Concerns\CanTrimState;
@@ -19,6 +20,7 @@ class Textarea extends Field implements Contracts\CanBeLengthConstrained
     use CanBeAutocompleted;
     use CanBeLengthConstrained;
     use CanBeReadOnly;
+    use CanDisableGrammarly;
     use CanStripCharactersFromState;
     use CanTrimState;
     use HasExtraInputAttributes;
@@ -28,6 +30,8 @@ class Textarea extends Field implements Contracts\CanBeLengthConstrained
     protected int|Closure|null $rows = null;
 
     protected int|Closure|null $cols = null;
+
+    protected bool|Closure $shouldAutosize = false;
 
     public function rows(int|Closure|null $rows): static
     {
@@ -43,6 +47,13 @@ class Textarea extends Field implements Contracts\CanBeLengthConstrained
         return $this;
     }
 
+    public function autosize(bool|Closure $condition = true): static
+    {
+        $this->shouldAutosize = $condition;
+
+        return $this;
+    }
+
     public function getRows(): ?int
     {
         return $this->evaluate($this->rows);
@@ -51,6 +62,11 @@ class Textarea extends Field implements Contracts\CanBeLengthConstrained
     public function getCols(): ?int
     {
         return $this->evaluate($this->cols);
+    }
+
+    public function shouldAutosize(): bool
+    {
+        return (bool) $this->evaluate($this->shouldAutosize);
     }
 
     public function mutateStateForValidation(mixed $state): mixed
