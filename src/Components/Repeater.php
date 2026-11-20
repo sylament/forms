@@ -424,24 +424,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
      */
     public function getItemStatePaths(): array
     {
-        $itemSchema = $this->getChildSchema()?->getClone();
-
-        if (! $itemSchema instanceof Schema) {
-            return [];
-        }
-
-        $prefix = $itemSchema->getStatePath() . '.';
-        $itemStatePaths = [];
-
-        foreach ($itemSchema->getFlatComponents(withActions: false) as $component) {
-            $statePath = $component->getStatePath();
-
-            if (($statePath !== null) && str_starts_with($statePath, $prefix)) {
-                $itemStatePaths[] = mb_substr($statePath, mb_strlen($prefix));
-            }
-        }
-
-        return $itemStatePaths;
+        return array_map(strval(...), array_keys($this->getItemStateComponents()));
     }
 
     public function defaultItems(int|Closure $count): static
@@ -1635,7 +1618,9 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
      * record key — the identity a save diffs against. A relation-backed field
      * inside the item declares a load hook of its own that no walk of the
      * record's own graph could answer, so this runs it against the child and
-     * leaves its path out of the leaf read.
+     * leaves its path out of the leaf read. An object-valued leaf is read only
+     * where the item field's own state casts flatten it
+     * ({@see Component::isObjectCarriedByStateCasts()}), as the root fill reads one.
      *
      * @return array<string, array<string, mixed>>
      */
@@ -1645,7 +1630,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
         $reader = $this->getAssociationReader();
         $accessor = $this->getPropertyAccessor();
-        $itemStatePaths = $this->getItemStatePaths();
+        $itemStateComponents = $this->getItemStateComponents();
 
         $loadHooks = array_filter(
             $this->getTemplateNestedRelationshipHooks(),
@@ -1667,7 +1652,9 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
                 $accessor->setInArray($itemData, (string) $hookPath, $component->loadStateFromRelationships($child));
             }
 
-            foreach ($itemStatePaths as $itemStatePath) {
+            foreach ($itemStateComponents as $itemStatePath => $component) {
+                $itemStatePath = (string) $itemStatePath;
+
                 if ($this->isRoutedItemStatePath($itemStatePath, $loadHooks)) {
                     continue;
                 }
@@ -1678,7 +1665,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
                     continue;
                 }
 
-                if (is_object($value)) {
+                if (is_object($value) && ! $component->isObjectCarriedByStateCasts($value)) {
                     continue;
                 }
 
@@ -1725,6 +1712,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
         $desiredRecords = [];
         $desiredItemKeys = [];
+        $newRecords = [];
 
         foreach (is_array($state) ? $state : [] as $itemKey => $itemData) {
             /** @var array<string, mixed> $itemData */
@@ -1747,11 +1735,15 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
             $itemData = $mutated;
 
-            $child ??= $accessor->constructRecord(
-                $target->targetClass,
-                sprintf('an added item of the [%s] repeater onto a new record', (string) $this->getName()),
-                'drop relationship() and add the records by hand after getData().',
-            );
+            if ($child === null) {
+                $child = $accessor->constructRecord(
+                    $target->targetClass,
+                    sprintf('an added item of the [%s] repeater onto a new record', (string) $this->getName()),
+                    'drop relationship() and add the records by hand after getData().',
+                );
+
+                $newRecords[] = $child;
+            }
 
             $saveHooks = $routesSaveHooks
                 ? array_filter(
@@ -1788,7 +1780,29 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
         $accessor->setAssociationOnRecord($record, $name, $desiredRecords);
 
+        $this->assertNewItemsCarryAnIdentifier($newRecords);
+
         $this->itemKeysByCollectionKey = $this->readItemKeysByCollectionKey($record, $name, $desiredRecords, $desiredItemKeys);
+    }
+
+    /**
+     * @param list<object> $records the items this save constructed
+     *
+     * @throws LogicException when a new item is missing an identifier field its schema had to supply
+     */
+    private function assertNewItemsCarryAnIdentifier(array $records): void
+    {
+        $reader = $this->getAssociationReader();
+
+        foreach ($records as $child) {
+            if ($reader->hasIncompleteAssignedIdentifier($child)) {
+                throw new LogicException(sprintf(
+                    "The [%s] repeater is saving an item of [%s] whose identifier is incomplete, so no record key can be minted for it. Put every identifier field in the repeater's components() — enabled and dehydrated for a new item — or build the child in mutateRelationshipDataBeforeCreateUsing().",
+                    (string) $this->getName(),
+                    $child::class,
+                ));
+            }
+        }
     }
 
     /**
@@ -1803,6 +1817,35 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     private function getTemplateNestedRelationshipHooks(): array
     {
         return $this->getChildSchema()?->getClone()->getNestedRelationshipHooks() ?? [];
+    }
+
+    /**
+     * The item fields behind {@see getItemStatePaths()}, keyed by that path — the
+     * last declared keeping a path two share, as the record path map's own
+     * overwrite does — so a fill can ask the one reading a leaf about its casts.
+     *
+     * @return array<string, Component>
+     */
+    private function getItemStateComponents(): array
+    {
+        $itemSchema = $this->getChildSchema()?->getClone();
+
+        if (! $itemSchema instanceof Schema) {
+            return [];
+        }
+
+        $prefix = $itemSchema->getStatePath() . '.';
+        $itemStateComponents = [];
+
+        foreach ($itemSchema->getFlatComponents(withActions: false) as $component) {
+            $statePath = $component->getStatePath();
+
+            if (($statePath !== null) && str_starts_with($statePath, $prefix)) {
+                $itemStateComponents[mb_substr($statePath, mb_strlen($prefix))] = $component;
+            }
+        }
+
+        return $itemStateComponents;
     }
 
     /**
@@ -2033,7 +2076,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     {
         return $this->mutateRelationshipItemData($this->mutateRelationshipDataBeforeFillUsing, $itemData)
             ?? throw new LogicException(sprintf(
-                'The [%s] repeater\'s mutateRelationshipDataBeforeFillUsing callback returned null, but a fill has no item to skip — only the create and save callbacks may decline one. Return the array the callback was handed.',
+                "The [%s] repeater's mutateRelationshipDataBeforeFillUsing callback returned null, but a fill has no item to skip — only the create and save callbacks may decline one. Return the array the callback was handed.",
                 (string) $this->getName(),
             ));
     }

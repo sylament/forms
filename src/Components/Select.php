@@ -29,6 +29,7 @@ use Sylament\Forms\Components\Concerns\HasRelationship;
 use Sylament\Forms\Components\Contracts\HasNestedRecursiveValidationConstraints;
 use Sylament\Forms\Twig\FormsIconAlias;
 use Sylament\Schemas\Components\Component;
+use Sylament\Schemas\Identity\IdentifierConstraint;
 use Sylament\Schemas\Query\SearchConstraint;
 use Sylament\Schemas\Schema;
 use Sylament\Schemas\State\Casts\BooleanStateCast;
@@ -392,8 +393,10 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
      * Beyond the association wiring the shared trait installs, a select binds the
      * search, label and selected-record arms of the association and the three
      * Doctrine defaults its option actions need: creating a target row, filling
-     * the edit modal from the selected one, and flushing an update. They are
-     * installed unconditionally, so a `createOptionUsing()` — or a
+     * the edit modal from the selected one, and flushing an update. The two
+     * write defaults map the option action's data, and refuse by name a path its
+     * `mutateDataUsing()` added that no component of the option form maps. They
+     * are installed unconditionally, so a `createOptionUsing()` — or a
      * `getOptionLabelUsing()` — of your own has to follow `relationship()` to
      * survive.
      *
@@ -416,22 +419,45 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
                 return null;
             }
 
-            $record = $component->createScopedOptionQuery()
-                ->andWhere("record.{$component->getRelationshipIdentifierFieldName()} = :sylament_selected")
-                ->setParameter('sylament_selected', $state)
-                ->getQuery()
-                ->getOneOrNullResult();
+            $query = $component->createScopedOptionQuery();
+
+            $selected = IdentifierConstraint::equals($query, 'record', $component->getRelationshipTarget()->targetClass, (string) $state, 'sylament_selected');
+
+            if ($selected === null) {
+                return null;
+            }
+
+            $record = $query->andWhere($selected)->getQuery()->getOneOrNullResult();
 
             return is_object($record) ? $record : null;
         });
 
         $this->getOptionLabelsUsing(static fn (Select $component, array $values): array => $component->getOptionLabelsFromRelationship($values));
 
-        $this->createOptionUsing(static function (Select $component, Schema $schema): string {
+        $this->createOptionUsing(static function (Select $component, Schema $schema, Action $action): string {
+            $component->refuseUnmappedOptionData($schema, $action, 'createOptionUsing');
+
             $reader = $component->getAssociationReader();
-            $record = $schema->getData();
+            $record = $schema->getData($action->getData());
+            $refusal = static fn (): LogicException => new LogicException(sprintf(
+                'The [%s] select created a [%s] whose identifier is incomplete, so no option could name it. Put every identifier field in createOptionForm().%s',
+                (string) $component->getName(),
+                $record::class,
+                $schema->isRecordKeyValidated() ? '' : ' The schema switches the key rules off with validateRecordKey(false), so a key field it maps is not refused while blank; switch them back on to have the blank field refused under it.',
+            ));
+
+            if ($reader->hasIncompleteAssignedIdentifier($record)) {
+                throw $refusal();
+            }
 
             $reader->persist($record);
+
+            if ($reader->hasBlankAssignedIdentifier($record)) {
+                $reader->createOptionQuery($record::class)->getEntityManager()->detach($record);
+
+                throw $refusal();
+            }
+
             $reader->flush();
 
             $component->forgetCachedRelationshipOptions();
@@ -441,8 +467,10 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
 
         $this->fillEditOptionActionFormUsing(static fn (Select $component): ?object => $component->getSelectedRecord());
 
-        $this->updateOptionUsing(static function (Select $component, Schema $schema): void {
-            $schema->getData();
+        $this->updateOptionUsing(static function (Select $component, Schema $schema, Action $action): void {
+            $component->refuseUnmappedOptionData($schema, $action, 'updateOptionUsing');
+
+            $schema->getData($action->getData());
 
             $component->getAssociationReader()->flush();
             $component->forgetCachedRelationshipOptions();
@@ -563,18 +591,30 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
      */
     public function getOptionLabelsFromRelationship(array $values): array
     {
-        if ($values === []) {
+        $keys = [];
+
+        foreach ($values as $value) {
+            if (is_int($value) || is_string($value)) {
+                $keys[] = (string) $value;
+            }
+        }
+
+        if ($keys === []) {
             return [];
         }
 
+        $targetClass = $this->getRelationshipTarget()->targetClass;
         $query = $this->createScopedOptionQuery();
+        $records = [];
 
-        $query
-            ->andWhere("record.{$this->getRelationshipIdentifierFieldName()} IN (:sylament_values)")
-            ->setParameter('sylament_values', array_values($values));
+        foreach (IdentifierConstraint::batch($query->getEntityManager(), $targetClass, $keys) as $index => $batch) {
+            $batchQuery = $index === 0 ? $query : $this->createScopedOptionQuery();
+            $batchQuery->andWhere(IdentifierConstraint::in($batchQuery, 'record', $targetClass, $batch, 'sylament_values'));
 
-        /** @var list<object> $records */
-        $records = $query->getQuery()->getResult();
+            /** @var list<object> $found */
+            $found = $batchQuery->getQuery()->getResult();
+            array_push($records, ...$found);
+        }
 
         return $this->getOptionsFromRecords($records);
     }
@@ -745,6 +785,7 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
                 ));
 
                 $createdOptionKey = $component->evaluate($createOptionUsing, [
+                    'action' => $action,
                     'data' => $data,
                     'form' => $schema,
                     'schema' => $schema,
@@ -877,13 +918,14 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
                 $schema->record($component->getSelectedRecord()),
             ))
             ->fillForm(static fn (Select $component): object|array|null => $component->getEditOptionActionFormData())
-            ->action(static function (Select $component, array $data, Schema $schema): void {
+            ->action(static function (Action $action, Select $component, array $data, Schema $schema): void {
                 $updateOptionUsing = $component->getUpdateOptionUsing() ?? throw new LogicException(sprintf(
                     'The [%s] select declares an editOptionForm() but no updateOptionUsing() closure, so a submitted edit would have nowhere to be written. Call updateOptionUsing(), or declare relationship(), which installs a Doctrine default.',
                     (string) $component->getStatePath(),
                 ));
 
                 $component->evaluate($updateOptionUsing, [
+                    'action' => $action,
                     'data' => $data,
                     'form' => $schema,
                     'schema' => $schema,
@@ -1116,12 +1158,14 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
      * Validation runs against the raw state. A multiple select whose raw state is
      * not an array is failed by a type constraint alone — `Choice(multiple: true)`
      * throws on anything else — and its item bounds apply to every array, the
-     * empty one included. Then, once the payload left anything there: a select
-     * whose option map is the whole truth is guarded by a `Choice` over its
+     * empty one included; a relationship select whose target is keyed by more than
+     * one field stops there when the array is longer than `maxItems()`, so it
+     * answers the count alone. Then, once the payload left anything there: a
+     * select whose option map is the whole truth is guarded by a `Choice` over its
      * enabled options, and one whose map is not — a searchable relationship
-     * select, or a select labelling values through a closure with no `options()`
-     * — by probing the label of what was submitted, Filament's rule, where a
-     * failed probe is a `Choice` over nothing.
+     * select, an `ignoreRecord:` one, or a select labelling values through a
+     * closure with no `options()` — by probing the label of what was submitted,
+     * Filament's rule, where a failed probe is a `Choice` over nothing.
      *
      * @return list<Constraint>
      */
@@ -1147,6 +1191,10 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
                     min: ($minItems === null) ? null : max(0, $minItems),
                     max: ($maxItems === null) ? null : max(0, $maxItems),
                 );
+            }
+
+            if ($maxItems !== null && is_array($rawState) && count($rawState) > max(0, $maxItems) && $this->hasCompositeRelationshipTarget()) {
+                return $constraints;
             }
         }
 
@@ -1182,11 +1230,24 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
         return $constraints;
     }
 
+    private function hasCompositeRelationshipTarget(): bool
+    {
+        if (! $this->hasRelationship()) {
+            return false;
+        }
+
+        $targetClass = $this->getRelationshipTarget()->targetClass;
+
+        return $this->getAssociationReader()->createOptionQuery($targetClass)->getEntityManager()->getClassMetadata($targetClass)->isIdentifierComposite;
+    }
+
     /**
      * Whether `getOptions()` enumerates every value the field accepts — the map
-     * of a static `options()` or an enum, or a relationship select that is not
-     * searchable. A searchable relationship select's map is empty or limited by
-     * design, so it is never the truth about a submitted value.
+     * of a static `options()` or an enum, or a relationship select that neither
+     * searches nor ignores its record. A searchable relationship select's map is
+     * empty or limited by design, and an `ignoreRecord:` one leaves out the
+     * bound record a stored self-reference still names, so neither is the truth
+     * about a submitted value.
      */
     protected function hasFullOptionMap(): bool
     {
@@ -1194,7 +1255,7 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
             return false;
         }
 
-        return !$this->hasRelationship() || !$this->isSearchable();
+        return !$this->hasRelationship() || (!$this->isSearchable() && !$this->shouldIgnoreRelationshipRecord);
     }
 
     /**
@@ -1409,11 +1470,6 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
         return array_values($query->getEntityManager()->getClassMetadata($this->getRelationshipTarget()->targetClass)->getFieldNames());
     }
 
-    private function getRelationshipIdentifierFieldName(): string
-    {
-        return $this->getAssociationReader()->getIdentifierFieldName($this->getRelationshipTarget()->targetClass);
-    }
-
     /**
      * The option query with the bound record excluded, for the self-referential
      * association `relationship(ignoreRecord: true)` is meant for. Only the two
@@ -1423,9 +1479,10 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
      * A record that is not an instance of the association's target is refused
      * rather than excluded — its identifier means something else against this
      * query's root, and our `record` alias would make the mismatch valid DQL that
-     * silently drops an unrelated row. `null`, an array and a class-string record
-     * bind nothing, and neither does an unflushed one: a create page has no row to
-     * exclude.
+     * silently drops an unrelated row. `null` and a class-string record bind
+     * nothing, and neither does an unflushed one: a create page has no row to
+     * exclude. An array record never reaches here: it names no record class, so
+     * the relationship refuses it first.
      *
      * @throws LogicException when the bound record is an object of another class
      *                        than the association's target
@@ -1454,15 +1511,15 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
             ));
         }
 
-        $identifier = $this->getAssociationReader()->findRecordKey($record);
+        $key = $this->getAssociationReader()->findRecordKey($record);
 
-        if ($identifier === null) {
+        if ($key === null) {
             return $query;
         }
 
-        return $query
-            ->andWhere("record.{$this->getRelationshipIdentifierFieldName()} <> :sylament_ignored_record")
-            ->setParameter('sylament_ignored_record', $identifier);
+        $exclusion = IdentifierConstraint::notEquals($query, 'record', $targetClass, $key, 'sylament_ignored_record');
+
+        return ($exclusion === null) ? $query : $query->andWhere($exclusion);
     }
 
     /**
@@ -1494,6 +1551,31 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
         }
 
         return $modifiedAction;
+    }
+
+    /**
+     * Refuses, before an option default maps anything, a path the option
+     * action's `mutateDataUsing()` added that no component of its form maps: the
+     * default would drop it in silence. A path the client sent is in what the
+     * action was handed, so it is never refused.
+     *
+     * @throws LogicException naming every such path, never its value
+     */
+    private function refuseUnmappedOptionData(Schema $schema, Action $action, string $using): void
+    {
+        $paths = $schema->findUnmappedAdditions($action->getUnmutatedData(), $action->getData());
+
+        if ($paths === []) {
+            return;
+        }
+
+        throw new LogicException(sprintf(
+            "The [%s] select's [%s] action added [%s] in mutateDataUsing(), but no component of its schema maps those paths, so the default write would drop them. Map each with a component — a Hidden one for a value the user should not type, with required(false) where the record would otherwise require it — or take the write over with %s().",
+            (string) $this->getStatePath(),
+            $action->getName(),
+            implode(', ', $paths),
+            $using,
+        ));
     }
 
     private function resolveOptionActionIcon(string $alias, string $fallback): string|BackedEnum|Markup

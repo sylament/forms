@@ -9,6 +9,7 @@ use Doctrine\ORM\QueryBuilder;
 use LogicException;
 use Stringable;
 use Sylament\Schemas\State\AssociationTarget;
+use Sylament\Schemas\State\Relationship;
 use Twig\Markup;
 
 use function Sylament\Support\blank;
@@ -238,7 +239,8 @@ trait HasRelationship
      *
      * @throws LogicException when the association holds a collection the field
      *                        never declared `multiple()` for, or a single record
-     *                        it did
+     *                        it did, or one a field that always speaks a list
+     *                        (`CheckboxList`, which has no `multiple()`) points at
      */
     private function getMultiplicityMatchedRelationshipTarget(): AssociationTarget
     {
@@ -254,9 +256,18 @@ trait HasRelationship
             ));
         }
 
-        if (! $target->isToMany && $isMultiple) {
+        if (! $target->isToMany && $isMultiple && method_exists($this, 'multiple')) {
             throw new LogicException(sprintf(
                 'The [%s] field declares relationship("%s") alongside multiple(), but that association holds a single %s rather than a collection, so a list of selections could not map it. Drop multiple(), or point relationship() at a to-many association.',
+                (string) $this->getName(),
+                $this->getRelationshipNameOrFail(),
+                $target->targetClass,
+            ));
+        }
+
+        if (! $target->isToMany && $isMultiple) {
+            throw new LogicException(sprintf(
+                'The [%s] field declares relationship("%s"), but that association holds a single %s rather than a collection, so the list of selections the field always speaks could not map it. Point relationship() at a to-many association.',
                 (string) $this->getName(),
                 $this->getRelationshipNameOrFail(),
                 $target->targetClass,
@@ -291,7 +302,7 @@ trait HasRelationship
         }
 
         throw new LogicException(sprintf(
-            'The [%s] field\'s relationship modifyQueryUsing returned %s. Return the QueryBuilder it was handed, or nothing at all — anything else would drop the scoping without a trace.',
+            "The [%s] field's relationship modifyQueryUsing returned %s. Return the QueryBuilder it was handed, or nothing at all — anything else would drop the scoping without a trace.",
             (string) $this->getName(),
             get_debug_type($scoped),
         ));
@@ -340,6 +351,8 @@ trait HasRelationship
             return;
         }
 
+        $reader->assertRelationshipAcceptsAssociate(new Relationship($record, $name));
+
         $desired = [];
 
         foreach (wrap($state) as $item) {
@@ -350,7 +363,83 @@ trait HasRelationship
             }
         }
 
+        if ($target->isManyToMany && ! $target->isOwningSide) {
+            $this->writeDesiredToOwningSide($target, $record, $name, $desired);
+        }
+
         $accessor->setAssociationOnRecord($record, $name, $desired);
+    }
+
+    /**
+     * Write the desired list onto the association's owning side, the only side
+     * Doctrine persists: an inverse-side collection is ignored at flush, so
+     * writing it alone reports success and writes no join row. Every
+     * member no longer desired is detached and every new one attached, both
+     * through the reader, which flips to the target's own collection — so the
+     * kept members' join rows are never touched.
+     *
+     * @param list<object> $desired
+     *
+     * @throws LogicException when removing a member would delete the record being saved
+     */
+    private function writeDesiredToOwningSide(AssociationTarget $target, object $record, string $name, array $desired): void
+    {
+        $reader = $this->getAssociationReader();
+        $relationship = new Relationship($record, $name);
+        $members = $this->getPropertyAccessor()->getFromRecord($record, $name);
+
+        $current = [];
+
+        foreach (is_iterable($members) ? $members : [] as $member) {
+            if (is_object($member)) {
+                $current[] = $member;
+            }
+        }
+
+        $removed = array_values(array_filter($current, static fn (object $member): bool => ! in_array($member, $desired, true)));
+
+        if ($removed !== []) {
+            $this->assertOwningSideKeepsTheRecord($target);
+        }
+
+        foreach ($removed as $member) {
+            $reader->detach($relationship, $member);
+        }
+
+        foreach ($desired as $member) {
+            if (! in_array($member, $current, true)) {
+                $reader->attach($relationship, $member);
+            }
+        }
+    }
+
+    /**
+     * Refuse the one write that would delete the record it is saving: the
+     * owning collection declares orphanRemoval, so Doctrine holds its members
+     * privately owned and deletes the one taken out of it — and from the
+     * inverse side that one is this record. The reader refuses the same shape
+     * on a one-to-many by name; a many-to-many can only reach it from here.
+     *
+     * @throws LogicException when the owning side deletes what it drops
+     */
+    private function assertOwningSideKeepsTheRecord(AssociationTarget $target): void
+    {
+        $mappedBy = $target->mappedBy;
+
+        if ($mappedBy === null) {
+            return;
+        }
+
+        $owningSide = $this->getAssociationReader()->describe($target->targetClass, $mappedBy);
+
+        if ($owningSide instanceof AssociationTarget && $owningSide->isOrphanRemoval) {
+            throw new LogicException(sprintf(
+                '[%s::$%s] declares orphanRemoval, so a member dropped from it is deleted rather than unlinked — deselecting one in the [%s] field would delete the record this form is saving rather than its join row. Put the field on the owning side of the association, or drop orphanRemoval.',
+                $target->targetClass,
+                $mappedBy,
+                (string) $this->getName(),
+            ));
+        }
     }
 
     /**
@@ -360,14 +449,14 @@ trait HasRelationship
      *                        be, which validation against the option map should
      *                        already have refused
      */
-    private function toRelationshipIdentifier(mixed $state): int|string|null
+    private function toRelationshipIdentifier(mixed $state): ?string
     {
         if (blank($state)) {
             return null;
         }
 
         if (is_int($state) || is_string($state)) {
-            return $state;
+            return (string) $state;
         }
 
         throw new LogicException(sprintf(

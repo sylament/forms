@@ -879,7 +879,7 @@ trait CanBeValidated
      * A record that has never been flushed carries no identifier, and there is
      * nothing to exclude — which is the create page's normal state.
      */
-    private function resolveIgnoredIdentifier(?object $ignorable, ?bool $ignoreRecord): string|int|null
+    private function resolveIgnoredIdentifier(?object $ignorable, ?bool $ignoreRecord): ?string
     {
         $record = $this->evaluate($ignorable);
 
@@ -1042,19 +1042,30 @@ trait CanBeValidated
     /**
      * Laravel's exact strictness rule: loose for strings and ints, so a text input's
      * `'1'` still matches `1`, but strict for booleans and nulls, so a checkbox's raw
-     * `true` is not matched by the string `'1'`.
+     * `true` is not matched by the string `'1'`. A declared boolean meets a sibling
+     * that is neither in the spelling Filament's rule string gives it: `'true'` or
+     * `'false'` alone, so a text sibling's `'1'` does not match `true`, and `'1'` or
+     * `''` inside a list, which Filament's rule string joins with `implode()`.
      */
     private function matchesConditionValues(mixed $other, mixed $values): bool
     {
+        $isStrict = is_bool($other) || $other === null;
+        $isList = is_array($values);
+
         // Not `wrap()`: its `null` → `[]` arm reads null as absence, and here null is a
         // value the caller asked to match — `requiredIf('other', null)` means "when the
         // sibling is null", which the live bag cannot distinguish from an absent key.
         $values = array_map(
-            static fn (mixed $value): mixed => $value instanceof BackedEnum ? $value->value : $value,
-            is_array($values) ? $values : [$values],
+            static fn (mixed $value): mixed => match (true) {
+                $value instanceof BackedEnum => $value->value,
+                is_bool($value) && ! $isStrict && $isList => $value ? '1' : '',
+                is_bool($value) && ! $isStrict => $value ? 'true' : 'false',
+                default => $value,
+            },
+            $isList ? $values : [$values],
         );
 
-        return in_array($other, $values, strict: is_bool($other) || $other === null);
+        return in_array($other, $values, strict: $isStrict);
     }
 
     /**
