@@ -46,7 +46,11 @@ trait TestsForms
 
         $state = $this->undotFormState($state, $propertyAccessor);
 
-        foreach ($this->getFormStateWrites($state, (string) $schemaStatePath) as $path => $value) {
+        if (!filled($schemaStatePath)) {
+            $this->refuseKeysNamingNoWritableLiveProp($state, $form);
+        }
+
+        foreach ($this->getFormStateWrites($state, $this->getTestedSchemasHost(), $propertyAccessor, (string) $schemaStatePath) as $path => $value) {
             $this->set((string) $path, $value);
         }
 
@@ -238,15 +242,35 @@ trait TestsForms
     }
 
     /**
-     * A non-empty associative array is written key by key, so the keys it leaves out
-     * keep their state; anything else is one write, so a list replaces the list it
-     * lands on, an empty one included. The prefix is only a path, so a state path
-     * ending at a list index never turns the state it holds into one list write.
+     * A form with no state path writes each key onto the host itself, where UX reads an
+     * update only under a writable `LiveProp`'s name and drops any other in silence.
+     *
+     * @param array<string, mixed> $state
+     */
+    private function refuseKeysNamingNoWritableLiveProp(array $state, string $form): void
+    {
+        $host = $this->getTestedSchemasHost();
+        $writableLivePropNames = $this->getWritableLivePropNames($host);
+
+        foreach (array_keys($state) as $key) {
+            if (!in_array((string) $key, $writableLivePropNames, true)) {
+                throw new LogicException(sprintf('The [%s] schema of the [%s] component has no state path, so fillForm() writes the [%s] key onto the component, which has no writable LiveProp of that name.', $form, $host::class, $key));
+            }
+        }
+    }
+
+    /**
+     * A non-empty associative array is written key by key where the host's state holds
+     * an array at that path, so the keys it leaves out keep their state; anything else
+     * is one write, so a list replaces the list it lands on, an empty one included, and
+     * a container the state lacks arrives whole, since UX's hydrator drops a write
+     * below a missing level. The prefix is only a path, so a state path ending at a
+     * list index never turns the state it holds into one list write.
      *
      * @param array<mixed> $state
      * @return array<string, mixed>
      */
-    private function getFormStateWrites(array $state, string $pathPrefix = ''): array
+    private function getFormStateWrites(array $state, object $host, PropertyAccessor $propertyAccessor, string $pathPrefix = ''): array
     {
         if (($state === []) && ($pathPrefix !== '')) {
             return [$pathPrefix => $state];
@@ -257,8 +281,8 @@ trait TestsForms
         foreach ($state as $key => $value) {
             $path = ($pathPrefix === '') ? (string) $key : "{$pathPrefix}.{$key}";
 
-            if (is_array($value) && ($value !== []) && !array_is_list($value)) {
-                $writes += $this->getFormStateWrites($value, $path);
+            if (is_array($value) && ($value !== []) && !array_is_list($value) && is_array($propertyAccessor->get($host, $path))) {
+                $writes += $this->getFormStateWrites($value, $host, $propertyAccessor, $path);
 
                 continue;
             }
