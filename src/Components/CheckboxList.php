@@ -23,6 +23,7 @@ use Sylament\Schemas\State\Casts\Contracts\StateCast;
 use Sylament\Schemas\State\Casts\EnumArrayStateCast;
 use Sylament\Schemas\State\Casts\OptionsArrayStateCast;
 use Sylament\Support\Enums\Size;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Count;
@@ -98,7 +99,7 @@ class CheckboxList extends Field implements Contracts\CanDisableOptions, HasNest
     public function getSelectAllAction(): Action
     {
         $action = Action::make($this->getSelectAllActionName())
-            ->label('Select all')
+            ->label(new TranslatableMessage('components.checkbox_list.actions.select_all.label', domain: 'sylament-forms'))
             ->liveComponentClickHandlerEnabled(false)
             ->link()
             ->size(Size::Small);
@@ -121,7 +122,7 @@ class CheckboxList extends Field implements Contracts\CanDisableOptions, HasNest
     public function getDeselectAllAction(): Action
     {
         $action = Action::make($this->getDeselectAllActionName())
-            ->label('Deselect all')
+            ->label(new TranslatableMessage('components.checkbox_list.actions.deselect_all.label', domain: 'sylament-forms'))
             ->liveComponentClickHandlerEnabled(false)
             ->link()
             ->size(Size::Small);
@@ -156,11 +157,11 @@ class CheckboxList extends Field implements Contracts\CanDisableOptions, HasNest
 
     public function getOptionDescriptionFromRecord(object $record): string|Markup|null
     {
-        return $this->evaluate($this->getOptionDescriptionFromRecordUsing, [
+        return $this->translateText($this->evaluate($this->getOptionDescriptionFromRecordUsing, [
             'record' => $record,
         ], [
             $record::class => $record,
-        ]);
+        ]));
     }
 
     /**
@@ -226,7 +227,9 @@ class CheckboxList extends Field implements Contracts\CanDisableOptions, HasNest
         $relationshipName = $this->getRelationshipName();
 
         if (filled($relationshipName)) {
-            return (string) u($relationshipName)->before('.')->kebab()->replace('-', ' ')->title();
+            $label = (string) u($relationshipName)->before('.')->kebab()->replace('-', ' ')->title();
+
+            return $this->shouldTranslateLabel ? $this->getTranslator()->trans($label) : $label;
         }
 
         return parent::getDefaultLabel();

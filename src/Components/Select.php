@@ -40,11 +40,13 @@ use Sylament\Schemas\State\Casts\OptionsArrayStateCast;
 use Sylament\Schemas\State\Casts\OptionStateCast;
 use Sylament\Support\Components\Attributes\ExposedLiveComponentMethod;
 use Sylament\Support\Icons\IconManager;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\Service\Attribute\Required;
+use Symfony\Contracts\Translation\TranslatableInterface;
 use Twig\Markup;
 use TypeError;
 
@@ -91,7 +93,7 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
      */
     protected ?array $searchColumns = null;
 
-    protected string|Closure|null $maxItemsMessage = null;
+    protected string|TranslatableInterface|Closure|null $maxItemsMessage = null;
 
     protected string|Closure|null $position = null;
 
@@ -114,9 +116,9 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
 
     protected ?Closure $createOptionUsing = null;
 
-    protected string|Markup|Closure|null $createOptionModalHeading = null;
+    protected string|Markup|TranslatableInterface|Closure|null $createOptionModalHeading = null;
 
-    protected string|Markup|Closure|null $editOptionModalHeading = null;
+    protected string|Markup|TranslatableInterface|Closure|null $editOptionModalHeading = null;
 
     protected ?Closure $modifyCreateOptionActionUsing = null;
 
@@ -156,7 +158,7 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
             return $transformed;
         });
 
-        $this->placeholder('Select an option');
+        $this->placeholder(new TranslatableMessage('components.select.placeholder', domain: 'sylament-forms'));
 
         $this->suffixActions([
             static fn (Select $component): ?Action => $component->getCreateOptionAction(),
@@ -170,11 +172,11 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
         $this->iconManager = $iconManager;
     }
 
-    public function boolean(?string $trueLabel = null, ?string $falseLabel = null, ?string $placeholder = null): static
+    public function boolean(string|TranslatableInterface|null $trueLabel = null, string|TranslatableInterface|null $falseLabel = null, string|TranslatableInterface|null $placeholder = null): static
     {
         $this->options([
-            1 => $trueLabel ?? 'Yes',
-            0 => $falseLabel ?? 'No',
+            1 => $trueLabel ?? new TranslatableMessage('components.select.boolean.true', domain: 'sylament-forms'),
+            0 => $falseLabel ?? new TranslatableMessage('components.select.boolean.false', domain: 'sylament-forms'),
         ]);
 
         $this->placeholder($placeholder ?? '-');
@@ -290,7 +292,7 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
         return $this->evaluate($this->optionsLimit);
     }
 
-    public function maxItemsMessage(string|Closure|null $message): static
+    public function maxItemsMessage(string|TranslatableInterface|Closure|null $message): static
     {
         $this->maxItemsMessage = $message;
 
@@ -299,8 +301,7 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
 
     public function getMaxItemsMessage(): string
     {
-        return $this->evaluate($this->maxItemsMessage)
-            ?? str_replace(':count', (string) $this->getMaxItems(), 'Only :count can be selected.');
+        return (string) $this->translateText($this->evaluate($this->maxItemsMessage) ?? new TranslatableMessage('components.select.max_items_message', ['count' => $this->getMaxItems()], 'sylament-forms'));
     }
 
     public function position(string|Closure|null $position): static
@@ -634,8 +635,8 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
             'searchQuery' => $search,
         ]), 'getSearchResultsUsing');
 
-        /** @var array<string|int, string|Markup|array<string|int, string|Markup>> $results */
-        return $results;
+        /** @var array<string|int, string|Markup|TranslatableInterface|array<string|int, string|Markup|TranslatableInterface>> $results */
+        return $this->translateOptions($results);
     }
 
     /**
@@ -772,7 +773,7 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
         }
 
         $action = Action::make($this->getCreateOptionActionName())
-            ->label('Create')
+            ->label(new TranslatableMessage('components.select.actions.create_option.label', domain: 'sylament-forms'))
             ->schema(static fn (Select $component, Schema $schema): array|Schema|null => $component->getCreateOptionActionForm(
                 $schema->record($component->hasRelationship()
                     ? $component->getRelationshipTarget()->targetClass
@@ -813,24 +814,24 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
             ->color('gray')
             ->icon($this->resolveOptionActionIcon(FormsIconAlias::COMPONENTS_SELECT_ACTIONS_CREATE_OPTION, 'heroicons:plus-20-solid'))
             ->iconButton()
-            ->modalHeading($this->getCreateOptionModalHeading() ?? 'Create')
-            ->modalSubmitActionLabel('Create')
+            ->modalHeading($this->getCreateOptionModalHeading() ?? new TranslatableMessage('components.select.actions.create_option.modal.heading', domain: 'sylament-forms'))
+            ->modalSubmitActionLabel(new TranslatableMessage('components.select.actions.create_option.modal.actions.create.label', domain: 'sylament-forms'))
             ->extraModalFooterActions(static fn (Action $action, Select $component): array => $component->isMultiple() ? [
                 $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
-                    ->label('Create & create another'),
+                    ->label(new TranslatableMessage('components.select.actions.create_option.modal.actions.create_another.label', domain: 'sylament-forms')),
             ] : []);
 
         return $this->applyOptionActionModifiers($action, $this->modifyCreateOptionActionUsing);
     }
 
-    public function createOptionModalHeading(string|Markup|Closure|null $heading): static
+    public function createOptionModalHeading(string|Markup|TranslatableInterface|Closure|null $heading): static
     {
         $this->createOptionModalHeading = $heading;
 
         return $this;
     }
 
-    public function editOptionModalHeading(string|Markup|Closure|null $heading): static
+    public function editOptionModalHeading(string|Markup|TranslatableInterface|Closure|null $heading): static
     {
         $this->editOptionModalHeading = $heading;
 
@@ -913,7 +914,7 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
         }
 
         $action = Action::make($this->getEditOptionActionName())
-            ->label('Edit')
+            ->label(new TranslatableMessage('components.select.actions.edit_option.label', domain: 'sylament-forms'))
             ->schema(static fn (Select $component, Schema $schema): array|Schema|null => $component->getEditOptionActionForm(
                 $schema->record($component->getSelectedRecord()),
             ))
@@ -938,8 +939,8 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
             ->color('gray')
             ->icon($this->resolveOptionActionIcon(FormsIconAlias::COMPONENTS_SELECT_ACTIONS_EDIT_OPTION, 'heroicons:pencil-square-20-solid'))
             ->iconButton()
-            ->modalHeading($this->getEditOptionModalHeading() ?? 'Edit')
-            ->modalSubmitActionLabel('Save')
+            ->modalHeading($this->getEditOptionModalHeading() ?? new TranslatableMessage('components.select.actions.edit_option.modal.heading', domain: 'sylament-forms'))
+            ->modalSubmitActionLabel(new TranslatableMessage('components.select.actions.edit_option.modal.actions.save.label', domain: 'sylament-forms'))
             ->visible(fn (): bool => filled($this->getState()));
 
         return $this->applyOptionActionModifiers($action, $this->modifyEditOptionActionUsing);
@@ -965,12 +966,12 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
 
     public function getCreateOptionModalHeading(): string|Markup|null
     {
-        return $this->evaluate($this->createOptionModalHeading);
+        return $this->translateText($this->evaluate($this->createOptionModalHeading));
     }
 
     public function getEditOptionModalHeading(): string|Markup|null
     {
-        return $this->evaluate($this->editOptionModalHeading);
+        return $this->translateText($this->evaluate($this->editOptionModalHeading));
     }
 
     /**
@@ -1367,11 +1368,16 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
     }
 
     /**
-     * What a label closure answered, as the text an option label is: `Markup`
-     * as-is, a scalar or an enum's backing value as a string, anything else null.
+     * What a label closure answered, as the text an option label is: a message
+     * translated, `Markup` as-is, a scalar or an enum's backing value as a
+     * string, anything else null.
      */
     private function toOptionLabel(mixed $label): string|Markup|null
     {
+        if ($label instanceof TranslatableInterface) {
+            return $this->translateText($label);
+        }
+
         if ($label instanceof Markup) {
             return $label;
         }

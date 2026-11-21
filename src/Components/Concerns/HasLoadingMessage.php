@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Sylament\Forms\Components\Concerns;
 
 use Closure;
+use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Contracts\Translation\TranslatableInterface;
 
 trait HasLoadingMessage
 {
-    protected string|Closure|null $loadingMessage = null;
+    protected string|TranslatableInterface|Closure|null $loadingMessage = null;
 
-    public function loadingMessage(string|Closure|null $message): static
+    public function loadingMessage(string|TranslatableInterface|Closure|null $message): static
     {
         $this->loadingMessage = $message;
 
@@ -19,6 +21,6 @@ trait HasLoadingMessage
 
     public function getLoadingMessage(): string
     {
-        return $this->evaluate($this->loadingMessage) ?? 'Loading...';
+        return (string) $this->translateText($this->evaluate($this->loadingMessage) ?? new TranslatableMessage('components.select.loading_message', domain: 'sylament-forms'));
     }
 }

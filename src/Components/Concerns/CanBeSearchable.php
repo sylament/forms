@@ -5,21 +5,23 @@ declare(strict_types=1);
 namespace Sylament\Forms\Components\Concerns;
 
 use Closure;
+use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Contracts\Translation\TranslatableInterface;
 use Twig\Markup;
 
 trait CanBeSearchable
 {
     protected bool|Closure|null $isSearchable = null;
 
-    protected string|Markup|Closure|null $noOptionsMessage = null;
+    protected string|Markup|TranslatableInterface|Closure|null $noOptionsMessage = null;
 
-    protected string|Markup|Closure|null $noSearchResultsMessage = null;
+    protected string|Markup|TranslatableInterface|Closure|null $noSearchResultsMessage = null;
 
     protected int|Closure $searchDebounce = 1000;
 
-    protected string|Closure|null $searchingMessage = null;
+    protected string|TranslatableInterface|Closure|null $searchingMessage = null;
 
-    protected string|Markup|Closure|null $searchPrompt = null;
+    protected string|Markup|TranslatableInterface|Closure|null $searchPrompt = null;
 
     /**
      * Nullable so `searchLabels(null)` — the setter's own declared arm — assigns
@@ -42,14 +44,14 @@ trait CanBeSearchable
         return $this;
     }
 
-    public function noOptionsMessage(string|Markup|Closure|null $message): static
+    public function noOptionsMessage(string|Markup|TranslatableInterface|Closure|null $message): static
     {
         $this->noOptionsMessage = $message;
 
         return $this;
     }
 
-    public function noSearchResultsMessage(string|Markup|Closure|null $message): static
+    public function noSearchResultsMessage(string|Markup|TranslatableInterface|Closure|null $message): static
     {
         $this->noSearchResultsMessage = $message;
 
@@ -63,14 +65,14 @@ trait CanBeSearchable
         return $this;
     }
 
-    public function searchingMessage(string|Closure|null $message): static
+    public function searchingMessage(string|TranslatableInterface|Closure|null $message): static
     {
         $this->searchingMessage = $message;
 
         return $this;
     }
 
-    public function searchPrompt(string|Markup|Closure|null $message): static
+    public function searchPrompt(string|Markup|TranslatableInterface|Closure|null $message): static
     {
         $this->searchPrompt = $message;
 
@@ -93,17 +95,17 @@ trait CanBeSearchable
 
     public function getNoOptionsMessage(): string|Markup
     {
-        return $this->evaluate($this->noOptionsMessage) ?? 'No options available.';
+        return $this->translateText($this->evaluate($this->noOptionsMessage)) ?? new TranslatableMessage('components.select.no_options_message', domain: 'sylament-forms')->trans($this->getTranslator());
     }
 
     public function getNoSearchResultsMessage(): string|Markup
     {
-        return $this->evaluate($this->noSearchResultsMessage) ?? 'No options match your search.';
+        return $this->translateText($this->evaluate($this->noSearchResultsMessage)) ?? new TranslatableMessage('components.select.no_search_results_message', domain: 'sylament-forms')->trans($this->getTranslator());
     }
 
     public function getSearchPrompt(): string|Markup
     {
-        return $this->evaluate($this->searchPrompt) ?? 'Start typing to search...';
+        return $this->translateText($this->evaluate($this->searchPrompt)) ?? new TranslatableMessage('components.select.search_prompt', domain: 'sylament-forms')->trans($this->getTranslator());
     }
 
     public function shouldSearchLabels(): bool
@@ -134,7 +136,7 @@ trait CanBeSearchable
 
     public function getSearchingMessage(): string
     {
-        return $this->evaluate($this->searchingMessage) ?? 'Searching...';
+        return (string) $this->translateText($this->evaluate($this->searchingMessage) ?? new TranslatableMessage('components.select.searching_message', domain: 'sylament-forms'));
     }
 
     public function isSearchable(): bool

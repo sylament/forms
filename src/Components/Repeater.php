@@ -33,10 +33,12 @@ use Sylament\Support\Enums\Size;
 use Sylament\Support\Enums\VerticalAlignment;
 use Sylament\Support\Icons\IconManager;
 use Symfony\Component\PropertyAccess\Exception\AccessException;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\Service\Attribute\Required;
+use Symfony\Contracts\Translation\TranslatableInterface;
 use Twig\Markup;
 
 use function Sylament\Forms\array_move_after;
@@ -127,7 +129,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
     protected ?Closure $mutateRelationshipDataBeforeSaveUsing = null;
 
-    protected string|Markup|Closure|null $itemLabel = null;
+    protected string|Markup|TranslatableInterface|Closure|null $itemLabel = null;
 
     protected bool|Closure $hasItemNumbers = false;
 
@@ -145,11 +147,11 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
     protected bool|Closure $isReorderableWithDragAndDrop = true;
 
-    protected string|Closure|null $addActionLabel = null;
+    protected string|TranslatableInterface|Closure|null $addActionLabel = null;
 
-    protected string|Closure|null $addBetweenActionLabel = null;
+    protected string|TranslatableInterface|Closure|null $addBetweenActionLabel = null;
 
-    protected string|Closure|null $labelBetweenItems = null;
+    protected string|TranslatableInterface|Closure|null $labelBetweenItems = null;
 
     /**
      * @var array<TableColumn>|Closure|null
@@ -678,7 +680,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
         return $this;
     }
 
-    public function itemLabel(string|Markup|Closure|null $label): static
+    public function itemLabel(string|Markup|TranslatableInterface|Closure|null $label): static
     {
         $this->itemLabel = $label;
 
@@ -689,7 +691,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     {
         $container = $this->getChildSchema($key);
 
-        return $this->evaluate($this->itemLabel, [
+        return $this->translateText($this->evaluate($this->itemLabel, [
             'container' => $container,
             'index' => $index,
             'item' => $container,
@@ -697,7 +699,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
             'schema' => $container,
             'state' => $container?->getStateSnapshot() ?? [],
             'uuid' => $key,
-        ]);
+        ]));
     }
 
     public function hasItemLabels(): bool
@@ -824,7 +826,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
         return $this->evaluate($this->isReorderableWithDragAndDrop) && $this->isReorderable();
     }
 
-    public function labelBetweenItems(string|Closure|null $label): static
+    public function labelBetweenItems(string|TranslatableInterface|Closure|null $label): static
     {
         $this->labelBetweenItems = $label;
 
@@ -833,7 +835,9 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
     public function getLabelBetweenItems(): ?string
     {
-        return $this->evaluate($this->labelBetweenItems);
+        $label = $this->translateText($this->evaluate($this->labelBetweenItems));
+
+        return $label === null ? null : (string) $label;
     }
 
     /**
@@ -916,7 +920,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
         return 'add';
     }
 
-    public function addActionLabel(string|Closure|null $label): static
+    public function addActionLabel(string|TranslatableInterface|Closure|null $label): static
     {
         $this->addActionLabel = $label;
 
@@ -925,15 +929,15 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
     public function getAddActionLabel(): string
     {
-        $label = $this->evaluate($this->addActionLabel);
+        $label = $this->translateText($this->evaluate($this->addActionLabel));
 
         if ($label !== null) {
-            return $label;
+            return (string) $label;
         }
 
         $componentLabel = u((string) $this->getLabel());
 
-        return 'Add to ' . $componentLabel->slice(0, 1)->lower()->toString() . $componentLabel->slice(1)->toString();
+        return new TranslatableMessage('components.repeater.actions.add.label', ['label' => $componentLabel->slice(0, 1)->lower()->toString() . $componentLabel->slice(1)->toString()], 'sylament-forms')->trans($this->getTranslator());
     }
 
     public function addActionAlignment(Alignment|string|Closure|null $alignment): static
@@ -968,7 +972,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     public function getDeleteAction(): Action
     {
         $action = Action::make($this->getDeleteActionName())
-            ->label('Delete')
+            ->label(new TranslatableMessage('components.repeater.actions.delete.label', domain: 'sylament-forms'))
             ->icon($this->resolveActionIcon(FormsIconAlias::COMPONENTS_REPEATER_ACTIONS_DELETE, 'heroicons:trash-20-solid'))
             ->color('danger')
             ->action(function (array $arguments, Repeater $component): void {
@@ -1003,7 +1007,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     public function getCloneAction(): Action
     {
         $action = Action::make($this->getCloneActionName())
-            ->label('Clone')
+            ->label(new TranslatableMessage('components.repeater.actions.clone.label', domain: 'sylament-forms'))
             ->icon($this->resolveActionIcon(FormsIconAlias::COMPONENTS_REPEATER_ACTIONS_CLONE, 'heroicons:square-2-stack-20-solid'))
             ->color('gray')
             ->action(function (array $arguments, Repeater $component): void {
@@ -1052,7 +1056,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     public function getMoveUpAction(): Action
     {
         $action = Action::make($this->getMoveUpActionName())
-            ->label('Move up')
+            ->label(new TranslatableMessage('components.repeater.actions.move_up.label', domain: 'sylament-forms'))
             ->icon($this->resolveActionIcon(FormsIconAlias::COMPONENTS_REPEATER_ACTIONS_MOVE_UP, 'heroicons:arrow-up-20-solid'))
             ->color('gray')
             ->action(function (array $arguments, Repeater $component): void {
@@ -1084,7 +1088,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     public function getMoveDownAction(): Action
     {
         $action = Action::make($this->getMoveDownActionName())
-            ->label('Move down')
+            ->label(new TranslatableMessage('components.repeater.actions.move_down.label', domain: 'sylament-forms'))
             ->icon($this->resolveActionIcon(FormsIconAlias::COMPONENTS_REPEATER_ACTIONS_MOVE_DOWN, 'heroicons:arrow-down-20-solid'))
             ->color('gray')
             ->action(function (array $arguments, Repeater $component): void {
@@ -1171,7 +1175,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
         return 'addBetween';
     }
 
-    public function addBetweenActionLabel(string|Closure|null $label): static
+    public function addBetweenActionLabel(string|TranslatableInterface|Closure|null $label): static
     {
         $this->addBetweenActionLabel = $label;
 
@@ -1180,13 +1184,13 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
 
     public function getAddBetweenActionLabel(): string
     {
-        return $this->evaluate($this->addBetweenActionLabel) ?? 'Insert between';
+        return (string) $this->translateText($this->evaluate($this->addBetweenActionLabel) ?? new TranslatableMessage('components.repeater.actions.add_between.label', domain: 'sylament-forms'));
     }
 
     public function getReorderAction(): Action
     {
         $action = Action::make($this->getReorderActionName())
-            ->label('Move')
+            ->label(new TranslatableMessage('components.repeater.actions.reorder.label', domain: 'sylament-forms'))
             ->icon($this->resolveActionIcon(FormsIconAlias::COMPONENTS_REPEATER_ACTIONS_REORDER, 'heroicons:arrows-up-down-20-solid'))
             ->color('gray')
             ->action(function (array $arguments, Repeater $component): void {
@@ -1233,7 +1237,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     public function getCollapseAction(): Action
     {
         $action = Action::make($this->getCollapseActionName())
-            ->label('Collapse')
+            ->label(new TranslatableMessage('components.repeater.actions.collapse.label', domain: 'sylament-forms'))
             ->icon($this->resolveActionIcon(FormsIconAlias::COMPONENTS_REPEATER_ACTIONS_COLLAPSE, 'heroicons:chevron-up-20-solid'))
             ->color('gray')
             ->liveComponentClickHandlerEnabled(false)
@@ -1258,7 +1262,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     public function getExpandAction(): Action
     {
         $action = Action::make($this->getExpandActionName())
-            ->label('Expand')
+            ->label(new TranslatableMessage('components.repeater.actions.expand.label', domain: 'sylament-forms'))
             ->icon($this->resolveActionIcon(FormsIconAlias::COMPONENTS_REPEATER_ACTIONS_EXPAND, 'heroicons:chevron-down-20-solid'))
             ->color('gray')
             ->liveComponentClickHandlerEnabled(false)
@@ -1283,7 +1287,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     public function getCollapseAllAction(): Action
     {
         $action = Action::make($this->getCollapseAllActionName())
-            ->label('Collapse all')
+            ->label(new TranslatableMessage('components.repeater.actions.collapse_all.label', domain: 'sylament-forms'))
             ->color('gray')
             ->liveComponentClickHandlerEnabled(false)
             ->link()
@@ -1307,7 +1311,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     public function getExpandAllAction(): Action
     {
         $action = Action::make($this->getExpandAllActionName())
-            ->label('Expand all')
+            ->label(new TranslatableMessage('components.repeater.actions.expand_all.label', domain: 'sylament-forms'))
             ->color('gray')
             ->liveComponentClickHandlerEnabled(false)
             ->link()
