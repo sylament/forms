@@ -1,7 +1,8 @@
 {% set state = component.getOptionComparisonState %}
 {% set stateKeys = (state is iterable ? state : [state])|filter(key => key is not null)|map(key => key ~ '') %}
 {% set isInline = component.isInline %}
-{% set hasErrors = component.getErrorMessages is not empty %}
+{% set accessibilityAttributes = component.getAccessibilityAttributes %}
+{% set isNativelyRequired = component.isMarkedAsRequired and not component.isConcealed %}
 
 {% set gridAttributes = isInline
     ? null
@@ -12,10 +13,13 @@
             {{ attrs({
                 class: ['sy', 'sy-fo-radio', {'sy-inline': isInline}],
                 role: 'radiogroup',
-                'aria-labelledby': component.getId ~ '-label',
-            }, gridAttributes) }}
+                'aria-labelledby': component.getLabel is filled ? component.getId ~ '-label' : null,
+                'aria-required': component.isRequired and not component.isDisabled ? 'true' : null,
+            }, accessibilityAttributes, gridAttributes) }}
     >
         {% for value, label in component.getOptions %}
+            {% set isOptionDisabled = component.isDisabled or component.isOptionDisabled(value, label) %}
+
             <label class="sy-fo-radio-label">
                 <input {{ attrs({
                     type: 'radio',
@@ -25,10 +29,10 @@
                     value: value,
                     checked: stateKeys has some (key => key is same as (value ~ '')),
                     'data-model': component.getDataModel,
-                    'aria-invalid': hasErrors,
-                    disabled: component.isDisabled or component.isOptionDisabled(value, label),
+                    disabled: isOptionDisabled,
+                    required: isNativelyRequired and not isOptionDisabled,
                     autofocus: loop.first and component.isAutofocused,
-                }, component.getExtraInputAttributes) }}>
+                }, accessibilityAttributes, component.getExtraInputAttributes) }}>
 
                 <div class="sy-fo-radio-label-text">
                     <p>{{ label }}</p>

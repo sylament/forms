@@ -5,6 +5,7 @@ components:
                 label: 'Deselect all'
             select_all:
                 label: 'Select all'
+        required_description: 'Select at least one option.'
     file_upload:
         actions:
             download:
@@ -85,6 +86,10 @@ components:
                 label: 'Add row'
             delete:
                 label: 'Delete row'
+            move_down:
+                label: 'Move down'
+            move_up:
+                label: 'Move up'
             reorder:
                 label: 'Reorder row'
         columns:
@@ -97,6 +102,10 @@ components:
                 label: 'Key'
             value:
                 label: 'Value'
+        reordering:
+            moved: '{label} moved to position {position} of {count}'
+            position: '{label}, position {position, number} of {count, number}'
+            row: 'Row'
     radio:
         boolean:
             'false': 'No'
@@ -130,6 +139,10 @@ components:
                 label: 'Actions'
             reorder:
                 label: 'Reorder'
+        reordering:
+            item: 'Item'
+            moved: '{label} moved to position {position} of {count}'
+            position: '{label}, position {position, number} of {count, number}'
     select:
         actions:
             clear:
@@ -160,6 +173,7 @@ components:
         no_options_message: 'No options available.'
         no_search_results_message: 'No options match your search.'
         placeholder: 'Select an option'
+        required_description: 'Select an option.'
         search_label: 'Search'
         search_prompt: 'Start typing to search...'
         searching_message: 'Searching...'
@@ -183,3 +197,4 @@ components:
         boolean:
             'false': 'No'
             'true': 'Yes'
+        required_description: 'Select at least one option.'
