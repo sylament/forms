@@ -11,7 +11,7 @@ use Sylament\Actions\Action;
 use Sylament\Forms\Components\Concerns\BelongsToRelationship;
 use Sylament\Forms\Components\Concerns\CanBeCloned;
 use Sylament\Forms\Components\Concerns\CanGenerateUuids;
-use Sylament\Forms\Components\Concerns\CanLimitItemsLength;
+use Sylament\Forms\Components\Concerns\CanLimitItemsCount;
 use Sylament\Forms\Components\Concerns\HasExtraItemActions;
 use Sylament\Forms\Components\Repeater\TableColumn;
 use Sylament\Forms\Twig\FormsIconAlias;
@@ -19,7 +19,6 @@ use Sylament\Schemas\Components\Component;
 use Sylament\Schemas\Components\Concerns\CanBeCollapsed;
 use Sylament\Schemas\Components\Concerns\CanBeCompact;
 use Sylament\Schemas\Components\Concerns\HasContainerGridLayout;
-use Sylament\Schemas\Components\Contracts\CanConcealComponents;
 use Sylament\Schemas\Components\Contracts\HasExtraItemActions as HasExtraItemActionsContract;
 use Sylament\Schemas\Components\Contracts\HasKeyedItems;
 use Sylament\Schemas\Identity\IdentifierFields;
@@ -46,14 +45,14 @@ use function Sylament\Forms\array_move_before;
 use function Sylament\Support\filled;
 use function Symfony\Component\String\u;
 
-class Repeater extends Field implements CanConcealComponents, HasExtraItemActionsContract, HasKeyedItems
+class Repeater extends Field implements HasExtraItemActionsContract, HasKeyedItems
 {
     use BelongsToRelationship;
     use CanBeCloned;
     use CanBeCollapsed;
     use CanBeCompact;
     use CanGenerateUuids;
-    use CanLimitItemsLength;
+    use CanLimitItemsCount;
     use HasContainerGridLayout;
     use HasExtraItemActions;
     use HasReorderAnimationDuration;
@@ -582,7 +581,7 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     /**
      * @return array<string, mixed>
      */
-    public function getRawItemState(string $key): array
+    public function getItemStateSnapshot(string $key): array
     {
         return $this->getChildSchema($key)?->getStateSnapshot() ?? [];
     }
@@ -864,11 +863,6 @@ class Repeater extends Field implements CanConcealComponents, HasExtraItemAction
     public function isTable(): bool
     {
         return filled($this->getTableColumns());
-    }
-
-    public function canConcealComponents(): bool
-    {
-        return $this->isCollapsible();
     }
 
     public function getTemplate(): ?string
